@@ -1,0 +1,16 @@
+TOPIC
+    Plaster 0.1.0
+
+SHORT DESCRIPTION
+    Plaster provides scaffolding support for various PowerShell files and
+    sets of files such as the files required for a PowerShell module or
+    PowerShell DSC module or DSC resource.
+
+LONG DESCRIPTION
+    Plaster provides scaffolding support for various PowerShell files and
+    sets of files such as the files required for a PowerShell module or
+    PowerShell DSC module or DSC resource.
+
+YOUR HEADER HERE
+    About topics in PowerShell are free-form text.  Add headers to your
+    about topic as necessary.

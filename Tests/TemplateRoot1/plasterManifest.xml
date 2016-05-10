@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest version='0.1.0'>
+    <metadata>
+        <id>Unique-Template-Pkg-Name</id>
+        <!-- For display by UI's in a menu list -->
+        <title>New Module</title>
+        <!-- For display by UI's in hover help -->
+        <description>Plaster template for creating the files for a PowerShell module.</description>
+        <version>0.1.0</version>
+        <tags>Module, ModuleManifest, Build</tags>
+    </metadata>
+    <parameters>
+        <parameter name='ModuleName' type='input' required='true' prompt='Enter the name of the module'/>
+        <parameter name='Version' type='input' default='1.0.0' store='true' prompt='Enter the version number for the module'/>
+        <parameter name='Options' type='multichoice' default='0,1,2' prompt='Select desired options'>
+            <choice label='&amp;Pester test support'
+                    help="Adds Tests directory and a starter Pester Tests file."
+                    value="Pester"/>
+            <choice label='P&amp;Sake build script'
+                    help="Adds a PSake build script that generates the module directory for publishing to the PSGallery."
+                    value="PSake"/>
+            <choice label='&amp;Git'
+                    help="Adds a .gitignore file."
+                    value="Git"/>
+        </parameter>
+        <parameter name='Add-MIT-License' type='choice' default='1' prompt='Do you want to add an MIT license to the project'>
+            <choice label='&amp;Yes'
+                    help="Adds an MIT license file."
+                    value="True"/>
+            <choice label='&amp;No'
+                    help="Does not add a license file."
+                    value="False"/>
+        </parameter>
+    </parameters>
+    <dependencies>
+        <dependency id="another-template-id??"/>
+    </dependencies>
+    <content>
+        <file source='_gitignore'
+              destination='.gitignore'
+              condition='$Parameters.Options -contains "Git"'/>
+        <newModuleManifest destination='$($Parameters.ModuleName).psd1'
+                           moduleVersion='$($Parameters.Version)'
+                           rootModule='$($Parameters.ModuleName).psm1'/>
+        <file source='Module.psm1'
+              destination='$($Parameters.ModuleName).psm1'/>
+        <file source='en-US\about_Module.help.txt'
+              destination='en-US\about_$($Parameters.ModuleName).help.txt'
+              template='true'/>
+        <file source='Build.ps1'
+              destination='Build.ps1'
+              condition='${PLASTER_PARAM_Options} -contains "PSake"'/>
+        <file source='Tests\Module.T.ps1'
+              destination='Tests\$($Parameters.ModuleName).Tests.ps1'
+              template='true'
+              condition='$Parameters.Options -contains "Pester"'/>
+        <!--<file source='Module.psd1' destination='$($Parameters.ModuleName).psd1' encoding='utf8'>
+            <replace pattern="(?&lt;=ModuleVersion\s*=\s*')[^']+(?=')" replacement='$($Parameters.Version)' />
+        </file>-->
+        <!--</directory>-->
+    </content>
+</plasterManifest>
