@@ -1,5 +1,5 @@
 TOPIC
-    <%=$($Parameters.ModuleName)%> <%=$($Parameters.Version)%>
+    <%=$PLASTER_PARAM_ModuleName%> <%=$PLASTER_PARAM_Version%>
 
 SHORT DESCRIPTION
     You should considering providing an introduction and overview of your

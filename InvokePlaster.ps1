@@ -310,7 +310,9 @@ function Invoke-Plaster {
                 if ($operation -ne $LocalizedData.OpConflict) {
                     Copy-Item -LiteralPath $srcPath -Destination $dstPath
                 }
-                elseif ($Force -or $PSCmdlet.ShouldContinue("Overwrite $dstPath", 'Plaster file conflict', [ref]$confirmYesToAll, [ref]$confirmNoToAll)) {
+                elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
+                                                            $LocalizedData.FileConflict,
+                                                            [ref]$confirmYesToAll, [ref]$confirmNoToAll)) {
                     Copy-Item -LiteralPath $srcPath -Destination $dstPath
                 }
             }
@@ -350,8 +352,8 @@ function Invoke-Plaster {
         foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
             if ($node -isnot [System.Xml.XmlElement]) { continue }
             switch ($node.LocalName) {
-                "parameter"  { ProcessParameter $node }
-                default { throw ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
+                'parameter'  { ProcessParameter $node }
+                default      { throw ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
             }
         }
 
@@ -392,16 +394,47 @@ function ExpandString($str) {
     if ($null -eq $str) {
         return ''
     }
-    $ExecutionContext.InvokeCommand.ExpandString($str)
+
+    # There are at least two ways to go to provide "safe" string evaluation with *only* variable
+    # expansion and not arbitrary script execution via subexpressions.  We could a regex to pull
+    # out a variable name e.g. '\$\{(.*?)\}', then use
+    # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
+    # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
+    # of the AST and vet it before using $ExecutionContext.InvokeCommand.ExpandString().
+
+    $sb = [scriptblock]::Create("`"$str`"")
+
+    $endBlockAst = $sb.Ast.EndBlock.Statements[0].PipelineElements[0]
+    if ($endBlockAst -isnot [System.Management.Automation.Language.CommandExpressionAst]) {
+        throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
+    }
+
+    if ($endBlockAst.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
+        $evalStr = $endBlockAst.Expression.Value
+    }
+    elseif ($endBlockAst.Expression -is [System.Management.Automation.Language.ExpandableStringExpressionAst]) {
+        foreach ($nestedExpr in $endBlockAst.Expression.NestedExpressions) {
+            if ($nestedExpr -isnot [System.Management.Automation.Language.VariableExpressionAst]) {
+                throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
+            }
+        }
+
+        $evalStr = $endBlockAst.Expression.Value
+    }
+    else {
+        throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
+    }
+
+    $ExecutionContext.InvokeCommand.ExpandString($evalStr)
 }
 
 function ColorForOperation($operation) {
     switch ($operation) {
+        $LocalizedData.OpConflict  { 'Red' }
         $LocalizedData.OpCreate    { 'Green' }
         $LocalizedData.OpExpand    { 'Green' }
-        $LocalizedData.OpModify    { 'Green' }
         $LocalizedData.OpIdentical { 'Cyan' }
-        $LocalizedData.OpConflict  { 'Red' }
+        $LocalizedData.OpModify    { 'Green' }
         default { $Host.UI.RawUI.ForegroundColor }
     }
 }

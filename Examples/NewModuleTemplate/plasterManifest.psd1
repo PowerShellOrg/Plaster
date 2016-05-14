@@ -4,30 +4,33 @@
         Version = '0.1.0'
         Tags = @('Module', 'Project')
     }
-    Parameters = @{
-        Parameter1 = @{
+    Parameters = @(
+        @{
             Name = 'ModuleName'
             Type = 'string'
             Required = $true
         }
-        Parameter2 = @{
+        @{
             Name = 'ModuleVersion'
             Type = 'string'
             Required = $true
         }
-    }
-    Content = @{
-        File0 = @{
+    )
+    Content = @(
+        @{
+            Type = 'File'
             Source = '_gitignore'
             Destination = '.gitignore'
         }
-        File1 = @{
+        @{
+            Type = 'File'
             Source = 'Moodule.psd1'
             Destination = '$($Parameters.ModuleName).psd1'
         }
-        File2 = @{
+        @{
+            Type = 'File'
             Source = 'Moodule.psm1'
             Destination = '$($Parameters.ModuleName).psm1'
         }
-    }
+    )
 }

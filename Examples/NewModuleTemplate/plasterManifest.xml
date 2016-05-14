@@ -39,23 +39,23 @@
         <file source='_gitignore'
               destination='.gitignore'
               condition='$Parameters.Options -contains "Git"'/>
-        <newModuleManifest destination='$($Parameters.ModuleName).psd1'
-                           moduleVersion='$($Parameters.Version)'
-                           rootModule='$($Parameters.ModuleName).psm1'/>
+        <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
+                           moduleVersion='$PLASTER_PARAM_Version'
+                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='Module.psm1'
-              destination='$($Parameters.ModuleName).psm1'/>
+              destination='${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='en-US\about_Module.help.txt'
-              destination='en-US\about_$($Parameters.ModuleName).help.txt'
+              destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'
               template='true'/>
         <file source='Build.ps1'
               destination='Build.ps1'
-              condition='${PLASTER_PARAM_Options} -contains "PSake"'/>
+              condition='$PLASTER_PARAM_Options -contains "PSake"'/>
         <file source='Tests\Module.T.ps1'
-              destination='Tests\$($Parameters.ModuleName).Tests.ps1'
+              destination='Tests\${PLASTER_PARAM_ModuleName}.Tests.ps1'
               template='true'
-              condition='$Parameters.Options -contains "Pester"'/>
-        <!--<file source='Module.psd1' destination='$($Parameters.ModuleName).psd1' encoding='utf8'>
-            <replace pattern="(?&lt;=ModuleVersion\s*=\s*')[^']+(?=')" replacement='$($Parameters.Version)' />
+              condition='$PLASTER_PARAM_Options -contains "Pester"'/>
+        <!--<file source='Module.psd1' destination='${PLASTER_PARAM_ModuleName}.psd1' encoding='utf8'>
+            <replace pattern="(?&lt;=ModuleVersion\s*=\s*')[^']+(?=')" replacement='$PLASTER_PARAM_Version' />
         </file>-->
         <!--</directory>-->
     </content>

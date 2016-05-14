@@ -1,4 +1,4 @@
-$ModuleManifestName = '<%=$($Parameters.ModuleName)%>.psd1'
+$ModuleManifestName = '<%=$PLASTER_PARAM_ModuleName%>.psd1'
 # <%=${PLASTER_GUID1}%> - testing use of PLASTER predefined variables.
 Import-Module $PSScriptRoot\..\$ModuleManifestName
 
