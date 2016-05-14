@@ -1,5 +1,19 @@
+<#
+.SYNOPSIS
+    Invokes the specified plaster template which will scaffold out a file or set of files.
+.DESCRIPTION
+    Invokes the specified plaster template which will scaffold out a file or set of files.
+.EXAMPLE
+    C:\PS> Invoke-Plaster -TemplatePath NewModule.zip -Destination .\NewModule
+    Explanation of what the example does
+.NOTES
+    General notes
+#>
 function Invoke-Plaster {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessTemplate')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ReplaceContent')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory = $true)]
@@ -24,6 +38,9 @@ function Invoke-Plaster {
             $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
             $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
 
+            # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
+            # which allows the user to provide all required parameters via the command line.
+            # This enables non-interactive use cases.
             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement] -and ($node.LocalName -eq 'parameter')) {
                     continue
@@ -42,35 +59,38 @@ function Invoke-Plaster {
                 $paramAttribute.HelpMessage = $prompt
                 $attributeCollection.Add($paramAttribute)
 
-                switch -regex ($type) {
+                switch ($type) {
                     'input' {
-                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter($name, [string], $attributeCollection)
+                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
+                                     -ArgumentList ($name, [string], $attributeCollection)
+                        break
                     }
 
-                    'choice|multichoice' {
+                    { 'choice','multichoice' -contains $_ } {
                         $choiceNodes = $node.SelectNodes('choice')
                         $setValues = New-Object string[] $choiceNodes.Count
                         $i = 0
+
                         foreach ($choiceNode in $choiceNodes){
                             $setValues[$i++] = ExpandString $choiceNode.value
                         }
-                        # TODO: This isn't working with tab completion - need to look into it.
+
                         $validateSetAttr = New-Object System.Management.Automation.ValidateSetAttribute $setValues
                         $attributeCollection.Add($validateSetAttr)
                         $type = if ($type -eq 'multichoice') { [string[]] } else { [string] }
-                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter($name, $type, $attributeCollection)
+                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
+                                     -ArgumentList ($name, $type, $attributeCollection)
+                        break
                     }
 
-                    default { throw "Unrecognized type $type" }
+                    default { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type,$name) }
                 }
 
-                #expose the name of our parameter
                 $paramDictionary.Add($name, $param)
             }
         }
         catch [System.Exception] {
-            # TODO: Localize string
-            Write-Warning "Error processing dynamic parameters from $manifestPath"
+            Write-Warning ($LocalizedData.ErrorProcessingDynamicParams_F1 -f $_)
         }
 
         $paramDictionary
@@ -336,7 +356,8 @@ function Invoke-Plaster {
         }
 
         Write-Verbose "Parameters are:"
-        Write-Verbose "$($parameters | Out-String)"
+#        Write-Verbose "$($parameters | Out-String)"
+        Write-Verbose "$(Get-Variable -Name PLASTER_* | Out-String)"
 
         # Process content
         foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
