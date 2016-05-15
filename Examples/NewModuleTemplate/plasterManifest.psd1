@@ -1,3 +1,5 @@
+# This is a sample of what a Plaster manifest might look like as nested hashtables.
+# But there is no schema capability for hashtables.
 @{
     Metadata = @{
         Name = 'New Module Project'
