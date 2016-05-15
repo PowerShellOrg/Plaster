@@ -17,7 +17,7 @@ OverwriteFile_F1=Overwrite {0}
 ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
 ShouldProcessCreateDir=Create directory
 ShouldProcessGenerateModuleManifest=Generating a new module manifest
-ShouldProcessReplaceContent_F2=Replace '{0}' with '{1}'
+ShouldProcessModifyContent=Modifying file
 ShouldProcessTemplateFile=Processing template file
 SubsitutionExpressionInvalid_F1=The substitution expression '{0}' is not supported.  Only string constants and string constants with variable expressions are supported.
 UnrecognizedAttribute_F2=Unrecognized manifest attribute {0} on element {1}.

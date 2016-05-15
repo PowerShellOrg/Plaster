@@ -13,7 +13,7 @@ function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessTemplate')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ReplaceContent')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyContent')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory = $true)]
@@ -213,9 +213,8 @@ function Invoke-Plaster {
                 }
             }
 
-            # TOOD: PICK ONE APPROACH
+            # Make user defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
             Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script
-            $parameters[$name] = $value
         }
 
         function AreFilesIdentical($Path1, $Path2) {
@@ -246,11 +245,11 @@ function Invoke-Plaster {
             }
         }
 
-        function ReplaceContent([string]$Path, $Content, [ValidateNotNull()]$ReplaceNode) {
+        function ModifyContent([string]$Path, $Content, [ValidateNotNull()]$ReplaceNode) {
             $pattern = ExpandString $ReplaceNode.pattern
             $replacement = ExpandString $ReplaceNode.replacement
 
-            if ($PSCmdlet.ShouldProcess($Path, ($LocalizedData.ShouldProcessReplaceContent_F2 -f $pattern, $replacement))) {
+            if ($PSCmdlet.ShouldProcess($Path, ($LocalizedData.ShouldProcessModifyContent_F2 -f $pattern, $replacement))) {
                 if ($null -eq $Content) {
                     $Content = Get-Content $Path -Raw
                 }
@@ -273,6 +272,44 @@ function Invoke-Plaster {
             }
         }
 
+        function ModifyFile([ValidateNotNull()]$ModifyNode) {
+            $path = ExpandString $ModifyNode.path
+            $encoding = ExpandString $ModifyNode.encoding
+            if (!$encoding) {
+                $encoding = $DefaultEncoding
+            }
+
+            $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
+            $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+
+            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.ShouldProcessModifyContent)) {
+                WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $filePath)
+
+                $modified = $false
+
+                foreach ($node in $ModifyNode.ChildNodes) {
+                    if ($node -isnot [System.Xml.XmlElement]) { continue }
+
+                    switch ($node.LocalName) {
+                        'replacement' {
+                            # TODO: Support expand on pattern / replacement string needs some thinking - might need to escape double quotes.
+                            $pattern = $node.pattern # ExpandString $node.pattern
+                            $replacement = $node.InnerText # ExpandString $node.InnerText
+
+                            $PLASTER_FileContent = $PLASTER_FileContent -replace $pattern,$replacement
+
+                            $modified = $true
+                        }
+                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                    }
+                }
+
+                if ($modified) {
+                    Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
+                }
+            }
+        }
+
         function ProcessFile([ValidateNotNull()]$FileNode) {
             $srcRelPath = ExpandString $FileNode.source
             $dstRelPath = ExpandString $FileNode.destination
@@ -280,11 +317,11 @@ function Invoke-Plaster {
             $isTemplate = $FileNode.template -eq 'true'
 
             if (!$encoding) {
-                $encoding = "unicode"
+                $encoding = $DefaultEncoding
             }
 
-            $srcPath = Join-Path $TemplatePath $srcRelPath
-            $dstPath = Join-Path $DestinationPath $dstRelPath
+            $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
+            $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             # If the file's parent dir doesn't exist, create it.
             $parentDir = Split-Path $dstPath -Parent
@@ -311,8 +348,8 @@ function Invoke-Plaster {
                     Copy-Item -LiteralPath $srcPath -Destination $dstPath
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
-                                                            $LocalizedData.FileConflict,
-                                                            [ref]$confirmYesToAll, [ref]$confirmNoToAll)) {
+                                                             $LocalizedData.FileConflict,
+                                                             [ref]$confirmYesToAll, [ref]$confirmNoToAll)) {
                     Copy-Item -LiteralPath $srcPath -Destination $dstPath
                 }
             }
@@ -321,26 +358,6 @@ function Invoke-Plaster {
             if ($isTemplate) {
                 WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
                 ProcessTemplate $dstPath $encoding
-            }
-
-            # Process individual file operations post copy
-            $content = $null
-            $replaced = $false
-            foreach ($node in $FileNode.ChildNodes) {
-                if ($node -isnot [System.Xml.XmlElement]) { continue }
-
-                switch ($node.LocalName) {
-                    'replace' {
-                        $content = ReplaceContent $dstPath $content $node
-                        $replaced = $true
-                    }
-                    default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
-                }
-            }
-
-            if ($replaced -and $PSCmdlet.ShouldProcess($dstPath, "Modifying file")) {
-                WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $dstPath)
-                Set-Content -Path $dstPath -Value $content -Encoding $encoding
             }
         }
     }
@@ -364,14 +381,12 @@ function Invoke-Plaster {
         # Process content
         foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
             if ($node -isnot [System.Xml.XmlElement]) { continue }
+
             switch ($node.LocalName) {
-                'file' {
-                    ProcessFile $node
-                }
-                'newModuleManifest' {
-                    GenerateModuleManifest $node
-                }
-                default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                'file'              { ProcessFile $node; break }
+                'modify'            { ModifyFile $node; break }
+                'newModuleManifest' { GenerateModuleManifest $node; break }
+                default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
             }
         }
     }
@@ -443,16 +458,21 @@ function WriteOperationStatus($operation, $message) {
     $maxLen = ($LocalizedData.OpCreate, $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpExpand,
                $LocalizedData.OpModify | Measure-Object -Property Length -Maximum).Maximum
-    Write-Host ("{0,$maxLen}" -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
-    Write-Host " $message"
+
+    Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
+    Write-Host $message
 }
 
 function ConvertToDestinationRelativePath($Path) {
-    $fullDestPath = [System.IO.Path]::GetFullPath($DestinationPath)
-    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $fullDestPath = $DestinationPath
+    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
+        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+    }
+
+    $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
     if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
         throw "$Path must contain $fullDestPath"
     }
 
-    $fullPath.Substring($fullDestPath.Length)
+    $fullPath.Substring($fullDestPath.Length + 1)
 }

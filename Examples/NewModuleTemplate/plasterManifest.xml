@@ -36,9 +36,6 @@
         <dependency id="another-template-id??"/>
     </dependencies>
     <content>
-        <file source='_gitignore'
-              destination='.gitignore'
-              condition='$Parameters.Options -contains "Git"'/>
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'/>
@@ -47,6 +44,9 @@
         <file source='en-US\about_Module.help.txt'
               destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'
               template='true'/>
+        <file source='_gitignore'
+              destination='.gitignore'
+              condition='$PLASTER_PARAM_Options -contains "Git"'/>
         <file source='Build.ps1'
               destination='Build.ps1'
               condition='$PLASTER_PARAM_Options -contains "PSake"'/>
@@ -54,9 +54,41 @@
               destination='Tests\${PLASTER_PARAM_ModuleName}.Tests.ps1'
               template='true'
               condition='$PLASTER_PARAM_Options -contains "Pester"'/>
-        <!--<file source='Module.psd1' destination='${PLASTER_PARAM_ModuleName}.psd1' encoding='utf8'>
-            <replace pattern="(?&lt;=ModuleVersion\s*=\s*')[^']+(?=')" replacement='$PLASTER_PARAM_Version' />
-        </file>-->
-        <!--</directory>-->
+        <file source='tasks.json'
+              destination='.vscode\tasks.json'/>
+        <modify path='.vscode\tasks.json'
+                encoding='utf8'
+                condition='$PLASTER_PARAM_Options -contains "VSCode" -and $PLASTER_PARAM_Options -contains "Pester" -and $PLASTER_FileContent -notmatch "taskName`":\s*`"Test`""'>
+            <replacement pattern='(?si)(?&lt;="tasks":\s*\[)(\s*)(?=\{)'>
+            <![CDATA[$1{
+            "taskName": "Test",
+            "suppressTaskName": true,
+            "isTestCommand": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
+            ],
+            "problemMatcher": [
+                {
+                    "owner": "powershell",
+                    "fileLocation": ["absolute"],
+                    "severity": "error",
+                    "pattern": [
+                        {
+                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
+                            "message": 1
+                        },
+                        {
+                            "regexp": "^\\s+at\\s+[^,]+,\\s*(.*?):\\s+line\\s+(\\d+)$",
+                            "file": 1,
+                            "line": 2
+                        }
+                    ]
+                }
+            ]
+        },$1]]>
+            </replacement>
+        </modify>
     </content>
 </plasterManifest>
