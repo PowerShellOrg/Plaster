@@ -237,6 +237,8 @@ function Invoke-Plaster {
             # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
             if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
+                $content = Get-Content -LiteralPath $dstPath -Raw
+                Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8
             }
         }
 
