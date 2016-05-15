@@ -14,8 +14,19 @@ run the Invoke-Plaster command a second time, you see Plaster's file conflict ha
 the `-Force` parameter to automatically overwrite existing files.
 
 You can bypass the interactive prompting by providing the necessary parameters directly to Invoke-Plaster as
-demonstrated below.  Note that you will get autocompletion support for template parameters as they are added
+demonstrated below.  Note: you will get autocompletion support for template parameters as they are added
 as dynamic parameters to Invoke-Plaster.
 ```powershell
-Invoke-Plaster -TemplatePath . -Destination ..\Out -ModuleName FooUtils -Version 1.1.0 -Options Git,PSake,Pester -Add-MIT-License False
+$PlasterParams = @{
+    TemplatePath = $PWD
+    Destination = '..\Out'
+    ModuleName = 'FooUtils'
+    FullName = 'John Q. Doe'
+    Version = '1.2.0'
+    Options = 'Git','PSake','Pester'
+    Editor = 'VSCode'
+    License = 'MIT'
+}
+
+Invoke-Plaster @PlasterParams -Force
 ```

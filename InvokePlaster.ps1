@@ -217,6 +217,29 @@ function Invoke-Plaster {
             Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script
         }
 
+        function GenerateModuleManifest([ValidateNotNull()]$NewModuleManifestNode) {
+            $moduleVersion = ExpandString $NewModuleManifestNode.moduleVersion
+            $rootModule = ExpandString $NewModuleManifestNode.rootModule
+            $author = ExpandString $NewModuleManifestNode.author
+            $dstRelPath = ExpandString $NewModuleManifestNode.destination
+            $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
+
+            $condition  = $FileNode.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    Write-Verbose "Skipping module manifest generation for '$dstPath', condition evaluated to false."
+                    return
+                }
+            }
+
+            # TODO: This generates a file and as such should participate in file
+            # conflict resolution. I think we should gen the file here and then
+            # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
+            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
+                New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
+            }
+        }
+
         function AreFilesIdentical($Path1, $Path2) {
             $file1 = Get-Item -LiteralPath $Path1
             $file2 = Get-Item -LiteralPath $Path2
@@ -229,32 +252,6 @@ function Invoke-Plaster {
             $hash2 = (Get-FileHash -LiteralPath $path2 -Algorithm SHA1).Hash
 
             $hash1 -eq $hash2
-        }
-
-        function GenerateModuleManifest([ValidateNotNull()]$NewModuleManifestNode) {
-            $moduleVersion = ExpandString $NewModuleManifestNode.moduleVersion
-            $rootModule = ExpandString $NewModuleManifestNode.rootModule
-            $dstRelPath = ExpandString $NewModuleManifestNode.destination
-            $dstPath = Join-Path $DestinationPath $dstRelPath
-
-            # TODO: This generates a file and as such should participate in file
-            # conflict resolution. I think we should gen the file here and then
-            # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
-            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
-                New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule
-            }
-        }
-
-        function ModifyContent([string]$Path, $Content, [ValidateNotNull()]$ReplaceNode) {
-            $pattern = ExpandString $ReplaceNode.pattern
-            $replacement = ExpandString $ReplaceNode.replacement
-
-            if ($PSCmdlet.ShouldProcess($Path, ($LocalizedData.ShouldProcessModifyContent_F2 -f $pattern, $replacement))) {
-                if ($null -eq $Content) {
-                    $Content = Get-Content $Path -Raw
-                }
-                $Content -replace $pattern,$replacement
-            }
         }
 
         function ProcessTemplate([string]$Path, $encoding) {
@@ -272,47 +269,17 @@ function Invoke-Plaster {
             }
         }
 
-        function ModifyFile([ValidateNotNull()]$ModifyNode) {
-            $path = ExpandString $ModifyNode.path
-            $encoding = ExpandString $ModifyNode.encoding
-            if (!$encoding) {
-                $encoding = $DefaultEncoding
-            }
-
-            $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
-            $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
-
-            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.ShouldProcessModifyContent)) {
-                WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $filePath)
-
-                $modified = $false
-
-                foreach ($node in $ModifyNode.ChildNodes) {
-                    if ($node -isnot [System.Xml.XmlElement]) { continue }
-
-                    switch ($node.LocalName) {
-                        'replacement' {
-                            # TODO: Support expand on pattern / replacement string needs some thinking - might need to escape double quotes.
-                            $pattern = $node.pattern # ExpandString $node.pattern
-                            $replacement = $node.InnerText # ExpandString $node.InnerText
-
-                            $PLASTER_FileContent = $PLASTER_FileContent -replace $pattern,$replacement
-
-                            $modified = $true
-                        }
-                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
-                    }
-                }
-
-                if ($modified) {
-                    Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
-                }
-            }
-        }
-
         function ProcessFile([ValidateNotNull()]$FileNode) {
             $srcRelPath = ExpandString $FileNode.source
             $dstRelPath = ExpandString $FileNode.destination
+            $condition  = $FileNode.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    Write-Verbose "Skipping file '$dstRelPath', condition evaluated to false."
+                    return
+                }
+            }
+
             $encoding = ExpandString $FileNode.encoding
             $isTemplate = $FileNode.template -eq 'true'
 
@@ -360,6 +327,52 @@ function Invoke-Plaster {
                 ProcessTemplate $dstPath $encoding
             }
         }
+
+        function ModifyFile([ValidateNotNull()]$ModifyNode) {
+            $path = ExpandString $ModifyNode.path
+            $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
+            $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+
+            $condition  = $ModifyNode.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    Write-Verbose "Skipping file modify on '$path', condition evaluated to false."
+                    return
+                }
+            }
+
+            $encoding = ExpandString $ModifyNode.encoding
+            if (!$encoding) {
+                $encoding = $DefaultEncoding
+            }
+
+            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.ShouldProcessModifyContent)) {
+                WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $filePath)
+
+                $modified = $false
+
+                foreach ($node in $ModifyNode.ChildNodes) {
+                    if ($node -isnot [System.Xml.XmlElement]) { continue }
+
+                    switch ($node.LocalName) {
+                        'replacement' {
+                            # TODO: Support expand on pattern / replacement string needs some thinking - might need to escape double quotes.
+                            $pattern = $node.pattern # ExpandString $node.pattern
+                            $replacement = $node.InnerText # ExpandString $node.InnerText
+
+                            $PLASTER_FileContent = $PLASTER_FileContent -replace $pattern,$replacement
+
+                            $modified = $true
+                        }
+                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                    }
+                }
+
+                if ($modified) {
+                    Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
+                }
+            }
+        }
     }
 
     end {
@@ -405,6 +418,15 @@ function InitializePredefinedVariables {
     Set-Variable -Name PLASTER_YEAR -Value ($now.Year) -Scope Script
 }
 
+function GetAttributeValue([System.Xml.XmlElement]$node, [string]$attributeName, $defaultValue) {
+    if ($node.Attributes[$attributeName]) {
+        $node.Attributes[$attributeName].Value
+    }
+    else {
+        $defaultValue
+    }
+}
+
 function ExpandString($str) {
     if ($null -eq $str) {
         return ''
@@ -443,6 +465,27 @@ function ExpandString($str) {
     $ExecutionContext.InvokeCommand.ExpandString($evalStr)
 }
 
+function EvaluateCondition([string]$expr) {
+    # TODO: Yeah, this is *not* a safe eval function - yet.
+
+    $sb = [scriptblock]::Create($expr)
+    [bool]$sb.Invoke()
+}
+
+function ConvertToDestinationRelativePath($Path) {
+    $fullDestPath = $DestinationPath
+    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
+        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+    }
+
+    $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+    if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
+        throw "$Path must contain $fullDestPath"
+    }
+
+    $fullPath.Substring($fullDestPath.Length + 1)
+}
+
 function ColorForOperation($operation) {
     switch ($operation) {
         $LocalizedData.OpConflict  { 'Red' }
@@ -461,18 +504,4 @@ function WriteOperationStatus($operation, $message) {
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
-}
-
-function ConvertToDestinationRelativePath($Path) {
-    $fullDestPath = $DestinationPath
-    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
-        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-    }
-
-    $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-    if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
-        throw "$Path must contain $fullDestPath"
-    }
-
-    $fullPath.Substring($fullDestPath.Length + 1)
 }

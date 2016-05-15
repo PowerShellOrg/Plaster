@@ -12,6 +12,7 @@
     <parameters>
         <parameter name='ModuleName' type='input' required='true' prompt='Enter the name of the module'/>
         <parameter name='Version' type='input' default='1.0.0' store='true' prompt='Enter the version number for the module'/>
+        <parameter name='FullName' type='input' required='true' prompt='Enter your fullname'/>
         <parameter name='Options' type='multichoice' default='0,1,2' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
@@ -23,13 +24,27 @@
                     help="Adds a .gitignore file."
                     value="Git"/>
         </parameter>
-        <parameter name='Add-MIT-License' type='choice' default='1' prompt='Do you want to add an MIT license to the project'>
-            <choice label='&amp;Yes'
+        <parameter name='Editor' type='choice' default='2' prompt='Which editor do you use'>
+            <choice label='&amp;ISE'
+                    help="Your editor is PowerShell ISE."
+                    value="ISE"/>
+            <choice label='&amp;Visual Studio Code'
+                    help="Your editor is Visual Studio Code."
+                    value="VSCode"/>
+            <choice label='&amp;None'
+                    help="No editor specified."
+                    value="None"/>
+        </parameter>
+        <parameter name='License' type='choice' default='2' prompt='Select a license for your module'>
+            <choice label='&amp;Apache'
+                    help="Adds an Apache license file."
+                    value="Apache"/>
+            <choice label='&amp;MIT'
                     help="Adds an MIT license file."
-                    value="True"/>
-            <choice label='&amp;No'
-                    help="Does not add a license file."
-                    value="False"/>
+                    value="MIT"/>
+            <choice label='&amp;None'
+                    help="No license specified."
+                    value="None"/>
         </parameter>
     </parameters>
     <dependencies>
@@ -38,27 +53,37 @@
     <content>
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
-                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'/>
+                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+                           author='$PLASTER_PARAM_FullName'/>
         <file source='Module.psm1'
               destination='${PLASTER_PARAM_ModuleName}.psm1'/>
-        <file source='en-US\about_Module.help.txt'
-              destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'
-              template='true'/>
         <file source='_gitignore'
               destination='.gitignore'
               condition='$PLASTER_PARAM_Options -contains "Git"'/>
+        <file source='ApacheLicense.txt'
+              destination='LICENSE.txt'
+              template='true'
+              condition="$PLASTER_PARAM_License -eq 'Apache'"/>
+        <file source='MITLicense.txt'
+              destination='LICENSE.txt'
+              template='true'
+              condition="$PLASTER_PARAM_License -eq 'MIT'"/>
         <file source='Build.ps1'
               destination='Build.ps1'
               condition='$PLASTER_PARAM_Options -contains "PSake"'/>
+        <file source='en-US\about_Module.help.txt'
+              destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'
+              template='true'/>
         <file source='Tests\Module.T.ps1'
               destination='Tests\${PLASTER_PARAM_ModuleName}.Tests.ps1'
               template='true'
-              condition='$PLASTER_PARAM_Options -contains "Pester"'/>
+              condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
         <file source='tasks.json'
-              destination='.vscode\tasks.json'/>
+              destination='.vscode\tasks.json'
+              condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
         <modify path='.vscode\tasks.json'
                 encoding='utf8'
-                condition='$PLASTER_PARAM_Options -contains "VSCode" -and $PLASTER_PARAM_Options -contains "Pester" -and $PLASTER_FileContent -notmatch "taskName`":\s*`"Test`""'>
+                condition="$PLASTER_PARAM_Editor -eq 'VSCode' -and $PLASTER_PARAM_Options -contains 'Pester' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Test&quot;'">
             <replacement pattern='(?si)(?&lt;="tasks":\s*\[)(\s*)(?=\{)'>
             <![CDATA[$1{
             "taskName": "Test",
