@@ -236,6 +236,13 @@ function Invoke-Plaster {
             # conflict resolution. I think we should gen the file here and then
             # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
             if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
+                $manifestDir = Split-Path $dstPath -Parent
+                if (!(Test-Path $manifestDir)) {
+                    # TODO: Create a function for this that tests that the directory is under
+                    #       the destination directory.
+                    Write-Verbose "Creating destination dir for module manifest: $manifestDir"
+                    New-Item $manifestDir -ItemType Directory > $null
+                }
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
                 Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8
