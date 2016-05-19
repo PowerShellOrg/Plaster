@@ -35,10 +35,12 @@ function Invoke-Plaster {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
 
         try {
-            if($manifestPath) {
-
-             $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
-             $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
+            if($manifestPath -and 
+                ($manifestPath = Join-Path $TemplatePath 'plasterManifest.xml') -and
+                (Test-path $manifestPath)
+              ) {
+             
+             $manifest = [xml](Get-Content $manifestPath.Path)
 
              # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
              # which allows the user to provide all required parameters via the command line.
