@@ -35,13 +35,15 @@ function Invoke-Plaster {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
 
         try {
-            $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
-            $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
+            if($manifestPath) {
 
-            # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
-            # which allows the user to provide all required parameters via the command line.
-            # This enables non-interactive use cases.
-            foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
+             $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
+             $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
+
+             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
+             # which allows the user to provide all required parameters via the command line.
+             # This enables non-interactive use cases.
+             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement] -and ($node.LocalName -eq 'parameter')) {
                     continue
                 }
@@ -87,6 +89,7 @@ function Invoke-Plaster {
                 }
 
                 $paramDictionary.Add($name, $param)
+             }
             }
         }
         catch [System.Exception] {
@@ -94,6 +97,7 @@ function Invoke-Plaster {
         }
 
         $paramDictionary
+        
     }
 
     begin {
