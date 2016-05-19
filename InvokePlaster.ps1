@@ -35,6 +35,12 @@ function Invoke-Plaster {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
 
         try {
+            if ((!$TemplatePath -or
+                !($manifestPath = Join-Path $TemplatePath 'plasterManifest.xml') -or
+                !(Test-path $manifestPath))
+            ) {
+                return
+            }
             $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
             $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
 
