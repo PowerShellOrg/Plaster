@@ -16,16 +16,20 @@ function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyContent')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
+        # Specifies the path to either the Template directory or a ZIP file containing the template.
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
 
+        # Specifies the path to directory in which the template will use as a root directory when generating files.
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $DestinationPath,
 
+        # Specify Force to override user prompts for conflicting handling.  This will override the confirmation
+        # prompt and allow the template to over write existing files.
         [Parameter()]
         [switch]
         $Force
@@ -33,15 +37,29 @@ function Invoke-Plaster {
 
     dynamicparam {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $origTemplatePath = $DestinationPath
+        $manifest = $null
+        $manifestPath = $null
+
+        # Can't process dynamic parameters if we have no TemplatePath
+        if ($null -eq $TemplatePath) {
+            return
+        }
 
         try {
-            if ((!$TemplatePath -or
-                !($manifestPath = Join-Path $TemplatePath 'plasterManifest.xml') -or
-                !(Test-path $manifestPath))
-            ) {
+            # If TemplatePath is a zipped template, extract the template to a temp dir and use that path
+            $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
+
+            $manifestPath = Join-Path $TemplatePath plasterManifest.xml
+            if ($null -eq $manifestPath) {
                 return
             }
-            $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
+
+            $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
+            if (!(Test-Path $manifestPath)) {
+                return
+            }
+
             $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
@@ -96,40 +114,46 @@ function Invoke-Plaster {
             }
         }
         catch [System.Exception] {
-            Write-Warning ($LocalizedData.ErrorProcessingDynamicParams_F1 -f $_)
+            Write-Verbose ($LocalizedData.ErrorProcessingDynamicParams_F1 -f $_)
         }
 
         $paramDictionary
     }
 
     begin {
-        $parameters = @{}
         $boundParameters = $PSBoundParameters
         $confirmYesToAll = $false
         $confirmNoToAll = $false
 
         InitializePredefinedVariables
 
-        function GetManifest() {
-            $manifestPath = Join-Path $TemplatePath 'plasterManifest.xml'
-            if (!(Test-Path $manifestPath)) {
+        # If user does not supply the TemplatePath parameter, the dynamicparam scriptblock bails early without
+        # loading anything.  So get the manifestPath here.
+        if ($null -eq $manifestPath) {
+            $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
+            $manifestPath = Join-Path $TemplatePath plasterManifest.xml
+            $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
+        }
+
+        # Validate that the dynamicparam scriptblock was able to load the template manifest and it is valid.
+        if ($null -eq $manifest) {
+            if (Test-Path $manifestPath) {
+                try {
+                    # We have a valid path, try again and if successful - validate it.
+                    $manifest = [xml](Get-Content $manifestPath)
+                    Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
+                }
+                catch {
+                    throw ($LocalizedData.ManifestNotValidXml_F1 -f $manifestPath)
+                }
+            }
+            else {
+                # TODO: Localize string
                 throw "Missing manifest file: '$manifestPath'"
             }
-
-            Plaster\Test-PlasterManifest -LiteralPath $manifestPath -ErrorAction Stop
-
-            # TODO: This is redundant.  Test-PlasterManifest already loads the manifest.
-            # If it returned the manifest, then we wouldn't need to load it again here.
-            # That said, I don't want to have Test-PlasterManifest does this *just* to
-            # eliminate the next six lines of script.
-            try {
-                $manifest = [xml](Get-Content $manifestPath)
-            }
-            catch {
-                throw ($LocalizedData.ManifestNotValidXml_F1 -f $manifestPath)
-            }
-
-            $manifest
+        }
+        else {
+            Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
         }
 
         function PromptForInput($prompt, $default) {
@@ -391,8 +415,6 @@ function Invoke-Plaster {
     }
 
     end {
-        $manifest = GetManifest
-
         # Process parameters
         foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
             if ($node -isnot [System.Xml.XmlElement]) { continue }
@@ -431,15 +453,6 @@ function InitializePredefinedVariables {
     Set-Variable -Name PLASTER_DATE -Value ($now.ToShortDateString()) -Scope Script
     Set-Variable -Name PLASTER_TIME -Value ($now.ToShortTimeString()) -Scope Script
     Set-Variable -Name PLASTER_YEAR -Value ($now.Year) -Scope Script
-}
-
-function GetAttributeValue([System.Xml.XmlElement]$node, [string]$attributeName, $defaultValue) {
-    if ($node.Attributes[$attributeName]) {
-        $node.Attributes[$attributeName].Value
-    }
-    else {
-        $defaultValue
-    }
 }
 
 function ExpandString($str) {
@@ -498,7 +511,7 @@ function ConvertToDestinationRelativePath($Path) {
         throw "$Path must contain $fullDestPath"
     }
 
-    $fullPath.Substring($fullDestPath.Length + 1)
+    $fullPath.Substring($fullDestPath.Length)
 }
 
 function ColorForOperation($operation) {

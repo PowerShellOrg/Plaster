@@ -29,8 +29,28 @@ data LocalizedData
 
 Import-LocalizedData LocalizedData -FileName PlasterResources
 
+# Module variables
 $DefaultEncoding = 'utf8'
 
+# Shared, private helper functions
+function ExtractTemplateAndReturnPath([string]$TemplatePath) {
+    $item = Get-Item -LiteralPath $TemplatePath
+
+    if ($item.Attributes -band [System.IO.FileAttributes]::Directory) {
+        $item.FullName
+    }
+    else {
+        do {
+            $tempPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
+        } while (Test-Path -LiteralPath $tempPath)
+
+        [void](New-Item $tempPath -ItemType Directory)
+        [void](Microsoft.PowerShell.Archive\Expand-Archive -LiteralPath $TemplatePath -DestinationPath $tempPath)
+        $tempPath
+    }
+}
+
+# Dot source the module command scripts
 . $PSScriptRoot\TestPlasterManifest.ps1
 . $PSScriptRoot\InvokePlaster.ps1
 

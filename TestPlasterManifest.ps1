@@ -29,7 +29,7 @@ function Test-PlasterManifest {
         # Specifies a path to one or more locations. Wildcards are permitted.
         [Parameter(Mandatory=$true,
                    Position=0,
-                   ParameterSetName="Path",
+                   ParameterSetName='Path',
                    ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true,
                    HelpMessage="Path to one or more locations.")]
@@ -44,13 +44,20 @@ function Test-PlasterManifest {
         # characters as escape sequences.
         [Parameter(Mandatory=$true,
                    Position=0,
-                   ParameterSetName="LiteralPath",
+                   ParameterSetName='LiteralPath',
                    ValueFromPipelineByPropertyName=$true,
                    HelpMessage="Literal path to one or more locations.")]
         [Alias("PSPath")]
         [ValidateNotNullOrEmpty()]
         [string[]]
-        $LiteralPath
+        $LiteralPath,
+
+        [Parameter(Mandatory=$true,
+                   ParameterSetName='InputObject',
+                   ValueFromPipeline=$true)]
+        [ValidateNotNull()]
+        [System.Xml.XmlDocument]
+        $InputObject
     )
 
     process {
@@ -67,10 +74,10 @@ function Test-PlasterManifest {
 
                 # Resolve any wildcards that might be in the path
                 $provider = $null
-                $paths += $psCmdlet.SessionState.Path.GetResolvedProviderPathFromPSPath($aPath, [ref]$provider)
+                $objs += $psCmdlet.SessionState.Path.GetResolvedProviderPathFromPSPath($aPath, [ref]$provider)
             }
         }
-        else {
+        elseif ($psCmdlet.ParameterSetName -eq 'LiteralPath') {
             foreach ($aPath in $LiteralPath) {
                 if (!(Test-Path -LiteralPath $aPath)) {
                     $ex = New-Object System.Management.Automation.ItemNotFoundException "Cannot find path '$aPath' because it does not exist."
@@ -81,27 +88,35 @@ function Test-PlasterManifest {
                 }
 
                 # Resolve any relative paths
-                $paths += $psCmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath($aPath)
+                $objs += $psCmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath($aPath)
             }
+        }
+        else {
+            $objs = $InputObject
         }
 
         # Process each path
-        foreach ($aPath in $paths) {
-            $filename = Split-Path $aPath -Leaf
-            $valid = $true
-
-            if ($filename -ne 'plasterManifest.xml') {
-                Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $aPath)
-                $valid = $false
+        foreach ($obj in $objs) {
+            if ($psCmdlet.ParameterSetName -eq 'InputObject') {
+                $manifest = $obj
             }
+            else {
+                $filename = Split-Path $obj -Leaf
+                $valid = $true
 
-            try {
-                $manifest = [xml](Get-Content $aPath)
-            }
-            catch {
-                Write-Error ($LocalizedData.ManifestNotValidXml_F1 -f $aPath)
-                $false
-                continue
+                if ($filename -ne 'plasterManifest.xml') {
+                    Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $obj)
+                    $valid = $false
+                }
+
+                try {
+                    $manifest = [xml](Get-Content $obj)
+                }
+                catch {
+                    Write-Error ($LocalizedData.ManifestNotValidXml_F1 -f $obj)
+                    $false
+                    continue
+                }
             }
 
             # Validate the required elements of the manifest are present
