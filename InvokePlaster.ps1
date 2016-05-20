@@ -370,7 +370,11 @@ function Invoke-Plaster {
         function ModifyFile([ValidateNotNull()]$ModifyNode) {
             $path = ExpandString $ModifyNode.path
             $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
-            $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+
+            $PLASTER_FileContent = ''
+            if (Test-Path $filePath) {
+                $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+            }
 
             $condition  = $ModifyNode.condition
             if ($condition) {
@@ -497,7 +501,8 @@ function EvaluateCondition([string]$expr) {
     # TODO: Yeah, this is *not* a safe eval function - yet.
 
     $sb = [scriptblock]::Create($expr)
-    [bool]$sb.Invoke()
+    $res = $sb.Invoke()
+    [bool]$res
 }
 
 function ConvertToDestinationRelativePath($Path) {
@@ -511,7 +516,7 @@ function ConvertToDestinationRelativePath($Path) {
         throw "$Path must contain $fullDestPath"
     }
 
-    $fullPath.Substring($fullDestPath.Length)
+    $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
 }
 
 function ColorForOperation($operation) {
