@@ -1,3 +1,4 @@
+*.zip
 Examples/Out/*
 Release/
 Tests/Out/*
