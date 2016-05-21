@@ -23,12 +23,15 @@
             <choice label='&amp;Git'
                     help="Adds a .gitignore file."
                     value="Git"/>
+            <choice label='&amp;None'
+                    help="No options specified."
+                    value="None"/>
         </parameter>
         <parameter name='Editor' type='choice' default='2' prompt='Which editor do you use'>
             <choice label='&amp;ISE'
                     help="Your editor is PowerShell ISE."
                     value="ISE"/>
-            <choice label='&amp;Visual Studio Code'
+            <choice label='Visual Studio &amp;Code'
                     help="Your editor is Visual Studio Code."
                     value="VSCode"/>
             <choice label='&amp;None'

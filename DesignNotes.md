@@ -98,7 +98,31 @@ the PlasterManifest file.  For instance, given these parameters:
     <parameters>
         <parameter name='ModuleName' required='true' prompt='Enter the name of the module'/>
         <parameter name='Version' default='1.0.0' store='true' prompt='Enter the version number for the module'/>
-        <parameter name='CreateRootFoler' default='Yes' prompt='Do you want to create the root folder for the project'/>
+        <parameter name='License' type='choice' default='2' prompt='Select a license for your module'>
+            <choice label='&amp;Apache'
+                    help="Adds an Apache license file."
+                    value="Apache"/>
+            <choice label='&amp;MIT'
+                    help="Adds an MIT license file."
+                    value="MIT"/>
+            <choice label='&amp;None'
+                    help="No license specified."
+                    value="None"/>
+        </parameter>
+        <parameter name='Options' type='multichoice' default='0,1,2' prompt='Select desired options'>
+            <choice label='&amp;Pester test support'
+                    help="Adds Tests directory and a starter Pester Tests file."
+                    value="Pester"/>
+            <choice label='P&amp;Sake build script'
+                    help="Adds a PSake build script that generates the module directory for publishing to the PSGallery."
+                    value="PSake"/>
+            <choice label='&amp;Git'
+                    help="Adds a .gitignore file."
+                    value="Git"/>
+            <choice label='&amp;None'
+                    help="No options specified."
+                    value="None"/>
+        </parameter>
     </parameters>
 ```
 
@@ -113,7 +137,7 @@ for any of them e.g.:
 
 ```PowerShell
 Invoke-Plaster -TemplatePath $PSScriptRoot\Tests\TemplateRoot1 -DestinationPath $PSScriptRoot\Tests\Out `
-               -ModuleName CoolModule -Version 2.1.1 -CreateRootFoler Yes
+               -ModuleName CoolModule -Version 2.1.1 -License MIT -Options Pester,PSake,Git
 ```
 
 ### New-PlasterManifest

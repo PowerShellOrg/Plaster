@@ -11,9 +11,10 @@
 #>
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessTemplate')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyContent')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='ProcessFile')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         # Specifies the path to either the Template directory or a ZIP file containing the template.
@@ -35,14 +36,14 @@ function Invoke-Plaster {
         $Force
     )
 
+    # Process the template's plaster manifest file to convert parameters defined there into dynamic parameters.
     dynamicparam {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $origTemplatePath = $DestinationPath
         $manifest = $null
         $manifestPath = $null
 
-        # Can't process dynamic parameters if we have no TemplatePath
         if ($null -eq $TemplatePath) {
+            # Can't process dynamic parameters if we have no TemplatePath
             return
         }
 
@@ -429,7 +430,6 @@ function Invoke-Plaster {
         }
 
         Write-Verbose "Parameters are:"
-#        Write-Verbose "$($parameters | Out-String)"
         Write-Verbose "$(Get-Variable -Name PLASTER_* | Out-String)"
 
         # Process content
