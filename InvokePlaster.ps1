@@ -126,14 +126,14 @@ function Invoke-Plaster {
         $confirmYesToAll = $false
         $confirmNoToAll = $false
 
-        InitializePredefinedVariables
+        InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
         # If user does not supply the TemplatePath parameter, the dynamicparam scriptblock bails early without
-        # loading anything.  So get the manifestPath here.
+        # loading the Plaster manifest.  If that's the case, load the manifest now.
         if ($null -eq $manifestPath) {
             $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
             $manifestPath = Join-Path $TemplatePath plasterManifest.xml
-            $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
+            $manifestPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($manifestPath)
         }
 
         # Validate that the dynamicparam scriptblock was able to load the template manifest and it is valid.
@@ -429,8 +429,8 @@ function Invoke-Plaster {
             }
         }
 
-        Write-Verbose "Parameters are:"
-        Write-Verbose "$(Get-Variable -Name PLASTER_* | Out-String)"
+        $parameters = Get-Variable -Name PLASTER_* | Out-String
+        Write-Verbose "Parameter values are:`n$($parameters -split "`n")"
 
         # Process content
         foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
@@ -446,17 +446,21 @@ function Invoke-Plaster {
     }
 }
 
-function InitializePredefinedVariables {
-    Set-Variable -Name PLASTER_GUID1 -Value ([Guid]::NewGuid()) -Scope Script
-    Set-Variable -Name PLASTER_GUID2 -Value ([Guid]::NewGuid()) -Scope Script
-    Set-Variable -Name PLASTER_GUID3 -Value ([Guid]::NewGuid()) -Scope Script
-    Set-Variable -Name PLASTER_GUID4 -Value ([Guid]::NewGuid()) -Scope Script
-    Set-Variable -Name PLASTER_GUID5 -Value ([Guid]::NewGuid()) -Scope Script
+function InitializePredefinedVariables([string]$destPath) {
+    $destName = Split-Path -Path $destPath -Leaf
+    Set-Variable -Name PLASTER_DestinationPath -Value $destPath.TrimEnd('\','/') -Scope Script
+    Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
+
+    Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script
+    Set-Variable -Name PLASTER_Guid2 -Value ([Guid]::NewGuid()) -Scope Script
+    Set-Variable -Name PLASTER_Guid3 -Value ([Guid]::NewGuid()) -Scope Script
+    Set-Variable -Name PLASTER_Guid4 -Value ([Guid]::NewGuid()) -Scope Script
+    Set-Variable -Name PLASTER_Guid5 -Value ([Guid]::NewGuid()) -Scope Script
 
     $now = [DateTime]::Now
-    Set-Variable -Name PLASTER_DATE -Value ($now.ToShortDateString()) -Scope Script
-    Set-Variable -Name PLASTER_TIME -Value ($now.ToShortTimeString()) -Scope Script
-    Set-Variable -Name PLASTER_YEAR -Value ($now.Year) -Scope Script
+    Set-Variable -Name PLASTER_Date -Value ($now.ToShortDateString()) -Scope Script
+    Set-Variable -Name PLASTER_Time -Value ($now.ToShortTimeString()) -Scope Script
+    Set-Variable -Name PLASTER_Year -Value ($now.Year) -Scope Script
 }
 
 function ExpandString($str) {
