@@ -244,7 +244,7 @@ function Invoke-Plaster {
                 }
             }
 
-            # Make user defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
+            # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
             Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script
         }
 
@@ -255,7 +255,7 @@ function Invoke-Plaster {
             $dstRelPath = ExpandString $NewModuleManifestNode.destination
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
-            $condition  = $FileNode.condition
+            $condition  = $NewModuleManifestNode.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
                     Write-Verbose "Skipping module manifest generation for '$dstPath', condition evaluated to false."
@@ -274,6 +274,10 @@ function Invoke-Plaster {
                     Write-Verbose "Creating destination dir for module manifest: $manifestDir"
                     New-Item $manifestDir -ItemType Directory > $null
                 }
+
+                # TODO: Temporary - remove this when this function makes use of ProcessFile
+                WriteOperationStatus 'Create' (ConvertToDestinationRelativePath $dstPath)
+
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
                 Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8

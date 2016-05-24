@@ -1,6 +1,8 @@
 # Use this file to debug the module.
 Import-Module ..\..\Plaster.psd1
 
+Remove-Item ..\Out -Recurse
+
 $PlasterParams = @{
     TemplatePath = $PWD
     Destination = '..\Out'
