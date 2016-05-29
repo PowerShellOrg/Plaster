@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version='0.1.0'>
     <metadata>
-        <id>Unique-Template-Pkg-Name</id>
+        <!-- For the default store file, we need a unique identifier to ensure one template's default value store
+             doesn't get used with any other template.  -->
+        <id>38bd80d9-3a47-4916-9220-bed383d90876</id>
         <!-- For display by UI's in a menu list -->
-        <title>New Module</title>
+        <title>New Module Project</title>
         <!-- For display by UI's in hover help -->
         <description>Plaster template for creating the files for a PowerShell module.</description>
         <version>0.1.0</version>
@@ -11,9 +13,9 @@
     </metadata>
     <parameters>
         <parameter name='ModuleName' type='input' required='true' prompt='Enter the name of the module'/>
-        <parameter name='Version' type='input' default='1.0.0' store='true' prompt='Enter the version number for the module'/>
-        <parameter name='FullName' type='input' required='true' prompt='Enter your fullname'/>
-        <parameter name='Options' type='multichoice' default='0,1,2' prompt='Select desired options'>
+        <parameter name='Version' type='input' default='1.0.0' prompt='Enter the version number for the module'/>
+        <parameter name='FullName' type='input' required='true' store='encrypt' prompt='Enter your fullname'/>
+        <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
                     value="Pester"/>
@@ -27,7 +29,7 @@
                     help="No options specified."
                     value="None"/>
         </parameter>
-        <parameter name='Editor' type='choice' default='2' prompt='Which editor do you use'>
+        <parameter name='Editor' type='choice' default='2' store='text' prompt='Which editor do you use'>
             <choice label='&amp;ISE'
                     help="Your editor is PowerShell ISE."
                     value="ISE"/>
@@ -38,7 +40,7 @@
                     help="No editor specified."
                     value="None"/>
         </parameter>
-        <parameter name='License' type='choice' default='2' prompt='Select a license for your module'>
+        <parameter name='License' type='choice' default='2' store='text' prompt='Select a license for your module'>
             <choice label='&amp;Apache'
                     help="Adds an Apache license file."
                     value="Apache"/>
@@ -50,9 +52,6 @@
                     value="None"/>
         </parameter>
     </parameters>
-    <dependencies>
-        <dependency id="another-template-id??"/>
-    </dependencies>
     <content>
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'

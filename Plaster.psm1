@@ -2,7 +2,9 @@ data LocalizedData
 {
     # culture="en-US"
     ConvertFrom-StringData @'
+    ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
     ErrorProcessingDynamicParams_F1=Error processing dynamic parameters: {0}
+    ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
     FileConflict=Plaster file conflict
     ManifestMissingAttribute_F2=The Plaster manifest element {0} is missing the required attribute {1}.
     ManifestMissingElement_F1=The Plaster manifest is missing the {0} element.
@@ -30,6 +32,7 @@ data LocalizedData
 Import-LocalizedData LocalizedData -FileName PlasterResources
 
 # Module variables
+$ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 $DefaultEncoding = 'utf8'
 
 # Shared, private helper functions

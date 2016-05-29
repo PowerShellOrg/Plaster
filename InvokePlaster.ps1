@@ -123,8 +123,12 @@ function Invoke-Plaster {
 
     begin {
         $boundParameters = $PSBoundParameters
-        $confirmYesToAll = $false
-        $confirmNoToAll = $false
+        $defaultValueStore = @{}
+        $fileConflictConfirmNoToAll = $false
+        $fileConflictConfirmYesToAll = $false
+        $flags = @{
+            DefaultValueStoreDirty = $false
+        }
 
         InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
@@ -155,6 +159,22 @@ function Invoke-Plaster {
         }
         else {
             Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
+        }
+
+        # Check for any existing default value store file and load default values if file exists.
+        $templateId = $manifest.plasterManifest.metadata.id
+        $templateVersion = $manifest.plasterManifest.metadata.version
+        $templateBaseName = [System.IO.Path]::GetFileNameWithoutExtension($TemplatePath)
+        $storeFilename = "$templateBaseName-$templateVersion-$templateId"
+        $defaultValueStorePath = Join-Path $ParameterDefaultValueStoreRootPath $storeFilename
+        if (Test-Path $defaultValueStorePath) {
+            try {
+                $PSCmdlet.WriteDebug("Loading default value store from '$defaultValueStorePath'.")
+                $defaultValueStore = Import-Clixml $defaultValueStorePath -ErrorAction Stop
+            }
+            catch {
+                Write-Warning ($LocalizedData.ErrorFailedToLoadStoreFile_F1 -f $defaultValueStorePath)
+            }
         }
 
         function PromptForInput($prompt, $default) {
@@ -190,10 +210,13 @@ function Invoke-Plaster {
                 $values[$i++] = $value
             }
 
+            $retval = [PSCustomObject]@{Values=@(); Indices=@()}
+
             if ($IsMultiChoice) {
                 $selections = $Host.UI.PromptForChoice('', $prompt, $choices, $defaults)
                 foreach ($selection in $selections) {
-                    $values[$selection]
+                    $retval.Values += $values[$selection]
+                    $retval.Indices += $selection
                 }
             }
             else {
@@ -202,13 +225,17 @@ function Invoke-Plaster {
                 }
 
                 $selection = $Host.UI.PromptForChoice('', $prompt, $choices, $defaults[0])
-                $values[$selection]
+                $retval.Values = $values[$selection]
+                $retval.Indices = $selection
             }
+
+            $retval
         }
 
         function ProcessParameter([ValidateNotNull()]$ParamNode) {
             $name = $ParamNode.name
             $type = $ParamNode.type
+            $store = $ParamNode.store
             $prompt = ExpandString $ParamNode.prompt
             $default = ExpandString $ParamNode.default
 
@@ -224,23 +251,70 @@ function Invoke-Plaster {
 
             # Check if parameter was provided via a dynamic parameter
             if ($boundParameters.ContainsKey($name)) {
-                $value =  $boundParameters[$name]
+                $value = $boundParameters[$name]
             }
             else {
-                # Not a dynamic parameter so prompt user for the value
-                $value = switch -regex ($type) {
-                    'input'  {
-                        if ($null -ne $default) {
-                            $prompt += " ($default)"
+                # Not a dynamic parameter so prompt user for the value but first check for a stored default value.
+                if ($store -and ($null -ne $defaultValueStore[$name])) {
+                    $default = $defaultValueStore[$name]
+                    $PSCmdlet.WriteDebug("Read default value '$default' for parameter '$name'.")
+
+                    if (($store -eq 'encrypt') -and ($default -is [System.Security.SecureString])) {
+                        try {
+                            $cred = New-Object -TypeName PSCredential -ArgumentList 'jsbplh',$default
+                            $default = $cred.GetNetworkCredential().Password
+                            $PSCmdlet.WriteDebug("Unencrypted default value for parameter '$name'.")
                         }
-                        PromptForInput $prompt $default
+                        catch [System.Exception] {
+                            Write-Warning ($LocalizedData.ErrorUnencryptingSecureString_F1 -f $name)
+                        }
+                    }
+                }
+
+                # Now prompt user for parameter value
+                switch -regex ($type) {
+                    'input' {
+                        # Display an appropriate "default" value in the prompt string.
+                        if ($default) {
+                            if ($store -eq 'encrypt') {
+                                $obscuredDefault = $default -replace '(....).*', '$1****'
+                                $prompt += " ($obscuredDefault)"
+                            }
+                            else {
+                                $prompt += " ($default)"
+                            }
+                        }
+
+                        # Prompt the user for text input.
+                        $value = PromptForInput $prompt $default
+                        $valueToStore = $value
                     }
                     'choice|multichoice' {
                         $choices = $ParamNode.SelectNodes('choice')
                         $defaults = [int[]]($default -split ',')
-                        PromptForChoice $choices $prompt $defaults -IsMultiChoice:($type -eq 'multichoice')
+
+                        # Prompt the user for choice or multichoice selection input.
+                        $selections = PromptForChoice $choices $prompt $defaults -IsMultiChoice:($type -eq 'multichoice')
+                        $value = $selections.Values
+                        $OFS = ","
+                        $valueToStore = "$($selections.Indices)"
                     }
-                    default  { throw ($LocalizedData.UnrecognizedAttribute_F1 -f $type, $ParamNode.LocalName) }
+                    default  { throw ($LocalizedData.UnrecognizedAttribute_F2 -f $type, $ParamNode.LocalName) }
+                }
+
+                # If parameter specifies that user's input be stored as the default value,
+                # store it to file if the value has changed.
+                if ($store -and ($default -ne $valueToStore)) {
+                    if ($store -eq 'encrypt') {
+                        $PSCmdlet.WriteDebug("Storing new, encrypted default value for parameter '$name'.")
+                        $defaultValueStore[$name] = ConvertTo-SecureString -String $valueToStore -AsPlainText -Force
+                    }
+                    else {
+                        $PSCmdlet.WriteDebug("Storing new default value '$valueToStore' for parameter '$name'.")
+                        $defaultValueStore[$name] = $valueToStore
+                    }
+
+                    $flags.DefaultValueStoreDirty = $true
                 }
             }
 
@@ -360,7 +434,8 @@ function Invoke-Plaster {
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
                                                              $LocalizedData.FileConflict,
-                                                             [ref]$confirmYesToAll, [ref]$confirmNoToAll)) {
+                                                             [ref]$fileConflictConfirmYesToAll,
+                                                             [ref]$fileConflictConfirmNoToAll)) {
                     Copy-Item -LiteralPath $srcPath -Destination $dstPath
                 }
             }
@@ -433,8 +508,21 @@ function Invoke-Plaster {
             }
         }
 
+        # Outputs the processed template parameters to the verbose stream
         $parameters = Get-Variable -Name PLASTER_* | Out-String
         Write-Verbose "Parameter values are:`n$($parameters -split "`n")"
+
+        # Stores any updated default values back to the store file.
+        if ($flags.DefaultValueStoreDirty) {
+            $directory = Split-Path $defaultValueStorePath -Parent
+            if (!(Test-Path $directory)) {
+                $PSCmdlet.WriteDebug("Creating directory for template's DefaultValueStore '$directory'.")
+                New-Item $directory -ItemType Directory > $null
+            }
+
+            $PSCmdlet.WriteDebug("DefaultValueStore is dirty, saving updated values to '$defaultValueStorePath'.")
+            $defaultValueStore | Export-Clixml -LiteralPath $defaultValueStorePath
+        }
 
         # Process content
         foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
