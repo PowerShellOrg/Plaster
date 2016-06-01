@@ -358,20 +358,6 @@ function Invoke-Plaster {
             }
         }
 
-        function AreFilesIdentical($Path1, $Path2) {
-            $file1 = Get-Item -LiteralPath $Path1
-            $file2 = Get-Item -LiteralPath $Path2
-
-            if ($file1.Length -ne $file2.Length) {
-                return $false
-            }
-
-            $hash1 = (Get-FileHash -LiteralPath $path1 -Algorithm SHA1).Hash
-            $hash2 = (Get-FileHash -LiteralPath $path2 -Algorithm SHA1).Hash
-
-            $hash1 -eq $hash2
-        }
-
         function ProcessTemplate([string]$Path, $encoding) {
             if ($PSCmdlet.ShouldProcess($Path, $LocalizedData.ShouldProcessTemplateFile)) {
                 $content = Get-Content $Path -Raw
@@ -387,9 +373,72 @@ function Invoke-Plaster {
             }
         }
 
+        function AreFilesIdentical($Path1, $Path2) {
+            $file1 = Get-Item -LiteralPath $Path1
+            $file2 = Get-Item -LiteralPath $Path2
+
+            if ($file1.Length -ne $file2.Length) {
+                return $false
+            }
+
+            $hash1 = (Get-FileHash -LiteralPath $path1 -Algorithm SHA1).Hash
+            $hash2 = (Get-FileHash -LiteralPath $path2 -Algorithm SHA1).Hash
+
+            $hash1 -eq $hash2
+        }
+
+        function NewFileCopyInfo([string]$srcPath, [string]$dstPath) {
+            [PSCustomObject]@{SrcFileName=$srcPath; DstFileName=$dstPath}
+        }
+
+        function ExpandFileSourceSpec([string]$srcRelPath, [string]$dstRelPath) {
+            $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
+
+            if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
+                # No wildcard spec in srcRelPath so return info on single file
+                $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
+                return NewFileCopyInfo $srcPath $dstPath
+            }
+
+            # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
+            $gciParams = @{}
+            $parent = Split-Path $srcRelPath -Parent
+            $leaf = Split-Path $srcRelPath -Leaf
+            $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+            $gciParams['File'] = $true
+
+            if ($leaf -eq '**') {
+                $gciParams['Recurse'] = $true
+            }
+            else {
+                if ($leaf.IndexOfAny([char[]]('*','?')) -ge 0) {
+                    $gciParams['Filter'] = $leaf
+                }
+
+                $leaf = Split-Path $parent -Leaf
+                if ($leaf -eq '**') {
+                    $parent = Split-Path $parent -Parent
+                    $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+                    $gciParams['Recurse'] = $true
+                }
+            }
+
+            $srcRelRootPathLength = $gciParams['LiteralPath'].Length
+
+            # Generate a FileCopyInfo object for every file expanded by the wildcard spec
+            $files = Microsoft.PowerShell.Management\Get-ChildItem @gciParams
+            foreach ($file in $files) {
+                $fileSrcPath = $file.FullName
+                $relPath = $fileSrcPath.Substring($srcRelRootPathLength)
+                $fileDstPath = Join-Path $dstPath $relPath
+                NewFileCopyInfo $fileSrcPath $fileDstPath
+            }
+        }
+
         function ProcessFile([ValidateNotNull()]$FileNode) {
             $srcRelPath = ExpandString $FileNode.source
             $dstRelPath = ExpandString $FileNode.destination
+
             $condition  = $FileNode.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
@@ -405,45 +454,63 @@ function Invoke-Plaster {
                 $encoding = $DefaultEncoding
             }
 
-            $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
-            $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
+            $fileCopyInfoObjs = ExpandFileSourceSpec $srcRelPath $dstRelPath
+            foreach ($fileCopyInfo in $fileCopyInfoObjs) {
+                $srcPath = $fileCopyInfo.SrcFileName
+                $dstPath = $fileCopyInfo.DstFileName
 
-            # If the file's parent dir doesn't exist, create it.
-            $parentDir = Split-Path $dstPath -Parent
-            if (!(Test-Path $parentDir)) {
-                if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
-                    New-Item -Path $parentDir -ItemType Directory > $null
+                # If the file's parent dir doesn't exist, create it.
+                $parentDir = Split-Path $dstPath -Parent
+                if (!(Test-Path $parentDir)) {
+                    if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
+                        New-Item -Path $parentDir -ItemType Directory > $null
+                    }
                 }
-            }
 
-            $operation = $LocalizedData.OpCreate
-            if (Test-Path $dstPath) {
-                if (AreFilesIdentical $srcPath $dstPath) {
-                    $operation = $LocalizedData.OpIdentical
-                }
-                else {
-                    $operation = $LocalizedData.OpConflict
-                }
-            }
+                $tempFile = $null
 
-            # Copy the file to the destination
-            if ($PSCmdlet.ShouldProcess($dstPath, $operation)) {
-                WriteOperationStatus $operation (ConvertToDestinationRelativePath $dstPath)
-                if ($operation -ne $LocalizedData.OpConflict) {
-                    Copy-Item -LiteralPath $srcPath -Destination $dstPath
-                }
-                elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
-                                                             $LocalizedData.FileConflict,
-                                                             [ref]$fileConflictConfirmYesToAll,
-                                                             [ref]$fileConflictConfirmNoToAll)) {
-                    Copy-Item -LiteralPath $srcPath -Destination $dstPath
-                }
-            }
+                try {
+                    # If file is a template, copy to a temp file to process the template
+                    if ($isTemplate) {
+                        WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
 
-            # If file is a template, process the template
-            if ($isTemplate) {
-                WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
-                ProcessTemplate $dstPath $encoding
+                        $tempFile = [System.IO.Path]::GetTempFileName()
+                        Copy-Item -LiteralPath $srcPath -Destination $tempFile
+
+                        ProcessTemplate $tempFile $encoding
+                        $srcPath = $tempFile
+                    }
+
+                    # Check if new file (potentially after expansion) conflicts with corresponding existing file.
+                    $operation = $LocalizedData.OpCreate
+                    if (Test-Path $dstPath) {
+                        if (AreFilesIdentical $srcPath $dstPath) {
+                            $operation = $LocalizedData.OpIdentical
+                        }
+                        else {
+                            $operation = $LocalizedData.OpConflict
+                        }
+                    }
+
+                    # Copy the file to the destination
+                    if ($PSCmdlet.ShouldProcess($dstPath, $operation)) {
+                        WriteOperationStatus $operation (ConvertToDestinationRelativePath $dstPath)
+                        if ($operation -ne $LocalizedData.OpConflict) {
+                            Copy-Item -LiteralPath $srcPath -Destination $dstPath
+                        }
+                        elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
+                                                                    $LocalizedData.FileConflict,
+                                                                    [ref]$fileConflictConfirmYesToAll,
+                                                                    [ref]$fileConflictConfirmNoToAll)) {
+                            Copy-Item -LiteralPath $srcPath -Destination $dstPath
+                        }
+                    }
+                }
+                finally {
+                    if ($tempFile) {
+                        Remove-Item -LiteralPath $tempFile
+                    }
+                }
             }
         }
 

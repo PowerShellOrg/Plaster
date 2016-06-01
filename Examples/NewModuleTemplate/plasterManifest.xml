@@ -57,6 +57,13 @@
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                            author='$PLASTER_PARAM_FullName'/>
+        <!-- Recursively copy all *files* into the corresponding directory structure under dest dir Recurse -->
+        <file source='RecurseTest\**'
+              destination='Recurse'
+              template='true'/>
+        <!--<file source='RecurseTest\**\*.txt'
+              destination='Recurse'
+              template='true'/>-->
         <file source='Module.psm1'
               destination='${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='_gitignore'
