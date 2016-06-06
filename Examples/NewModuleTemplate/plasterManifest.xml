@@ -90,11 +90,15 @@
         <file source='tasks.json'
               destination='.vscode\tasks.json'
               condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
-        <modify path='.vscode\tasks.json'
-                encoding='utf8'
-                condition="$PLASTER_PARAM_Editor -eq 'VSCode' -and $PLASTER_PARAM_Options -contains 'Pester' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Test&quot;'">
-            <replacement pattern='(?si)(?&lt;="tasks":\s*\[)(\s*)(?=\{)'>
-            <![CDATA[$1{
+        <modify path='.vscode\tasks.json' encoding='utf8'
+                condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
+            <replace condition="$PLASTER_FileContent -notmatch '// Author:'">
+                <original>(?s)^(.*)</original>
+                <substitute expand='true'>``$1`r`n// Author: $PLASTER_PARAM_FullName</substitute>
+            </replace>
+            <replace condition="$PLASTER_PARAM_Options -contains 'Pester' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Test&quot;'">
+                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
+                <substitute><![CDATA[$1{
             "taskName": "Test",
             "suppressTaskName": true,
             "isTestCommand": true,
@@ -121,8 +125,22 @@
                     ]
                 }
             ]
-        },$1]]>
-            </replacement>
+        },$1]]></substitute>
+            </replace>
+
+            <replace condition="$PLASTER_PARAM_Options -contains 'PSake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Build&quot;'">
+                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
+                <substitute><![CDATA[$1{
+            "taskName": "Build",
+            "suppressTaskName": true,
+            "isBuildCommand": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Build;",
+                "Invoke-Command { Write-Host 'Completed Build task in task runner.' }"
+            ]
+        },$1]]></substitute>
+            </replace>
         </modify>
     </content>
 </plasterManifest>
