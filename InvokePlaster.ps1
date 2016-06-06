@@ -545,18 +545,46 @@ function Invoke-Plaster {
                     if ($node -isnot [System.Xml.XmlElement]) { continue }
 
                     switch ($node.LocalName) {
-                        'replacement' {
-                            # TODO: Support expand on pattern / replacement string needs some thinking - might need to escape double quotes.
-                            $pattern = $node.pattern # ExpandString $node.pattern
-                            $replacement = $node.InnerText # ExpandString $node.InnerText
+                        'replace' {
+                            $condition  = $node.condition
+                            if ($condition) {
+                                if (!(EvaluateCondition $condition)) {
+                                    Write-Verbose "Skipping file modify replace on '$path', condition evaluated to false."
+                                    continue
+                                }
+                            }
 
-                            $PLASTER_FileContent = $PLASTER_FileContent -replace $pattern,$replacement
+                            if ($node.original -is [string]) {
+                                $original = $node.original
+                            }
+                            else {
+                                $original = $node.original.InnerText
+                            }
+
+                            if ($node.original.expand -eq 'true') {
+                                $original = ExpandString $original
+                            }
+
+                            if ($node.substitute -is [string]) {
+                                $substitute = $node.substitute
+                            }
+                            else {
+                                $substitute = $node.substitute.InnerText
+                            }
+
+                            if ($node.substitute.expand -eq 'true') {
+                                $substitute = ExpandString $substitute
+                            }
+
+                            $PLASTER_FileContent = $PLASTER_FileContent -replace $original,$substitute
 
                             $modified = $true
                         }
                         default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                     }
                 }
+
+                # TODO: write to temp file and introduce file conflict handling
 
                 if ($modified) {
                     Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
@@ -633,6 +661,8 @@ function ExpandString($str) {
     # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
     # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
     # of the AST and vet it before using $ExecutionContext.InvokeCommand.ExpandString().
+
+    # TODO: fix issue with input containing `$1 (regex substitution group) getting eliminated by Expression.Value
 
     $sb = [scriptblock]::Create("`"$str`"")
 
