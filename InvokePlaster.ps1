@@ -349,6 +349,7 @@ __________.__                   __
 
         function ProcessMessage([ValidateNotNull()]$Node) {
             $text = ExpandString $Node.InnerText
+            $nonewline = ExpandString $Node.nonewline
 
             # Eliminate whitespace before and after the text that just happens to get inserted because you want
             # the text on different lines than the start/end element tags.
@@ -362,7 +363,7 @@ __________.__                   __
                 }
             }
 
-            Write-Host $trimmedText
+            Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
         function GenerateModuleManifest([ValidateNotNull()]$NewModuleManifestNode) {
