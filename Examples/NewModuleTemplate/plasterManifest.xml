@@ -53,6 +53,10 @@
         </parameter>
     </parameters>
     <content>
+        <message>
+Scaffold a PowerShell Module with the files required to run Pester tests, build with PSake and publish to the PSGallery.
+
+        </message>
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
@@ -142,5 +146,16 @@
         },$1]]></substitute>
             </replace>
         </modify>
+        <message>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName has been created.</message>
+        <message condition="$PLASTER_PARAM_Options -contains 'PSake'">
+You can build your project by executing the 'build' task by pressing Ctrl+P, then type 'task build'.
+You can publish your project to the PSGallery by pressing Ctrl+P, then type 'task publish'.
+
+        </message>
+        <message condition="$PLASTER_PARAM_Options -contains 'Pester'"><![CDATA[
+A Pester test has been created to validate the module's manifest file.  Add additional test to the Tests directory.
+You can run the Pester tests in your project by executing the 'test' task by pressing Ctrl+P, then type 'task test'.]]>
+        </message>
+
     </content>
 </plasterManifest>

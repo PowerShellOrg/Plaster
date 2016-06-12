@@ -129,6 +129,31 @@ function Invoke-Plaster {
         $flags = @{
             DefaultValueStoreDirty = $false
         }
+        $logo = @'
+__________.__                   __
+\______   \  | _____    _______/  |_  ___________
+ |     ___/  | \__  \  /  ___/\   __\/ __ \_  __ \
+ |    |   |  |__/ __ \_\___ \  |  | \  ___/|  | \/
+ |____|   |____(____  /____  > |__|  \___  >__|
+                    \/     \/            \/
+'@, @'
+  ____  _           _
+ |  _ \| | __ _ ___| |_ ___ _ __
+ | |_) | |/ _` / __| __/ _ \ '__|
+ |  __/| | (_| \__ \ ||  __/ |
+ |_|   |_|\__,_|___/\__\___|_|
+'@, @'
+    _____
+   (, /   ) /)
+    _/__ / // _   _  _/_  _  __
+    /     (/_(_(_/_)_(___(/_/ (_
+ ) /
+(_/
+'@
+
+        $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
+        Write-Host $randLogo
+        Write-Host ("=" * 50)
 
         InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
@@ -320,6 +345,24 @@ function Invoke-Plaster {
 
             # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
             Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script
+        }
+
+        function ProcessMessage([ValidateNotNull()]$Node) {
+            $text = ExpandString $Node.InnerText
+
+            # Eliminate whitespace before and after the text that just happens to get inserted because you want
+            # the text on different lines than the start/end element tags.
+            $trimmedText = $text -replace '^[ \t]*\n','' -replace '\n[ \t]*$',''
+
+            $condition  = $Node.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    Write-Verbose "Skipping message '$($text[0..40])', condition evaluated to false."
+                    return
+                }
+            }
+
+            Write-Host $trimmedText
         }
 
         function GenerateModuleManifest([ValidateNotNull()]$NewModuleManifestNode) {
@@ -625,6 +668,7 @@ function Invoke-Plaster {
 
             switch ($node.LocalName) {
                 'file'              { ProcessFile $node; break }
+                'message'           { ProcessMessage $node; break }
                 'modify'            { ModifyFile $node; break }
                 'newModuleManifest' { GenerateModuleManifest $node; break }
                 default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
