@@ -381,6 +381,11 @@ __________.__                   __
                 }
             }
 
+            $encoding = ExpandString $NewModuleManifestNode.encoding
+            if (!$encoding) {
+                $encoding = $DefaultEncoding
+            }
+
             # TODO: This generates a file and as such should participate in file
             # conflict resolution. I think we should gen the file here and then
             # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
@@ -398,7 +403,7 @@ __________.__                   __
 
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
-                Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8
+                Set-Content -LiteralPath $dstPath -Value $content -Encoding $encoding
             }
         }
 
@@ -491,9 +496,8 @@ __________.__                   __
                 }
             }
 
-            $encoding = ExpandString $FileNode.encoding
             $isTemplate = $FileNode.template -eq 'true'
-
+            $encoding = ExpandString $FileNode.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }

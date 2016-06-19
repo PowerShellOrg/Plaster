@@ -33,7 +33,7 @@ Import-LocalizedData LocalizedData -FileName PlasterResources
 
 # Module variables
 $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
-$DefaultEncoding = 'utf8'
+$DefaultEncoding = 'Default'
 
 # Shared, private helper functions
 function ExtractTemplateAndReturnPath([string]$TemplatePath) {

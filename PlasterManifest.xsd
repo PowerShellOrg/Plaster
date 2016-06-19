@@ -19,12 +19,89 @@
     </xs:documentation>
 	</xs:annotation>
 
+
+  <!-- **************************************************************** -->
+  <!-- Type definitions                                                 -->
+  <!-- **************************************************************** -->
+
+  <xs:simpleType name="EncodingType">
+    <xs:annotation>
+      <xs:documentation>
+        Specifies the encoding to use for writing to a file.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Ascii"/>
+      <xs:enumeration value="BigEndianUnicode"/>
+      <xs:enumeration value="BigEndianUTF32"/>
+      <xs:enumeration value="Oem"/>
+      <xs:enumeration value="Unicode"/>
+      <xs:enumeration value="UTF32"/>
+      <xs:enumeration value="UTF7"/>
+      <xs:enumeration value="UTF8"/>
+      <xs:enumeration value="UTF8-NoBOM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- **************************************************************** -->
+  <!-- Global attribute definitions                                     -->
+  <!-- **************************************************************** -->
+
   <xs:simpleType name="condition">
     <xs:annotation>
-      <xs:documentation>Used to determine whether a directive is executed.  If the condition evaluates to true, it will execute otherwise it will not.</xs:documentation>
+      <xs:documentation>Used to determine whether a directive is executed. If the condition evaluates to true, it will execute. Otherwise it will not.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
+
+  <xs:simpleType name="encoding">
+    <xs:annotation>
+      <xs:documentation>Specifies the file encoding to use when writing the modified file.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="ptd:EncodingType"/>
+  </xs:simpleType>
+
+
+  <!-- **************************************************************** -->
+  <!-- Global element definitions                                       -->
+  <!-- **************************************************************** -->
+
+  <xs:element name="original">
+  <xs:annotation>
+    <xs:documentation>Specify the regular expression for the text to be replaced.</xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="expand" type="xs:boolean" default="false">
+          <xs:annotation>
+            <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="substitute">
+  <xs:annotation>
+    <xs:documentation>Specify the replacement text.</xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="expand" type="xs:boolean" default="false">
+          <xs:annotation>
+            <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:element>
+
 
   <!-- **************************************************************** -->
   <!-- Root document element definition                                 -->
@@ -100,21 +177,25 @@
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
-                      <xs:attribute name="condition" type="ptd:condition">
-                      </xs:attribute>
-                      <xs:attribute name="source" type="xs:string">
+                      <xs:attribute name="source" type="xs:string" use="required">
                         <xs:annotation>
                           <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
                         </xs:annotation>
                       </xs:attribute>
-                      <xs:attribute name="destination" type="xs:string">
+                      <xs:attribute name="destination" type="xs:string" use="required">
                         <xs:annotation>
                           <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
                         </xs:annotation>
                       </xs:attribute>
+                      <xs:attribute name="condition" type="ptd:condition"/>
+                      <xs:attribute name="encoding" type="ptd:encoding" default="Default">
+                        <xs:annotation>
+                          <xs:documentation>Only used when template attribute is true.</xs:documentation>
+                        </xs:annotation>
+                      </xs:attribute>
                       <xs:attribute name="template" type="xs:boolean" default="false">
                         <xs:annotation>
-                          <xs:documentation>If true, the content of the file is processed, expanding any template place holders.</xs:documentation>
+                          <xs:documentation>If true, the content of the file is processed, expanding any template placeholders.</xs:documentation>
                         </xs:annotation>
                       </xs:attribute>
                     </xs:extension>
@@ -129,8 +210,7 @@
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
-                      <xs:attribute name="condition" type="ptd:condition">
-                      </xs:attribute>
+                      <xs:attribute name="condition" type="ptd:condition"/>
                       <xs:attribute name="nonewline" type="xs:boolean" default="false">
                         <xs:annotation>
                           <xs:documentation>If true, suppresses output of a newline at the end of the message.</xs:documentation>
@@ -147,68 +227,26 @@
                 </xs:annotation>
                 <xs:complexType>
                   <xs:sequence>
-
-                    <xs:element name="replace" maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="replace" maxOccurs="unbounded" minOccurs="1">
                       <xs:annotation>
                         <xs:documentation>Specify a replacement operation of the file content.</xs:documentation>
                       </xs:annotation>
                       <xs:complexType>
                         <xs:sequence>
-
-                          <xs:element name="original" maxOccurs="1" minOccurs="1">
-                            <xs:annotation>
-                              <xs:documentation>Specify the regular expression for the text to be replaced.</xs:documentation>
-                            </xs:annotation>
-                            <xs:complexType>
-                              <xs:simpleContent>
-                                <xs:extension base="xs:string">
-                                  <xs:attribute name="expand" type="xs:boolean" default="false">
-                                    <xs:annotation>
-                                      <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
-                                    </xs:annotation>
-                                  </xs:attribute>
-                                </xs:extension>
-                              </xs:simpleContent>
-                            </xs:complexType>
-                          </xs:element>
-
-                          <xs:element name="substitute" maxOccurs="1" minOccurs="1">
-                            <xs:annotation>
-                              <xs:documentation>Specify the replacement text.</xs:documentation>
-                            </xs:annotation>
-                            <xs:complexType>
-                              <xs:simpleContent>
-                                <xs:extension base="xs:string">
-                                  <xs:attribute name="expand" type="xs:boolean" default="false">
-                                    <xs:annotation>
-                                      <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
-                                    </xs:annotation>
-                                  </xs:attribute>
-                                </xs:extension>
-                              </xs:simpleContent>
-                            </xs:complexType>
-                          </xs:element>
-
+                          <xs:element ref="ptd:original" maxOccurs="1" minOccurs="1"/>
+                          <xs:element ref="ptd:substitute" maxOccurs="1" minOccurs="1"/>
                         </xs:sequence>
-                        <xs:attribute name="condition" type="ptd:condition">
-                        </xs:attribute>
+                        <xs:attribute name="condition" type="ptd:condition"/>
                       </xs:complexType>
                     </xs:element>
-
                   </xs:sequence>
-                  <xs:attribute name="condition" type="ptd:condition">
-                  </xs:attribute>
-                  <xs:attribute name="path" type="xs:string">
+                  <xs:attribute name="path" type="xs:string" use="required">
                     <xs:annotation>
                       <xs:documentation>Specifies the relative path, under the destination folder, of the file to be modified.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
-                  <!-- Modify encoding type to be an enumeration -->
-                  <xs:attribute name="encoding" type="xs:string">
-                    <xs:annotation>
-                      <xs:documentation>Specifies the file encoding to use when writing the modified file.</xs:documentation>
-                    </xs:annotation>
-                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                 </xs:complexType>
               </xs:element>
 
@@ -219,9 +257,7 @@
                 <xs:complexType>
                   <xs:simpleContent>
                     <xs:extension base="xs:string">
-                      <xs:attribute name="condition" type="ptd:condition">
-                      </xs:attribute>
-                      <xs:attribute name="destination" type="xs:string">
+                      <xs:attribute name="destination" type="xs:string" use="required">
                         <xs:annotation>
                           <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
                         </xs:annotation>
@@ -241,6 +277,8 @@
                           <xs:documentation>Specifies the value of the RootModule property.</xs:documentation>
                         </xs:annotation>
                       </xs:attribute>
+                      <xs:attribute name="condition" type="ptd:condition"/>
+                      <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                     </xs:extension>
                   </xs:simpleContent>
                 </xs:complexType>

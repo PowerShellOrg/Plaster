@@ -94,7 +94,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <file source='tasks.json'
               destination='.vscode\tasks.json'
               condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
-        <modify path='.vscode\tasks.json' encoding='utf8'
+        <modify path='.vscode\tasks.json' encoding='UTF8'
                 condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
             <replace condition="$PLASTER_FileContent -notmatch '// Author:'">
                 <original>(?s)^(.*)</original>
