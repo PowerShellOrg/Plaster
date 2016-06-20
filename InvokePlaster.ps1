@@ -92,7 +92,7 @@ function Invoke-Plaster {
                     }
 
                     { 'choice','multichoice' -contains $_ } {
-                        $choiceNodes = $node.SelectNodes('choice')
+                        $choiceNodes = $node.ChildNodes
                         $setValues = New-Object string[] $choiceNodes.Count
                         $i = 0
 
@@ -284,7 +284,7 @@ __________.__                   __
                     $default = $defaultValueStore[$name]
                     $PSCmdlet.WriteDebug("Read default value '$default' for parameter '$name'.")
 
-                    if (($store -eq 'encrypt') -and ($default -is [System.Security.SecureString])) {
+                    if (($store -eq 'encrypted') -and ($default -is [System.Security.SecureString])) {
                         try {
                             $cred = New-Object -TypeName PSCredential -ArgumentList 'jsbplh',$default
                             $default = $cred.GetNetworkCredential().Password
@@ -301,7 +301,7 @@ __________.__                   __
                     'input' {
                         # Display an appropriate "default" value in the prompt string.
                         if ($default) {
-                            if ($store -eq 'encrypt') {
+                            if ($store -eq 'encrypted') {
                                 $obscuredDefault = $default -replace '(....).*', '$1****'
                                 $prompt += " ($obscuredDefault)"
                             }
@@ -315,7 +315,7 @@ __________.__                   __
                         $valueToStore = $value
                     }
                     'choice|multichoice' {
-                        $choices = $ParamNode.SelectNodes('choice')
+                        $choices = $ParamNode.ChildNodes
                         $defaults = [int[]]($default -split ',')
 
                         # Prompt the user for choice or multichoice selection input.
@@ -330,7 +330,7 @@ __________.__                   __
                 # If parameter specifies that user's input be stored as the default value,
                 # store it to file if the value has changed.
                 if ($store -and ($default -ne $valueToStore)) {
-                    if ($store -eq 'encrypt') {
+                    if ($store -eq 'encrypted') {
                         $PSCmdlet.WriteDebug("Storing new, encrypted default value for parameter '$name'.")
                         $defaultValueStore[$name] = ConvertTo-SecureString -String $valueToStore -AsPlainText -Force
                     }

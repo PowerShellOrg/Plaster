@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <xs:schema
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/2016"
-	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/2016"
+	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/2016-06"
+	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/2016-06"
   version="1.0"
   xml:lang="en"
 	elementFormDefault="qualified"
@@ -27,7 +27,7 @@
   <xs:simpleType name="EncodingType">
     <xs:annotation>
       <xs:documentation>
-        Specifies the encoding to use for writing to a file.
+        The encoding to use for writing to a file.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -41,6 +41,31 @@
       <xs:enumeration value="UTF7"/>
       <xs:enumeration value="UTF8"/>
       <xs:enumeration value="UTF8-NoBOM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ParameterType">
+    <xs:annotation>
+      <xs:documentation>
+        The type of the parameter: input, choice or multichoice.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="input"/>
+      <xs:enumeration value="choice"/>
+      <xs:enumeration value="multichoice"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StoreFormatType">
+    <xs:annotation>
+      <xs:documentation>
+        The format for storing a default value: text or encrypted.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="text"/>
+      <xs:enumeration value="encrypted"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -68,39 +93,96 @@
   <!-- Global element definitions                                       -->
   <!-- **************************************************************** -->
 
-  <xs:element name="original">
-  <xs:annotation>
-    <xs:documentation>Specify the regular expression for the text to be replaced.</xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="expand" type="xs:boolean" default="false">
-          <xs:annotation>
-            <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-</xs:element>
+  <xs:element name="choice">
+    <xs:annotation>
+      <xs:documentation>Specifies a choice for the choice or multichoice parameter type.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="label" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The label for the choice that is presented in the user interface. The &amp; character must be respresented with the entity ref &amp;amp;</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The value that will get assigned the parameter if the user selects this choice.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="help" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Help message that is displayed for this choice if the user presses ? for help.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
 
-<xs:element name="substitute">
-  <xs:annotation>
-    <xs:documentation>Specify the replacement text.</xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="expand" type="xs:boolean" default="false">
-          <xs:annotation>
-            <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-</xs:element>
+  <xs:element name="parameter">
+    <xs:annotation>
+      <xs:documentation>Define a parameter that the user needs to provide a value during template invocation.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ptd:choice" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The name of the parameter which will be made available as $PLASTER_PARAM_{name}.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="type" type="ptd:ParameterType" use="required" />
+      <xs:attribute name="prompt" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The text presented to the user when they are asked to provide the value for the parameter.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="default" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>The default value for the parameter which the user will be able to accept or change.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="store" type="ptd:StoreFormatType"/>
+      <!-- TODO: Do we need this and if so should it be called mandatory -->
+      <xs:attribute name="required" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Specifies if the parameter is mandatory.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="original">
+    <xs:annotation>
+      <xs:documentation>Specify the regular expression for the text to be replaced.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="expand" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="substitute">
+    <xs:annotation>
+      <xs:documentation>Specify the replacement text.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="expand" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 
   <!-- **************************************************************** -->
@@ -154,11 +236,7 @@
           </xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="parameter" maxOccurs="unbounded" minOccurs="0">
-                <xs:annotation>
-                  <xs:documentation>Define a parameter that the user needs to provide a value during template invocation.</xs:documentation>
-                </xs:annotation>
-              </xs:element>
+              <xs:element ref="ptd:parameter" maxOccurs="unbounded" minOccurs="0"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -175,31 +253,27 @@
                   <xs:documentation>Specify one or more files to copy under the destination folder.</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="xs:string">
-                      <xs:attribute name="source" type="xs:string" use="required">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="destination" type="xs:string" use="required">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="condition" type="ptd:condition"/>
-                      <xs:attribute name="encoding" type="ptd:encoding" default="Default">
-                        <xs:annotation>
-                          <xs:documentation>Only used when template attribute is true.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="template" type="xs:boolean" default="false">
-                        <xs:annotation>
-                          <xs:documentation>If true, the content of the file is processed, expanding any template placeholders.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                    </xs:extension>
-                  </xs:simpleContent>
+                  <xs:attribute name="source" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="destination" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default">
+                    <xs:annotation>
+                      <xs:documentation>Only used when template attribute is true.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="template" type="xs:boolean" default="false">
+                    <xs:annotation>
+                      <xs:documentation>If true, the content of the file is processed, expanding any template placeholders.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
                 </xs:complexType>
               </xs:element>
 
@@ -255,32 +329,28 @@
                   <xs:documentation>Create a new module manifest file using the New-ModuleManifest command.</xs:documentation>
                 </xs:annotation>
                 <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="xs:string">
-                      <xs:attribute name="destination" type="xs:string" use="required">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="author" type="xs:string">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the value of the Author property.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="moduleVersion" type="xs:string">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the value of the ModuleVersion property.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="rootModule" type="xs:string">
-                        <xs:annotation>
-                          <xs:documentation>Specifies the value of the RootModule property.</xs:documentation>
-                        </xs:annotation>
-                      </xs:attribute>
-                      <xs:attribute name="condition" type="ptd:condition"/>
-                      <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
-                    </xs:extension>
-                  </xs:simpleContent>
+                  <xs:attribute name="destination" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="author" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the Author property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="moduleVersion" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the ModuleVersion property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="rootModule" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the RootModule property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                 </xs:complexType>
               </xs:element>
 
