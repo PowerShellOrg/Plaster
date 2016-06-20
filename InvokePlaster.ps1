@@ -448,7 +448,7 @@ __________.__                   __
             $gciParams = @{}
             $parent = Split-Path $srcRelPath -Parent
             $leaf = Split-Path $srcRelPath -Leaf
-            $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+            $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $parent))
             $gciParams['File'] = $true
 
             if ($leaf -eq '**') {
@@ -462,7 +462,7 @@ __________.__                   __
                 $leaf = Split-Path $parent -Leaf
                 if ($leaf -eq '**') {
                     $parent = Split-Path $parent -Parent
-                    $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+                    $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $parent))
                     $gciParams['Recurse'] = $true
                 }
             }
