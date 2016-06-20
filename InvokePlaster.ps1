@@ -462,7 +462,7 @@ __________.__                   __
 
                 $leaf = Split-Path $parent -Leaf
                 if ($leaf -eq '**') {
-                    $parent = Split-Path $srcPath -Parent
+                    $parent = Split-Path $parent -Parent
                     $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
                     $gciParams['Recurse'] = $true
                 }
