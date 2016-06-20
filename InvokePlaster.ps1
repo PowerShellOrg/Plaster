@@ -446,8 +446,9 @@ __________.__                   __
 
             # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
             $gciParams = @{}
-            $parent = Split-Path $srcRelPath -Parent
-            $leaf = Split-Path $srcRelPath -Leaf
+            $srcPath = Join-Path $TemplatePath $parent
+            $parent = Split-Path $srcPath -Parent
+            $leaf = Split-Path $srcPath -Leaf
             $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
             $gciParams['File'] = $true
 
