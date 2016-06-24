@@ -220,7 +220,7 @@ Task ShowFullKey -requiredVariables EncryptedApiKeyPath {
         "The embedded NuGetApiKey is: $NuGetApiKey"
     }
     else {
-        $NuGetApiKey = LoadAndUnencryptNuGetApiKey -Path $EncryptedApiKeyPath
+        $NuGetApiKey = LoadAndUnencryptString -Path $EncryptedApiKeyPath
         "The stored NuGetApiKey is: $NuGetApiKey"
     }
 }
