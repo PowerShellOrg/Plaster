@@ -246,7 +246,7 @@ Task Sign -depends Test -requiredVariables CertSubjectPath {
         $CertImport = @{
             CertStoreLocation = 'Cert:\CurrentUser\My'
             FilePath          = $CertPfxPath
-            Password          = $(Get-Credential).Password
+            Password          = $(PromptUserForKeyCredential -Message 'Enter the PFX password to import the certificate').Password
             ErrorAction       = 'Stop'
         }
 
