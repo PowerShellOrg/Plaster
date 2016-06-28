@@ -101,13 +101,16 @@ Properties {
     $NuGetApiKey = $null
     $EncryptedApiKeyPath = "$env:LOCALAPPDATA\vscode-powershell\NuGetApiKey.clixml"
 
-    # If you do not specify the certificate thumbprint when specifying a build that
-    # includes script signing the build will use the first code signing certificate
-    # it finds in the users personal certificate store, unless a path to a PFX file
-    # is specified using the CertPfxPath parameter. The build will import the 
-    # certificate (if required), then store the thumbprint encrypted in a file, so
-    # that on subsequent signing the build will use the same certificate.
-    $CertThumbprintPath  = "$env:LOCALAPPDATA\WindowsPowerShell\CertificateThumbprint.clixml"
+    # If you specify the certificate subject when running a build that certificate 
+    # must exist in the users personal certificate store. The build will import the 
+    # certificate (if required), then store the subject, so that on subsequent 
+    # signing the build will use the same (or newer) certificate with that subject.
+    $CertSubjectPath  = "$env:LOCALAPPDATA\WindowsPowerShell\CertificateSubject.clixml"
+
+    # In addition, PFX certificates are supported in an interactive scenario only,
+    # as a way to import a certificate into the user personal store for later use.
+    # This can be provided using the CertPfxPath parameter.
+    # PFX passwords will not be stored.
 }
 
 ###############################################################################
@@ -137,7 +140,11 @@ Task PublishImpl -depends Test -requiredVariables EncryptedApiKeyPath, PublishDi
         "Using stored NuGetApiKey"
     }
     else {
-        $cred = PromptUserForKeyCredential -DestinationPath $EncryptedApiKeyPath
+        $KeyCred = @{
+            DestinationPath = $EncryptedApiKeyPath
+            Message         = 'Enter your NuGet API key in the password field'
+        }
+        $cred = PromptUserForKeyCredential @KeyCred
         $NuGetApiKey = $cred.GetNetworkCredential().Password
         "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
     }
@@ -199,7 +206,11 @@ Task RemoveKey -requiredVariables EncryptedApiKeyPath {
 }
 
 Task StoreKey -requiredVariables EncryptedApiKeyPath {
-    $nuGetApiKeyCred = PromptUserForKeyCredential -DestinationPath $EncryptedApiKeyPath
+    $KeyCred = @{
+        DestinationPath = $EncryptedApiKeyPath
+        Message = 'Enter your NuGet API key in the password field'
+    }
+    PromptUserForKeyCredential @KeyCred
     "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
 }
 
@@ -230,54 +241,45 @@ Task ? -description 'Lists the available tasks' {
     $PSake.Context.Peek().Tasks.Keys | Sort-Object
 }
 
-Task Sign -depends Test {
+Task Sign -depends Test -requiredVariables CertSubjectPath {
     if ($CertPfxPath) {
-        if ((Test-Path -Path $CertPfxPath) -and -not $CertPfxPassword) {
-            $CertPfxPassword = (PromptUserForKeyCredential).Password
+        $CertImport = @{
+            CertStoreLocation = 'Cert:\CurrentUser\My'
+            FilePath          = $CertPfxPath
+            Password          = $(Get-Credential).Password
+            ErrorAction       = 'Stop'
         }
 
-        if ((Test-Path -Path $CertPfxPath) -and $CertPfxPassword) {
-            $CertImport = @{
-                CertStoreLocation = 'Cert:\CurrentUser\My'
-                FilePath          = $CertPfxPath
-                Password          = $CertPfxPassword
-                ErrorAction       = 'Stop'
-            }
-
-            $CertThumbprint = (Import-PfxCertificate @CertImport -Verbose:$VerbosePreference).Thumbprint
-        }
+        $Cert = Import-PfxCertificate @CertImport -Verbose:$VerbosePreference
     }
-
-    if ($CertThumbprint) {
-        EncryptAndSaveString -String $CertThumbprint -Path $CertThumbprintPath
-        Write-Output "The new thumbprint has been stored in $CertThumbprintPath"
-    }
-    elseif ($CertThumbprint -eq $null -and (Test-Path -LiteralPath $CertThumbprintPath)) {
-        $CertThumbprint = LoadAndUnencryptString $CertThumbprintPath
-        Write-Output "Using stored thumbprint from $CertThumbprintPath"
-    }
-    elseif ($CertThumbprint -eq $null) {
-        if ($CertThumbprint = @(Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert)[0].Thumbprint) {
-            EncryptAndSaveString -String $CertThumbprint -Path $CertThumbprintPath
-            Write-Output "The thumbprint has been stored in $CertThumbprintPath"
+    else {
+        if ($CertSubject -eq $null -and (Test-Path -LiteralPath $CertSubjectPath)) {
+            $CertSubject = LoadAndUnencryptString $CertSubjectPath
+            $LoadedFromSubjectFile = $true
         }
         else {
-            throw 'No certificate thumbprint supplied or stored'
+            $CertSubject = 'CN='
+            $CertSubject += Read-Host -Prompt 'Enter the certificate subject you wish to use (CN= prefix will be added)'
         }
+        
+        $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
+            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
+            Sort-Object -Property NotAfter -Descending | Select-Object -First 1
     }
-
-    if (Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert) {
-        if ($CertThumbprint) {
-            $Authenticode   = @{
-                FilePath    = @(Get-ChildItem -Path "$PublishDir\*" -Recurse -Include '*.ps1', '*.psm1')
-                Certificate = @(Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Where-Object { $_.Thumbprint -eq $CertThumbprint })[0]
-            }
+    
+    if ($Cert) {
+        if (-not $LoadedFromSubjectFile) {
+            EncryptAndSaveString -String $Cert.Subject -Path $CertSubjectPath
+            Write-Output "The new certificate subject has been stored in $CertSubjectPath"
         }
         else {
-            $Authenticode   = @{
-                FilePath    = @(Get-ChildItem -Path "$PublishDir\*" -Recurse -Include '*.ps1', '*.psm1')
-                Certificate = @(Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert)[0]
-            }
+            Write-Output "Using stored certificate subject $CertSubject from $CertSubjectPath"
+        }
+
+        $Authenticode   = @{
+            FilePath    = @(Get-ChildItem -Path "$PublishDir\*" -Recurse -Include '*.ps1', '*.psm1')
+            Certificate = Get-ChildItem Cert:\CurrentUser\My |
+                Where-Object { $_.Thumbprint -eq $Cert.Thumbprint }
         }
 
         Write-Output -InputObject $Authenticode.FilePath | Out-Default
@@ -288,27 +290,29 @@ Task Sign -depends Test {
         }
     }
     else {
-        throw "Signing failed. No code signing certificate found."
+        throw 'No valid certificate subject supplied or stored.'
     }
 }
 
-Task RemoveCertThumbprint -requiredVariables CertThumbprintPath {
-    if (Test-Path -LiteralPath $CertThumbprintPath) {
-        Remove-Item -LiteralPath $CertThumbprintPath
+Task RemoveCertSubject -requiredVariables CertSubjectPath {
+    if (Test-Path -LiteralPath $CertSubjectPath) {
+        Remove-Item -LiteralPath $CertSubjectPath
     }
 }
 
-Task ShowCertThumbprint -requiredVariables CertThumbprintPath {
-    $CertThumbprint = LoadAndUnencryptString -Path $CertThumbprintPath
-    Write-Output "The stored thumbprint is: $CertThumbprint"
-    $Certificate = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Where-Object { $_.Thumbprint -eq $CertThumbprint }
+Task ShowCertSubject -requiredVariables CertSubjectPath {
+    $CertSubject = LoadAndUnencryptString -Path $CertSubjectPath
+    Write-Output "The stored certificate is: $CertSubject"
+    $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
+            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
+            Sort-Object -Property NotAfter -Descending | Select-Object -First 1
 
-    if ($Certificate) {
-        Write-Output 'The certificate has been found and is valid'
+    if ($Cert) {
+        Write-Output "A valid certificate for the subject $CertSubject has been found"
     }
 
     else {
-        Write-Output 'The certificate has not been found'
+        Write-Output 'A valid certificate has not been found'
     }
 }
 
@@ -325,11 +329,14 @@ function PromptUserForKeyCredential {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $DestinationPath
+        $DestinationPath,
+
+        [Parameter(Mandatory)]
+        [string]
+        $Message
     )
 
-    $message = "Enter your key/password in the password field"
-    $KeyCred = Get-Credential -Message $message -UserName "ignored"
+    $KeyCred = Get-Credential -Message $Message -UserName "ignored"
 
     if ($DestinationPath) {
         EncryptAndSaveString -SecureString $KeyCred.Password -Path $DestinationPath
