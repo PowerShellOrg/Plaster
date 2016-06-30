@@ -675,6 +675,7 @@ __________.__                   __
                 'message'           { ProcessMessage $node; break }
                 'modify'            { ModifyFile $node; break }
                 'newModuleManifest' { GenerateModuleManifest $node; break }
+                'directory'         { ProcessDirectory $node; break}
                 default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
             }
         }
@@ -778,4 +779,50 @@ function WriteOperationStatus($operation, $message) {
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
+}
+
+function ProcessDirectory ([ValidateNotNull()]$DirectoryNode) {
+    $srcRelPath = ExpandString $DirectoryNode.source
+    $dstRelPath = ExpandString $DirectoryNode.destination
+
+    $condition  = $DirectoryNode.condition
+    if ($condition) {
+        if (!(EvaluateCondition $condition)) {
+            Write-Verbose "Skipping directory '$dstRelPath', condition evaluated to false."
+            return
+        }
+    }
+    $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
+    $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
+    try {
+        
+        # Check if new file (potentially after expansion) conflicts with corresponding existing file.
+        $operation = $LocalizedData.OpCreate
+        if (Test-Path $dstPath) {
+            if (AreFilesIdentical $srcPath $dstPath) {
+                $operation = $LocalizedData.OpIdentical
+            }
+            else {
+                $operation = $LocalizedData.OpConflict
+            }
+        }
+
+        # Copy the Directory to the destination
+        if ($PSCmdlet.ShouldProcess($dstPath, $operation)) {
+            WriteOperationStatus $operation (ConvertToDestinationRelativePath $dstPath)
+            if ($operation -ne $LocalizedData.OpConflict) {
+                Copy-Item -LiteralPath $srcPath -Destination $dstPath -Recurse
+            }
+            elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
+                                                        $LocalizedData.FileConflict,
+                                                        [ref]$fileConflictConfirmYesToAll,
+                                                        [ref]$fileConflictConfirmNoToAll)) {
+                Copy-Item -LiteralPath $srcPath -Destination $dstPath -Recurse
+            }
+        }
+    }
+    finally {
+
+    }
+
 }
