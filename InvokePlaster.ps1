@@ -370,6 +370,8 @@ __________.__                   __
             $moduleVersion = ExpandString $NewModuleManifestNode.moduleVersion
             $rootModule = ExpandString $NewModuleManifestNode.rootModule
             $author = ExpandString $NewModuleManifestNode.author
+            $company = ExpandString $NewModuleManifestNode.company
+            $description = ExpandString $NewModuleManifestNode.description
             $dstRelPath = ExpandString $NewModuleManifestNode.destination
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
@@ -396,7 +398,7 @@ __________.__                   __
                 # TODO: Temporary - remove this when this function makes use of ProcessFile
                 WriteOperationStatus 'Create' (ConvertToDestinationRelativePath $dstPath)
 
-                New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
+                New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author -CompanyName $company -Description $description
                 $content = Get-Content -LiteralPath $dstPath -Raw
                 Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8
             }
