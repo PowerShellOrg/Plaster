@@ -100,6 +100,17 @@ Properties {
     # will no longer be prompted for the API key.
     $NuGetApiKey = $null
     $EncryptedApiKeyPath = "$env:LOCALAPPDATA\vscode-powershell\NuGetApiKey.clixml"
+
+    # If you specify the certificate subject when running a build that certificate 
+    # must exist in the users personal certificate store. The build will import the 
+    # certificate (if required), then store the subject, so that on subsequent 
+    # signing the build will use the same (or newer) certificate with that subject.
+    $CertSubjectPath  = "$env:LOCALAPPDATA\WindowsPowerShell\CertificateSubject.clixml"
+
+    # In addition, PFX certificates are supported in an interactive scenario only,
+    # as a way to import a certificate into the user personal store for later use.
+    # This can be provided using the CertPfxPath parameter.
+    # PFX passwords will not be stored.
 }
 
 ###############################################################################
@@ -125,11 +136,15 @@ Task PublishImpl -depends Test -requiredVariables EncryptedApiKeyPath, PublishDi
         "Using script embedded NuGetApiKey"
     }
     elseif (Test-Path -LiteralPath $EncryptedApiKeyPath) {
-        $NuGetApiKey = LoadAndUnencryptNuGetApiKey $EncryptedApiKeyPath
+        $NuGetApiKey = LoadAndUnencryptString $EncryptedApiKeyPath
         "Using stored NuGetApiKey"
     }
     else {
-        $cred = PromptUserForNuGetApiKeyCredential -DestinationPath $EncryptedApiKeyPath
+        $KeyCred = @{
+            DestinationPath = $EncryptedApiKeyPath
+            Message         = 'Enter your NuGet API key in the password field'
+        }
+        $cred = PromptUserForKeyCredential @KeyCred
         $NuGetApiKey = $cred.GetNetworkCredential().Password
         "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
     }
@@ -191,7 +206,11 @@ Task RemoveKey -requiredVariables EncryptedApiKeyPath {
 }
 
 Task StoreKey -requiredVariables EncryptedApiKeyPath {
-    $nuGetApiKeyCred = PromptUserForNuGetApiKeyCredential -DestinationPath $EncryptedApiKeyPath
+    $KeyCred = @{
+        DestinationPath = $EncryptedApiKeyPath
+        Message = 'Enter your NuGet API key in the password field'
+    }
+    PromptUserForKeyCredential @KeyCred
     "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
 }
 
@@ -200,7 +219,7 @@ Task ShowKey -requiredVariables EncryptedApiKeyPath {
         "The embedded (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     else {
-        $NuGetApiKey = LoadAndUnencryptNuGetApiKey -Path $EncryptedApiKeyPath
+        $NuGetApiKey = LoadAndUnencryptString -Path $EncryptedApiKeyPath
         "The stored (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
 
@@ -212,7 +231,7 @@ Task ShowFullKey -requiredVariables EncryptedApiKeyPath {
         "The embedded NuGetApiKey is: $NuGetApiKey"
     }
     else {
-        $NuGetApiKey = LoadAndUnencryptNuGetApiKey -Path $EncryptedApiKeyPath
+        $NuGetApiKey = LoadAndUnencryptString -Path $EncryptedApiKeyPath
         "The stored NuGetApiKey is: $NuGetApiKey"
     }
 }
@@ -222,48 +241,130 @@ Task ? -description 'Lists the available tasks' {
     $PSake.Context.Peek().Tasks.Keys | Sort-Object
 }
 
+Task Sign -depends Test -requiredVariables CertSubjectPath {
+    if ($CertPfxPath) {
+        $CertImport = @{
+            CertStoreLocation = 'Cert:\CurrentUser\My'
+            FilePath          = $CertPfxPath
+            Password          = $(PromptUserForKeyCredential -Message 'Enter the PFX password to import the certificate').Password
+            ErrorAction       = 'Stop'
+        }
+
+        $Cert = Import-PfxCertificate @CertImport -Verbose:$VerbosePreference
+    }
+    else {
+        if ($CertSubject -eq $null -and (Test-Path -LiteralPath $CertSubjectPath)) {
+            $CertSubject = LoadAndUnencryptString $CertSubjectPath
+            $LoadedFromSubjectFile = $true
+        }
+        else {
+            $CertSubject = 'CN='
+            $CertSubject += Read-Host -Prompt 'Enter the certificate subject you wish to use (CN= prefix will be added)'
+        }
+        
+        $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
+            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
+            Sort-Object -Property NotAfter -Descending | Select-Object -First 1
+    }
+    
+    if ($Cert) {
+        if (-not $LoadedFromSubjectFile) {
+            EncryptAndSaveString -String $Cert.Subject -Path $CertSubjectPath
+            Write-Output "The new certificate subject has been stored in $CertSubjectPath"
+        }
+        else {
+            Write-Output "Using stored certificate subject $CertSubject from $CertSubjectPath"
+        }
+
+        $Authenticode   = @{
+            FilePath    = @(Get-ChildItem -Path "$PublishDir\*" -Recurse -Include '*.ps1', '*.psm1')
+            Certificate = Get-ChildItem Cert:\CurrentUser\My |
+                Where-Object { $_.Thumbprint -eq $Cert.Thumbprint }
+        }
+
+        Write-Output -InputObject $Authenticode.FilePath | Out-Default
+        Write-Output -InputObject $Authenticode.Certificate | Out-Default
+        $SignResult = Set-AuthenticodeSignature @Authenticode -Verbose:$VerbosePreference
+        if ($SignResult.Status -ne 'Valid') {
+            throw "Signing one or more scripts failed."
+        }
+    }
+    else {
+        throw 'No valid certificate subject supplied or stored.'
+    }
+}
+
+Task RemoveCertSubject -requiredVariables CertSubjectPath {
+    if (Test-Path -LiteralPath $CertSubjectPath) {
+        Remove-Item -LiteralPath $CertSubjectPath
+    }
+}
+
+Task ShowCertSubject -requiredVariables CertSubjectPath {
+    $CertSubject = LoadAndUnencryptString -Path $CertSubjectPath
+    Write-Output "The stored certificate is: $CertSubject"
+    $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
+            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
+            Sort-Object -Property NotAfter -Descending | Select-Object -First 1
+
+    if ($Cert) {
+        Write-Output "A valid certificate for the subject $CertSubject has been found"
+    }
+
+    else {
+        Write-Output 'A valid certificate has not been found'
+    }
+}
+
+Task BuildSigned -depends Sign, Build {}
+
+Task PublishSigned -depends Sign, Publish {}
+
 ###############################################################################
 # Helper functions
 ###############################################################################
-function PromptUserForNuGetApiKeyCredential {
+function PromptUserForKeyCredential {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
     param(
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $DestinationPath
+        $DestinationPath,
+
+        [Parameter(Mandatory)]
+        [string]
+        $Message
     )
 
-    $message = "Enter your NuGet API Key in the password field (or nothing, this isn't used yet in the preview)"
-    $nuGetApiKeyCred = Get-Credential -Message $message -UserName "ignored"
+    $KeyCred = Get-Credential -Message $Message -UserName "ignored"
 
     if ($DestinationPath) {
-        EncryptAndSaveNuGetApiKey -NuGetApiKeySecureString $nuGetApiKeyCred.Password -Path $DestinationPath
+        EncryptAndSaveString -SecureString $KeyCred.Password -Path $DestinationPath
     }
 
-    $nuGetApiKeyCred
+    $KeyCred
 }
 
-function EncryptAndSaveNuGetApiKey {
+function EncryptAndSaveString {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingConvertToSecureStringWithPlainText", '')]
     [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
     param(
         [Parameter(Mandatory, ParameterSetName='SecureString')]
         [ValidateNotNull()]
         [SecureString]
-        $NuGetApiKeySecureString,
+        $SecureString,
 
         [Parameter(Mandatory, ParameterSetName='PlainText')]
         [ValidateNotNullOrEmpty()]
         [string]
-        $NuGetApiKey,
+        $String,
 
         [Parameter(Mandatory)]
         $Path
     )
 
     if ($PSCmdlet.ParameterSetName -eq 'PlainText') {
-        $NuGetApiKeySecureString = ConvertTo-SecureString -String $NuGetApiKey -AsPlainText -Force
+        $SecureString = ConvertTo-SecureString -String $String -AsPlainText -Force
     }
 
     $parentDir = Split-Path $Path -Parent
@@ -274,11 +375,11 @@ function EncryptAndSaveNuGetApiKey {
         Remove-Item -LiteralPath $Path
     }
 
-    $NuGetApiKeySecureString | ConvertFrom-SecureString | Export-Clixml $Path
-    Write-Verbose "The NuGetApiKey has been encrypted and saved to $Path"
+    $SecureString | ConvertFrom-SecureString | Export-Clixml $Path
+    Write-Verbose "The data has been encrypted and saved to $Path"
 }
 
-function LoadAndUnencryptNuGetApiKey {
+function LoadAndUnencryptString {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
     param(
         [Parameter(Mandatory)]
@@ -290,5 +391,5 @@ function LoadAndUnencryptNuGetApiKey {
     $storedKey = Import-Clixml $Path | ConvertTo-SecureString
     $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr',$storedKey
     $cred.GetNetworkCredential().Password
-    Write-Verbose "The NuGetApiKey has been loaded and unencrypted from $Path"
+    Write-Verbose "The data has been loaded and unencrypted from $Path"
 }
