@@ -135,8 +135,8 @@ Task PublishImpl -depends Test -requiredVariables SecuredSettingsPath, PublishDi
     if ($NuGetApiKey) {
         "Using script embedded NuGetApiKey"
     }
-    elseif (GetSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
-        $NuGetApiKey = GetSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+    elseif (GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
+        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
         "Using stored NuGetApiKey"
     }
     else {
@@ -201,8 +201,8 @@ Task Init -requiredVariables PublishDir {
 }
 
 Task RemoveKey -requiredVariables SecuredSettingsPath {
-    if (GetSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
-        RemoveSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+    if (GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
+        RemoveSetting -Path $SecuredSettingsPath -Key NuGetApiKey
     }
 }
 
@@ -221,7 +221,7 @@ Task ShowKey -requiredVariables SecuredSettingsPath {
         "The embedded (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     else {
-        $NuGetApiKey = GetSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
         "The stored (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     Write-Output "To see the full key, use the task 'ShowFullKey'"
@@ -232,7 +232,7 @@ Task ShowFullKey -requiredVariables SecuredSettingsPath {
         "The embedded NuGetApiKey is: $NuGetApiKey"
     }
     else {
-        $NuGetApiKey = GetSecuredSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
         "The stored NuGetApiKey is: $NuGetApiKey"
     }
 }
@@ -254,8 +254,8 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
         $Cert = Import-PfxCertificate @CertImport -Verbose:$VerbosePreference
     }
     else {
-        if ($CertSubject -eq $null -and (GetSecuredSetting -Key CertSubject -Path $SecuredSettingsPath)) {
-            $CertSubject = GetSecuredSetting -Key CertSubject -Path $SecuredSettingsPath
+        if ($CertSubject -eq $null -and (GetSetting -Key CertSubject -Path $SecuredSettingsPath)) {
+            $CertSubject = GetSetting -Key CertSubject -Path $SecuredSettingsPath
             $LoadedFromSubjectFile = $true
         }
         else {
@@ -270,7 +270,7 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
     
     if ($Cert) {
         if (-not $LoadedFromSubjectFile) {
-            AddSecuredSetting -Key CertSubject -String $Cert.Subject -Path $SecuredSettingsPath
+            AddSetting -Key CertSubject -String $Cert.Subject -Path $SecuredSettingsPath
             Write-Output "The new certificate subject has been stored in $SecuredSettingsPath"
         }
         else {
@@ -296,13 +296,13 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
 }
 
 Task RemoveCertSubject -requiredVariables SecuredSettingsPath {
-    if (GetSecuredSetting -Path $SecuredSettingsPath -Key CertSubject) {
-        RemoveSecuredSetting -Path $SecuredSettingsPath -Key CertSubject
+    if (GetSetting -Path $SecuredSettingsPath -Key CertSubject) {
+        RemoveSetting -Path $SecuredSettingsPath -Key CertSubject
     }
 }
 
 Task ShowCertSubject -requiredVariables SecuredSettingsPath {
-    $CertSubject = GetSecuredSetting -Path $SecuredSettingsPath -Key CertSubject
+    $CertSubject = GetSetting -Path $SecuredSettingsPath -Key CertSubject
     Write-Output "The stored certificate is: $CertSubject"
     $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
             Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
@@ -343,15 +343,13 @@ function PromptUserForKeyCredential {
 
     $KeyCred = Get-Credential -Message $Message -UserName "ignored"
     if ($DestinationPath) {
-        AddSecuredSetting -SecureString $KeyCred.Password -Path $DestinationPath -Key $Key
+        AddSetting -SecureString $KeyCred.Password -Path $DestinationPath -Key $Key
     }
 
     $KeyCred
 }
 
-function AddSecuredSetting {
-    [CmdletBinding()]
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingConvertToSecureStringWithPlainText", '')]
+function AddSetting {
     Param(
         [Parameter(Mandatory)]
         [string]$Key,
@@ -369,51 +367,54 @@ function AddSecuredSetting {
     )
 
     if ($String) {
-        $SecureString = ConvertTo-SecureString -String $String -AsPlainText -Force
+        $Type = 'string'
+    }
+    else {
+        $Type = 'securestring'
+        $String = $SecureString | ConvertFrom-SecureString
     }
 
     if (Test-Path -Path $Path) {
         $StoredSettings = Import-Clixml -Path $Path
-        $StoredSettings.Add($Key, ($SecureString | ConvertFrom-SecureString))
+        $StoredSettings.Add($Key, @($Type, $String))
         $StoredSettings | Export-Clixml -Path $Path
     }
     else {
-        @{$Key = ($SecureString | ConvertFrom-SecureString)} | Export-Clixml -Path $Path
+        @{$Key = @($Type, $String)} | Export-Clixml -Path $Path
     }
 }
 
-function GetSecuredSetting {
-    [CmdletBinding()]
+function GetSetting {
     Param(
         [Parameter(Mandatory)]
-        [string]
-        $Key,
+        [string]$Key,
 
         [Parameter(Mandatory)]
-        [string]
-        $Path
+        [string]$Path
     )
 
     if (Test-Path -Path $Path) {
         $SecuredSettings = Import-Clixml -Path $Path
         if ($SecuredSettings.$Key) {
-            $Value = $SecuredSettings.$Key | ConvertTo-SecureString
-            $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr', $Value
-            $cred.GetNetworkCredential().Password
+            if ($SecuredSettings.$Key[0] -eq 'string') {
+                $SecuredSettings.$Key[1]
+            }
+            else {
+                $Value = $SecuredSettings.$Key[1] | ConvertTo-SecureString
+                $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr', $Value
+                $cred.GetNetworkCredential().Password
+            }
         }
     }
 }
 
-function RemoveSecuredSetting {
-    [CmdletBinding()]
+function RemoveSetting {
     Param(
         [Parameter(Mandatory)]
-        [string]
-        $Key,
+        [string]$Key,
 
         [Parameter(Mandatory)]
-        [string]
-        $Path
+        [string]$Path
     )
 
     $StoredSettings = Import-Clixml -Path $Path
