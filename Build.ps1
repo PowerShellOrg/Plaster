@@ -270,7 +270,7 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
     
     if ($Cert) {
         if (-not $LoadedFromSubjectFile) {
-            AddSetting -Key CertSubject -String $Cert.Subject -Path $SecuredSettingsPath
+            AddSetting -Key CertSubject -Value $Cert.Subject -Path $SecuredSettingsPath
             Write-Output "The new certificate subject has been stored in $SecuredSettingsPath"
         }
         else {
@@ -343,7 +343,7 @@ function PromptUserForKeyCredential {
 
     $KeyCred = Get-Credential -Message $Message -UserName "ignored"
     if ($DestinationPath) {
-        AddSetting -SecureString $KeyCred.Password -Path $DestinationPath -Key $Key
+        AddSetting -Key $Key -Value $KeyCred.Password -Path $DestinationPath
     }
 
     $KeyCred
@@ -357,30 +357,27 @@ function AddSetting {
         [Parameter(Mandatory)]
         [string]$Path,
 
-        [Parameter(Mandatory, ParameterSetName='SecureString')]
+        [Parameter(Mandatory)]
         [ValidateNotNull()]
-        [SecureString]$SecureString,
-
-        [Parameter(Mandatory, ParameterSetName='PlainText')]
-        [ValidateNotNullOrEmpty()]
-        [string]$String
+        [object]$Value
     )
 
-    if ($String) {
-        $Type = 'string'
-    }
-    else {
-        $Type = 'securestring'
-        $String = $SecureString | ConvertFrom-SecureString
+    switch ($Type = $Value.GetType().Name) {
+        'securestring' {
+            $Setting = $Value | ConvertFrom-SecureString
+        }
+        default {
+            $Setting = $Value
+        }
     }
 
     if (Test-Path -Path $Path) {
         $StoredSettings = Import-Clixml -Path $Path
-        $StoredSettings.Add($Key, @($Type, $String))
+        $StoredSettings.Add($Key, @($Type, $Setting))
         $StoredSettings | Export-Clixml -Path $Path
     }
     else {
-        @{$Key = @($Type, $String)} | Export-Clixml -Path $Path
+        @{$Key = @($Type, $Setting)} | Export-Clixml -Path $Path
     }
 }
 
@@ -396,13 +393,15 @@ function GetSetting {
     if (Test-Path -Path $Path) {
         $SecuredSettings = Import-Clixml -Path $Path
         if ($SecuredSettings.$Key) {
-            if ($SecuredSettings.$Key[0] -eq 'string') {
-                $SecuredSettings.$Key[1]
-            }
-            else {
-                $Value = $SecuredSettings.$Key[1] | ConvertTo-SecureString
-                $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr', $Value
-                $cred.GetNetworkCredential().Password
+            switch ($SecuredSettings.$Key[0]) {
+                'securestring' {
+                    $Value = $SecuredSettings.$Key[1] | ConvertTo-SecureString
+                    $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr', $Value
+                    $cred.GetNetworkCredential().Password
+                }
+                default {
+                    $SecuredSettings.$Key[1]
+                }
             }
         }
     }
