@@ -110,7 +110,7 @@ Properties {
     # as a way to import a certificate into the user personal store for later use.
     # This can be provided using the CertPfxPath parameter.
     # PFX passwords will not be stored.
-    $SecuredSettingsPath = "$env:LOCALAPPDATA\WindowsPowerShell\SecuredSettings.clixml"
+    $SettingsPath = "$env:LOCALAPPDATA\WindowsPowerShell\SecuredSettings.clixml"
 }
 
 ###############################################################################
@@ -131,23 +131,23 @@ Task default -depends Build
 Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
 }
 
-Task PublishImpl -depends Test -requiredVariables SecuredSettingsPath, PublishDir {
+Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
     if ($NuGetApiKey) {
         "Using script embedded NuGetApiKey"
     }
-    elseif (GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
-        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+    elseif (GetSetting -Path $SettingsPath -Key NuGetApiKey) {
+        $NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey
         "Using stored NuGetApiKey"
     }
     else {
         $KeyCred = @{
-            DestinationPath = $SecuredSettingsPath
+            DestinationPath = $SettingsPath
             Message         = 'Enter your NuGet API key in the password field'
             Key             = 'NuGetApiKey'
         }
         $cred = PromptUserForKeyCredential @KeyCred
         $NuGetApiKey = $cred.GetNetworkCredential().Password
-        "The NuGetApiKey has been stored in $SecuredSettingsPath"
+        "The NuGetApiKey has been stored in $SettingsPath"
     }
 
     $publishParams = @{
@@ -200,39 +200,39 @@ Task Init -requiredVariables PublishDir {
     }
 }
 
-Task RemoveKey -requiredVariables SecuredSettingsPath {
-    if (GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey) {
-        RemoveSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+Task RemoveKey -requiredVariables SettingsPath {
+    if (GetSetting -Path $SettingsPath -Key NuGetApiKey) {
+        RemoveSetting -Path $SettingsPath -Key NuGetApiKey
     }
 }
 
-Task StoreKey -requiredVariables SecuredSettingsPath {
+Task StoreKey -requiredVariables SettingsPath {
     $KeyCred = @{
-        DestinationPath = $SecuredSettingsPath
+        DestinationPath = $SettingsPath
         Message         = 'Enter your NuGet API key in the password field'
         Key             = 'NuGetApiKey'
     }
     PromptUserForKeyCredential @KeyCred
-    "The NuGetApiKey has been stored in $SecuredSettingsPath"
+    "The NuGetApiKey has been stored in $SettingsPath"
 }
 
-Task ShowKey -requiredVariables SecuredSettingsPath {
+Task ShowKey -requiredVariables SettingsPath {
     if ($NuGetApiKey) {
         "The embedded (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     else {
-        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+        $NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey
         "The stored (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     Write-Output "To see the full key, use the task 'ShowFullKey'"
 }
 
-Task ShowFullKey -requiredVariables SecuredSettingsPath {
+Task ShowFullKey -requiredVariables SettingsPath {
     if ($NuGetApiKey) {
         "The embedded NuGetApiKey is: $NuGetApiKey"
     }
     else {
-        $NuGetApiKey = GetSetting -Path $SecuredSettingsPath -Key NuGetApiKey
+        $NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey
         "The stored NuGetApiKey is: $NuGetApiKey"
     }
 }
@@ -242,7 +242,7 @@ Task ? -description 'Lists the available tasks' {
     $PSake.Context.Peek().Tasks.Keys | Sort-Object
 }
 
-Task Sign -depends Test -requiredVariables SecuredSettingsPath {
+Task Sign -depends Test -requiredVariables SettingsPath {
     if ($CertPfxPath) {
         $CertImport = @{
             CertStoreLocation = 'Cert:\CurrentUser\My'
@@ -254,8 +254,8 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
         $Cert = Import-PfxCertificate @CertImport -Verbose:$VerbosePreference
     }
     else {
-        if ($CertSubject -eq $null -and (GetSetting -Key CertSubject -Path $SecuredSettingsPath)) {
-            $CertSubject = GetSetting -Key CertSubject -Path $SecuredSettingsPath
+        if ($CertSubject -eq $null -and (GetSetting -Key CertSubject -Path $SettingsPath)) {
+            $CertSubject = GetSetting -Key CertSubject -Path $SettingsPath
             $LoadedFromSubjectFile = $true
         }
         else {
@@ -270,11 +270,11 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
     
     if ($Cert) {
         if (-not $LoadedFromSubjectFile) {
-            AddSetting -Key CertSubject -Value $Cert.Subject -Path $SecuredSettingsPath
-            Write-Output "The new certificate subject has been stored in $SecuredSettingsPath"
+            SetSetting -Key CertSubject -Value $Cert.Subject -Path $SettingsPath
+            Write-Output "The new certificate subject has been stored in $SettingsPath"
         }
         else {
-            Write-Output "Using stored certificate subject $CertSubject from $SecuredSettingsPath"
+            Write-Output "Using stored certificate subject $CertSubject from $SettingsPath"
         }
 
         $Authenticode   = @{
@@ -295,14 +295,14 @@ Task Sign -depends Test -requiredVariables SecuredSettingsPath {
     }
 }
 
-Task RemoveCertSubject -requiredVariables SecuredSettingsPath {
-    if (GetSetting -Path $SecuredSettingsPath -Key CertSubject) {
-        RemoveSetting -Path $SecuredSettingsPath -Key CertSubject
+Task RemoveCertSubject -requiredVariables SettingsPath {
+    if (GetSetting -Path $SettingsPath -Key CertSubject) {
+        RemoveSetting -Path $SettingsPath -Key CertSubject
     }
 }
 
-Task ShowCertSubject -requiredVariables SecuredSettingsPath {
-    $CertSubject = GetSetting -Path $SecuredSettingsPath -Key CertSubject
+Task ShowCertSubject -requiredVariables SettingsPath {
+    $CertSubject = GetSetting -Path $SettingsPath -Key CertSubject
     Write-Output "The stored certificate is: $CertSubject"
     $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
             Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
@@ -343,7 +343,7 @@ function PromptUserForKeyCredential {
 
     $KeyCred = Get-Credential -Message $Message -UserName "ignored"
     if ($DestinationPath) {
-        AddSetting -Key $Key -Value $KeyCred.Password -Path $DestinationPath
+        SetSetting -Key $Key -Value $KeyCred.Password -Path $DestinationPath
     }
 
     $KeyCred
@@ -405,6 +405,25 @@ function GetSetting {
             }
         }
     }
+}
+
+function SetSetting {
+    Param(
+        [Parameter(Mandatory)]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNull()]
+        [object]$Value
+    )
+
+    if (GetSetting -Key $Key -Path $Path) {
+        RemoveSetting -Key $Key -Path $Path
+    }
+    AddSetting -Key $Key -Value $Value -Path $Path
 }
 
 function RemoveSetting {
