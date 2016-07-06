@@ -413,7 +413,10 @@ __________.__                   __
                     ExpandString $expr
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
-                Set-Content -Path $Path -Value $newContent -Encoding $encoding
+                if ($Content -ne $newContent)
+                {
+                    Set-Content -Path $Path -Value $newContent -Encoding $encoding
+                }
             }
         }
 
