@@ -239,20 +239,6 @@ __________.__                   __
             $retval
         }
 
-        function GetGitConfigValue($name) {
-            # Very simplistic git config lookup
-            # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
-            $gitConfigPath = (Join-Path $env:Home '.gitconfig')
-            Write-Verbose "Looking for '$name' value in Git Config: $gitConfigPath"
-            if (Test-Path $gitConfigPath) {
-                $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
-                if (@($matches).Count -gt 0) 
-                { 
-                    $matches.Matches.Groups[1].Value 
-                }
-            }
-        }
-
         function ProcessParameter([ValidateNotNull()]$ParamNode) {
             $name = $ParamNode.name
             $type = $ParamNode.type
@@ -696,6 +682,15 @@ __________.__                   __
     }
 }
 
+
+<#
+██   ██ ███████ ██      ██████  ███████ ██████  ███████
+██   ██ ██      ██      ██   ██ ██      ██   ██ ██
+███████ █████   ██      ██████  █████   ██████  ███████
+██   ██ ██      ██      ██      ██      ██   ██      ██
+██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
+#>
+
 function InitializePredefinedVariables([string]$destPath) {
     $destName = Split-Path -Path $destPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $destPath.TrimEnd('\','/') -Scope Script
@@ -793,4 +788,18 @@ function WriteOperationStatus($operation, $message) {
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
+}
+
+function GetGitConfigValue($name) {
+    # Very simplistic git config lookup
+    # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
+    $gitConfigPath = (Join-Path $env:Home '.gitconfig')
+    Write-Verbose "Looking for '$name' value in Git Config: $gitConfigPath"
+    if (Test-Path $gitConfigPath) {
+        $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
+        if (@($matches).Count -gt 0)
+        {
+            $matches.Matches.Groups[1].Value
+        }
+    }
 }
