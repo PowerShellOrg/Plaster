@@ -239,6 +239,20 @@ __________.__                   __
             $retval
         }
 
+        function GetGitConfigValue($name) {
+            # Very simplistic git config lookup
+            # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
+            $gitConfigPath = (Join-Path $env:Home '.gitconfig')
+            Write-Verbose "Looking for '$name' value in Git Config: $gitConfigPath"
+            if (Test-Path $gitConfigPath) {
+                $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
+                if (@($matches).Count -gt 0) 
+                { 
+                    $matches.Matches.Groups[1].Value 
+                }
+            }
+        }
+
         function ProcessParameter([ValidateNotNull()]$ParamNode) {
             $name = $ParamNode.name
             $type = $ParamNode.type
@@ -288,7 +302,7 @@ __________.__                   __
                     'author' {
                         # If no default, try to get a name from git config
                         if ([String]::IsNullOrWhitespace($default)) {
-                            try { $default = (git config user.name) } catch {}
+                            $default = GetGitConfigValue('name')
                         }
 
                         if ($default) {
@@ -302,7 +316,7 @@ __________.__                   __
                     'email' {
                         # If no default, try to get an email from git config
                         if ([String]::IsNullOrWhitespace($default)) {
-                            try { $default = (git config user.email) } catch {}
+                            $default = GetGitConfigValue('email')
                         }
 
                         if ($default) {
