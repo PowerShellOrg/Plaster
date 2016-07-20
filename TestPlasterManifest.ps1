@@ -2,20 +2,27 @@
 .SYNOPSIS
     Verifies that a plaster manifest file is a valid.
 .DESCRIPTION
-    Verifies that a plaster manifest file is a valid.
+    Verifies that a plaster manifest file is a valid.  The details of the
+    errors can be viewed by using the Verbose parameter.
 .EXAMPLE
-    C:\PS> Test-PlasterManifest plasterManifest.xml
-    Verifies that the plasterManifest.xml file in the current directory
+    PS C:\> Test-PlasterManifest MyTemplate\plasterManifest.xml
+    Verifies that the plasterManifest.xml file in the MyTemplate sub-directory
     is valid.
+.EXAMPLE
+    PS C:\> Test-PlasterManifest plasterManifest.xml -Verbose
+    Verifies that the plasterManifest.xml file in the current directory
+    is valid. If there are any validation errors, using -Verbose will
+    display the details of those errors.
 .INPUTS
     System.String
     You can pipe the path to a plaster manifest to Test-PlasterManifest.
 .OUTPUTS
-    System.Boolean
-    Returns "True" when the plaster manifest file is valid and "False" when
-    it isn't valid.
-.NOTES
-    General notes
+    System.Xml.XmlDocument
+
+    Test-PlasterManifest returns a System.Xml.XmlDocument if the manifest is
+    valid.  Otherwise it returns $null.
+.LINK
+    Invoke-Plaster
 #>
 function Test-PlasterManifest {
     [CmdletBinding()]
