@@ -2,6 +2,7 @@
 Import-Module ..\..\Plaster.psd1
 
 Remove-Item ..\Out -Recurse
+New-Item ..\Out -ItemType Directory > $null
 
 $PlasterParams = @{
     TemplatePath = $PWD

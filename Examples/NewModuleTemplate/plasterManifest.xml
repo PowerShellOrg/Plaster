@@ -60,7 +60,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
-                           author='$PLASTER_PARAM_FullName'/>
+                           author='$PLASTER_PARAM_FullName'
+                           encoding='UTF8-NoBOM'/>
         <!-- Recursively copy all *files* into the corresponding directory structure under dest dir Recurse -->
         <file source='RecurseTest\**'
               destination='Recurse'
@@ -76,7 +77,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <file source='ApacheLicense.txt'
               destination='LICENSE.txt'
               template='true'
-              condition="$PLASTER_PARAM_License -eq 'Apache'"/>
+              condition="$PLASTER_PARAM_License -eq 'Apache'"
+              encoding="UTF8-NoBOM"/>
         <file source='MITLicense.txt'
               destination='LICENSE.txt'
               template='true'

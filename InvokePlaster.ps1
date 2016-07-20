@@ -375,7 +375,7 @@ __________.__                   __
 
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
-                Set-Content -LiteralPath $dstPath -Value $content -Encoding $encoding
+                WriteContentWithEncoding -Path $dstPath -Content $content -Encoding $encoding
             }
         }
 
@@ -390,7 +390,7 @@ __________.__                   __
                     ExpandString $expr
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
-                Set-Content -Path $Path -Value $newContent -Encoding $encoding
+                WriteContentWithEncoding -Path $Path -Content $newContent -Encoding $encoding
             }
         }
 
@@ -608,7 +608,7 @@ __________.__                   __
                 # TODO: write to temp file and introduce file conflict handling
 
                 if ($modified) {
-                    Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
+                    WriteContentWithEncoding -Path $filePath -Content $PLASTER_FileContent -Encoding $encoding
                 }
             }
         }
@@ -742,6 +742,26 @@ function ColorForOperation($operation) {
         $LocalizedData.OpIdentical { 'Cyan' }
         $LocalizedData.OpModify    { 'Green' }
         default { $Host.UI.RawUI.ForegroundColor }
+    }
+}
+
+function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$encoding) {
+    if ($encoding -match '-nobom') {
+        $encoding,$dummy = $encoding -split '-'
+
+        $noBomEncoding = $null
+        switch ($encoding) {
+            'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
+        }
+
+        if ($content -eq $null) {
+            $content = [string]::Empty
+        }
+
+        [System.IO.File]::WriteAllLines($path, $content, $noBomEncoding)
+    }
+    else {
+        Set-Content -LiteralPath $path -Value $content -Encoding $encoding
     }
 }
 
