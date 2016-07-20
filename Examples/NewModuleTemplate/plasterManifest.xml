@@ -14,7 +14,8 @@
     <parameters>
         <parameter name='ModuleName' type='input' prompt='Enter the name of the module'/>
         <parameter name='Version' type='input' default='1.0.0' prompt='Enter the version number for the module'/>
-        <parameter name='FullName' type='input' store='encrypted' prompt='Enter your fullname'/>
+        <parameter name='FullName' type='author' store='encrypted' prompt='Enter your fullname'/>
+        <parameter name='E-mail' type='email' store='encrypted' prompt='Enter your e-mail address'/>
         <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
@@ -60,7 +61,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
-                           author='$PLASTER_PARAM_FullName'/>
+                           author='$PLASTER_PARAM_FullName'
+                           encoding='UTF8-NoBOM'/>
         <!-- Recursively copy all *files* into the corresponding directory structure under dest dir Recurse -->
         <file source='RecurseTest\**'
               destination='Recurse'
@@ -76,7 +78,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <file source='ApacheLicense.txt'
               destination='LICENSE.txt'
               template='true'
-              condition="$PLASTER_PARAM_License -eq 'Apache'"/>
+              condition="$PLASTER_PARAM_License -eq 'Apache'"
+              encoding="UTF8-NoBOM"/>
         <file source='MITLicense.txt'
               destination='LICENSE.txt'
               template='true'

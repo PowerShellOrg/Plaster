@@ -281,6 +281,45 @@ __________.__                   __
                                 $prompt += " ($default)"
                             }
                         }
+                        # Prompt the user for text input.
+                        $value = PromptForInput $prompt $default
+                        $valueToStore = $value
+                    }
+                    'author' {
+                        # If no default, try to get a name from git config
+                        if (-not $default) {
+                            $default = GetGitConfigValue('name')
+                        }
+
+                        if ($default) {
+                            if ($store -eq 'encrypted') {
+                                $obscuredDefault = $default -replace '(....).*', '$1****'
+                                $prompt += " ($obscuredDefault)"
+                            }
+                            else {
+                                $prompt += " ($default)"
+                            }
+                        }
+
+                        # Prompt the user for text input.
+                        $value = PromptForInput $prompt $default
+                        $valueToStore = $value
+                    }
+                    'email' {
+                        # If no default, try to get an email from git config
+                        if (-not $default) {
+                            $default = GetGitConfigValue('email')
+                        }
+
+                        if ($default) {
+                            if ($store -eq 'encrypted') {
+                                $obscuredDefault = $default -replace '(....).*', '$1****'
+                                $prompt += " ($obscuredDefault)"
+                            }
+                            else {
+                                $prompt += " ($default)"
+                            }
+                        }
 
                         # Prompt the user for text input.
                         $value = PromptForInput $prompt $default
@@ -375,7 +414,7 @@ __________.__                   __
 
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
-                Set-Content -LiteralPath $dstPath -Value $content -Encoding $encoding
+                WriteContentWithEncoding -Path $dstPath -Content $content -Encoding $encoding
             }
         }
 
@@ -390,7 +429,7 @@ __________.__                   __
                     ExpandString $expr
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
-                Set-Content -Path $Path -Value $newContent -Encoding $encoding
+                WriteContentWithEncoding -Path $Path -Content $newContent -Encoding $encoding
             }
         }
 
@@ -608,7 +647,7 @@ __________.__                   __
                 # TODO: write to temp file and introduce file conflict handling
 
                 if ($modified) {
-                    Set-Content -LiteralPath $filePath -Value $PLASTER_FileContent -Encoding $encoding
+                    WriteContentWithEncoding -Path $filePath -Content $PLASTER_FileContent -Encoding $encoding
                 }
             }
         }
@@ -654,6 +693,15 @@ __________.__                   __
         }
     }
 }
+
+
+<#
+██   ██ ███████ ██      ██████  ███████ ██████  ███████
+██   ██ ██      ██      ██   ██ ██      ██   ██ ██
+███████ █████   ██      ██████  █████   ██████  ███████
+██   ██ ██      ██      ██      ██      ██   ██      ██
+██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
+#>
 
 function InitializePredefinedVariables([string]$destPath) {
     $destName = Split-Path -Path $destPath -Leaf
@@ -745,6 +793,26 @@ function ColorForOperation($operation) {
     }
 }
 
+function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$encoding) {
+    if ($encoding -match '-nobom') {
+        $encoding,$dummy = $encoding -split '-'
+
+        $noBomEncoding = $null
+        switch ($encoding) {
+            'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
+        }
+
+        if ($content -eq $null) {
+            $content = [string]::Empty
+        }
+
+        [System.IO.File]::WriteAllLines($path, $content, $noBomEncoding)
+    }
+    else {
+        Set-Content -LiteralPath $path -Value $content -Encoding $encoding
+    }
+}
+
 function WriteOperationStatus($operation, $message) {
     $maxLen = ($LocalizedData.OpCreate, $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpExpand,
@@ -752,4 +820,18 @@ function WriteOperationStatus($operation, $message) {
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
+}
+
+function GetGitConfigValue($name) {
+    # Very simplistic git config lookup
+    # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
+    $gitConfigPath = (Join-Path $env:Home '.gitconfig')
+    Write-Verbose "Looking for '$name' value in Git Config: $gitConfigPath"
+    if (Test-Path $gitConfigPath) {
+        $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
+        if (@($matches).Count -gt 0)
+        {
+            $matches.Matches.Groups[1].Value
+        }
+    }
 }
