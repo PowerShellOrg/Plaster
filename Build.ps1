@@ -86,6 +86,7 @@ Properties {
         '.vscode',
         # These files are unique to this examples dir.
         'DebugTest.ps1',
+        'DesignNotes.md',
         'PSScriptAnalyzerSettings.psd1',
         'Readme.md',
         'Stop*.ps1'
@@ -101,9 +102,9 @@ Properties {
     $NuGetApiKey = $null
     $EncryptedApiKeyPath = "$env:LOCALAPPDATA\vscode-powershell\NuGetApiKey.clixml"
 
-    # If you specify the certificate subject when running a build that certificate 
-    # must exist in the users personal certificate store. The build will import the 
-    # certificate (if required), then store the subject, so that on subsequent 
+    # If you specify the certificate subject when running a build that certificate
+    # must exist in the users personal certificate store. The build will import the
+    # certificate (if required), then store the subject, so that on subsequent
     # signing the build will use the same (or newer) certificate with that subject.
     $CertSubjectPath  = "$env:LOCALAPPDATA\WindowsPowerShell\CertificateSubject.clixml"
 
@@ -261,12 +262,12 @@ Task Sign -depends Test -requiredVariables CertSubjectPath {
             $CertSubject = 'CN='
             $CertSubject += Read-Host -Prompt 'Enter the certificate subject you wish to use (CN= prefix will be added)'
         }
-        
+
         $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
             Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
             Sort-Object -Property NotAfter -Descending | Select-Object -First 1
     }
-    
+
     if ($Cert) {
         if (-not $LoadedFromSubjectFile) {
             EncryptAndSaveString -String $Cert.Subject -Path $CertSubjectPath
