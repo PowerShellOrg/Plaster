@@ -5,11 +5,15 @@ ConvertFrom-StringData @'
 ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
 ErrorProcessingDynamicParams_F1=Error processing dynamic parameters: {0}
 ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
+ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
 FileConflict=Plaster file conflict
-ManifestMissingAttribute_F2=The Plaster manifest element {0} is missing the required attribute {1}.
-ManifestMissingElement_F1=The Plaster manifest is missing the {0} element.
-ManifestNotValidXml_F1=The manifest is not a valid XML file: {0}
-ManifestWrongFilename_F1=The manifest filename must be plasterManifest.xml not '{0}'.
+ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
+ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element <plasterManifest xmlns="{1}"></plasterManifest>.
+ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
+ManifestErrorReading_F1=Plaster manifest error: {0}
+ManifestNotValid_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
+ManifestNotValidXml_F1=The Plaster manifest '{0}' is not a valid XML file.
+ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml'. Change the plaster manifest filename to 'plasterManifest.xml', and then try again.
 OpCreate=Create
 OpConflict=Conflict
 OpExpand=Expand

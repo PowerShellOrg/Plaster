@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest version='0.1.0' xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/2016-06">
+<plasterManifest schemaVersion="0.2" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <!-- For the default store file, we need a unique identifier to ensure one template's default value store
              doesn't get used with any other template.  -->
@@ -8,13 +8,13 @@
         <title>New Module Project</title>
         <!-- For display by UI's in hover help -->
         <description>Plaster template for creating the files for a PowerShell module.</description>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
         <tags>Module, ModuleManifest, Build</tags>
     </metadata>
     <parameters>
-        <parameter name='ModuleName' type='input' required='true' prompt='Enter the name of the module'/>
+        <parameter name='ModuleName' type='input' prompt='Enter the name of the module'/>
         <parameter name='Version' type='input' default='1.0.0' prompt='Enter the version number for the module'/>
-        <parameter name='FullName' type='input' required='true' store='encrypted' prompt='Enter your fullname'/>
+        <parameter name='FullName' type='input' store='encrypted' prompt='Enter your fullname'/>
         <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
@@ -157,10 +157,10 @@ You can publish your project to the PSGallery by pressing Ctrl+P, then type 'tas
 
         </message>
 
-        <message condition="$PLASTER_PARAM_Options -contains 'Pester'"><![CDATA[
+        <message condition="$PLASTER_PARAM_Options -contains 'Pester'">
 A Pester test has been created to validate the module's manifest file.  Add additional test to the Tests directory.
-You can run the Pester tests in your project by executing the 'test' task by pressing Ctrl+P, then type 'task test'.]]>
-        </message>
+You can run the Pester tests in your project by executing the 'test' task by pressing Ctrl+P, then type 'task test'.
 
+        </message>
     </content>
 </plasterManifest>

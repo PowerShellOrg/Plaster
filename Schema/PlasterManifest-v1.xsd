@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- Schema versioning guidance:
+     https://msdn.microsoft.com/en-us/library/ms950793.aspx
+     http://stackoverflow.com/questions/2014237/what-are-the-best-practices-for-versioning-xml-schemas
+     http://www.xfront.com/Versioning.pdf
+     -->
 <xs:schema
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/2016-06"
-	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/2016-06"
-  version="1.0"
-  xml:lang="en"
+	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 	elementFormDefault="qualified"
   attributeFormDefault="unqualified"
+  version="0.2"
+  xml:lang="en"
 	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
 		vs:friendlyname="Plaster Manifest Schema"
 		vs:ishtmlschema="false">
 
 	<xs:annotation>
 		<xs:documentation>
-      Version 1.0 schema for a Plaster manifest file that is used to define
+      Schema for a Plaster manifest file that is used to define
       the metadata, parameters and content of a template.  For information of
       the Plaster project see http://github.com/PowerShell/Plaster.
     </xs:documentation>
@@ -141,12 +146,6 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="store" type="ptd:StoreFormatType"/>
-      <!-- TODO: Do we need this and if so should it be called mandatory -->
-      <xs:attribute name="required" type="xs:boolean" default="false">
-        <xs:annotation>
-          <xs:documentation>Specifies if the parameter is mandatory.</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -359,7 +358,7 @@
         </xs:element>
     	</xs:sequence>
 
-      <xs:attribute name="version" type="xs:string" use="required">
+      <xs:attribute name="schemaVersion" type="xs:decimal" use="required">
         <xs:annotation>
           <xs:documentation>Version level of the associated XML schema. Only major/breaking changes to the XML schema result in a new target namespace.</xs:documentation>
         </xs:annotation>

@@ -56,25 +56,25 @@ function Invoke-Plaster {
                 return
             }
 
+            # Can't seem to use $PSCmdlet.GetUnresolvedProviderPathFromPSPath in dynamicparam scriptblock.
             $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
             if (!(Test-Path $manifestPath)) {
                 return
             }
 
-            $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
+            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
-            # which allows the user to provide all required parameters via the command line.
+            # which allows the user to provide the parameters via the command line.
             # This enables non-interactive use cases.
             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
-                if ($node -isnot [System.Xml.XmlElement] -and ($node.LocalName -eq 'parameter')) {
+                if ($node -isnot [System.Xml.XmlElement]) {
                     continue
                 }
 
                 $name = $node.name
                 $type = $node.type
                 $prompt = $node.prompt
-                $default = $node.default
 
                 if (!$name -or !$type) { continue }
 
@@ -168,22 +168,11 @@ __________.__                   __
         # Validate that the dynamicparam scriptblock was able to load the template manifest and it is valid.
         if ($null -eq $manifest) {
             if (Test-Path $manifestPath) {
-                try {
-                    # We have a valid path, try again and if successful - validate it.
-                    $manifest = [xml](Get-Content $manifestPath)
-                    Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
-                }
-                catch {
-                    throw ($LocalizedData.ManifestNotValidXml_F1 -f $manifestPath)
-                }
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
             }
             else {
-                # TODO: Localize string
-                throw "Missing manifest file: '$manifestPath'"
+                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
             }
-        }
-        else {
-            Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
         }
 
         # Check for any existing default value store file and load default values if file exists.
@@ -223,13 +212,6 @@ __________.__                   __
                 $help = ExpandString $choiceNode.help
                 $value = ExpandString $choiceNode.value
 
-                if (!$label) {
-                    throw ($LocalizedData.ManifestMissingAttribute_F2 -f $choiceNode.LocalName, 'help')
-                }
-                if (!$value) {
-                    throw ($LocalizedData.ManifestMissingAttribute_F2 -f $choiceNode.LocalName, 'value')
-                }
-
                 $choice = New-Object System.Management.Automation.Host.ChoiceDescription -Arg $label,$help
                 $choices.Add($choice)
                 $values[$i++] = $value
@@ -263,16 +245,6 @@ __________.__                   __
             $store = $ParamNode.store
             $prompt = ExpandString $ParamNode.prompt
             $default = ExpandString $ParamNode.default
-
-            if (!$name) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'name')
-            }
-            if (!$type) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'type')
-            }
-            if (!$prompt) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'prompt')
-            }
 
             # Check if parameter was provided via a dynamic parameter
             if ($boundParameters.ContainsKey($name)) {
