@@ -56,25 +56,25 @@ function Invoke-Plaster {
                 return
             }
 
+            # Can't seem to use $PSCmdlet.GetUnresolvedProviderPathFromPSPath in dynamicparam scriptblock.
             $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
             if (!(Test-Path $manifestPath)) {
                 return
             }
 
-            $manifest = [xml](Get-Content $manifestPath -ErrorAction SilentlyContinue)
+            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
-            # which allows the user to provide all required parameters via the command line.
+            # which allows the user to provide the parameters via the command line.
             # This enables non-interactive use cases.
             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
-                if ($node -isnot [System.Xml.XmlElement] -and ($node.LocalName -eq 'parameter')) {
+                if ($node -isnot [System.Xml.XmlElement]) {
                     continue
                 }
 
                 $name = $node.name
                 $type = $node.type
                 $prompt = $node.prompt
-                $default = $node.default
 
                 if (!$name -or !$type) { continue }
 
@@ -92,7 +92,7 @@ function Invoke-Plaster {
                     }
 
                     { 'choice','multichoice' -contains $_ } {
-                        $choiceNodes = $node.SelectNodes('choice')
+                        $choiceNodes = $node.ChildNodes
                         $setValues = New-Object string[] $choiceNodes.Count
                         $i = 0
 
@@ -168,22 +168,11 @@ __________.__                   __
         # Validate that the dynamicparam scriptblock was able to load the template manifest and it is valid.
         if ($null -eq $manifest) {
             if (Test-Path $manifestPath) {
-                try {
-                    # We have a valid path, try again and if successful - validate it.
-                    $manifest = [xml](Get-Content $manifestPath)
-                    Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
-                }
-                catch {
-                    throw ($LocalizedData.ManifestNotValidXml_F1 -f $manifestPath)
-                }
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
             }
             else {
-                # TODO: Localize string
-                throw "Missing manifest file: '$manifestPath'"
+                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
             }
-        }
-        else {
-            Plaster\Test-PlasterManifest -InputObject $manifest -ErrorAction Stop
         }
 
         # Check for any existing default value store file and load default values if file exists.
@@ -223,13 +212,6 @@ __________.__                   __
                 $help = ExpandString $choiceNode.help
                 $value = ExpandString $choiceNode.value
 
-                if (!$label) {
-                    throw ($LocalizedData.ManifestMissingAttribute_F2 -f $choiceNode.LocalName, 'help')
-                }
-                if (!$value) {
-                    throw ($LocalizedData.ManifestMissingAttribute_F2 -f $choiceNode.LocalName, 'value')
-                }
-
                 $choice = New-Object System.Management.Automation.Host.ChoiceDescription -Arg $label,$help
                 $choices.Add($choice)
                 $values[$i++] = $value
@@ -264,16 +246,6 @@ __________.__                   __
             $prompt = ExpandString $ParamNode.prompt
             $default = ExpandString $ParamNode.default
 
-            if (!$name) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'name')
-            }
-            if (!$type) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'type')
-            }
-            if (!$prompt) {
-                throw ($LocalizedData.ManifestMissingAttribute_F2 -f $ParamNode.LocalName, 'prompt')
-            }
-
             # Check if parameter was provided via a dynamic parameter
             if ($boundParameters.ContainsKey($name)) {
                 $value = $boundParameters[$name]
@@ -284,7 +256,7 @@ __________.__                   __
                     $default = $defaultValueStore[$name]
                     $PSCmdlet.WriteDebug("Read default value '$default' for parameter '$name'.")
 
-                    if (($store -eq 'encrypt') -and ($default -is [System.Security.SecureString])) {
+                    if (($store -eq 'encrypted') -and ($default -is [System.Security.SecureString])) {
                         try {
                             $cred = New-Object -TypeName PSCredential -ArgumentList 'jsbplh',$default
                             $default = $cred.GetNetworkCredential().Password
@@ -301,7 +273,7 @@ __________.__                   __
                     'input' {
                         # Display an appropriate "default" value in the prompt string.
                         if ($default) {
-                            if ($store -eq 'encrypt') {
+                            if ($store -eq 'encrypted') {
                                 $obscuredDefault = $default -replace '(....).*', '$1****'
                                 $prompt += " ($obscuredDefault)"
                             }
@@ -315,7 +287,7 @@ __________.__                   __
                         $valueToStore = $value
                     }
                     'choice|multichoice' {
-                        $choices = $ParamNode.SelectNodes('choice')
+                        $choices = $ParamNode.ChildNodes
                         $defaults = [int[]]($default -split ',')
 
                         # Prompt the user for choice or multichoice selection input.
@@ -330,7 +302,7 @@ __________.__                   __
                 # If parameter specifies that user's input be stored as the default value,
                 # store it to file if the value has changed.
                 if ($store -and ($default -ne $valueToStore)) {
-                    if ($store -eq 'encrypt') {
+                    if ($store -eq 'encrypted') {
                         $PSCmdlet.WriteDebug("Storing new, encrypted default value for parameter '$name'.")
                         $defaultValueStore[$name] = ConvertTo-SecureString -String $valueToStore -AsPlainText -Force
                     }
@@ -381,6 +353,11 @@ __________.__                   __
                 }
             }
 
+            $encoding = ExpandString $NewModuleManifestNode.encoding
+            if (!$encoding) {
+                $encoding = $DefaultEncoding
+            }
+
             # TODO: This generates a file and as such should participate in file
             # conflict resolution. I think we should gen the file here and then
             # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
@@ -398,7 +375,7 @@ __________.__                   __
 
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
-                Set-Content -LiteralPath $dstPath -Value $content -Encoding UTF8
+                Set-Content -LiteralPath $dstPath -Value $content -Encoding $encoding
             }
         }
 
@@ -492,9 +469,8 @@ __________.__                   __
                 }
             }
 
-            $encoding = ExpandString $FileNode.encoding
             $isTemplate = $FileNode.template -eq 'true'
-
+            $encoding = ExpandString $FileNode.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }
