@@ -281,6 +281,33 @@ __________.__                   __
                                 $prompt += " ($default)"
                             }
                         }
+                        # Prompt the user for text input.
+                        $value = PromptForInput $prompt $default
+                        $valueToStore = $value
+                    }
+                    'author' {
+                        # If no default, try to get a name from git config
+                        if ([String]::IsNullOrWhitespace($default)) {
+                            try { $default = (git config user.name) } catch {}
+                        }
+
+                        if ($default) {
+                            $prompt += " ($default)"
+                        }
+
+                        # Prompt the user for text input.
+                        $value = PromptForInput $prompt $default
+                        $valueToStore = $value
+                    }
+                    'email' {
+                        # If no default, try to get an email from git config
+                        if ([String]::IsNullOrWhitespace($default)) {
+                            try { $default = (git config user.email) } catch {}
+                        }
+
+                        if ($default) {
+                            $prompt += " ($default)"
+                        }
 
                         # Prompt the user for text input.
                         $value = PromptForInput $prompt $default

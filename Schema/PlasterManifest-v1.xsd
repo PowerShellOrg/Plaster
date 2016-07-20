@@ -57,6 +57,8 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="input"/>
+			<xs:enumeration value="author"/>
+			<xs:enumeration value="email"/>
       <xs:enumeration value="choice"/>
       <xs:enumeration value="multichoice"/>
     </xs:restriction>
