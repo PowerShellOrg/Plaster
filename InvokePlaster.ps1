@@ -287,12 +287,18 @@ __________.__                   __
                     }
                     'author' {
                         # If no default, try to get a name from git config
-                        if ([String]::IsNullOrWhitespace($default)) {
+                        if (-not $default) {
                             $default = GetGitConfigValue('name')
                         }
 
                         if ($default) {
-                            $prompt += " ($default)"
+                            if ($store -eq 'encrypted') {
+                                $obscuredDefault = $default -replace '(....).*', '$1****'
+                                $prompt += " ($obscuredDefault)"
+                            }
+                            else {
+                                $prompt += " ($default)"
+                            }
                         }
 
                         # Prompt the user for text input.
@@ -301,12 +307,18 @@ __________.__                   __
                     }
                     'email' {
                         # If no default, try to get an email from git config
-                        if ([String]::IsNullOrWhitespace($default)) {
+                        if (-not $default) {
                             $default = GetGitConfigValue('email')
                         }
 
                         if ($default) {
-                            $prompt += " ($default)"
+                            if ($store -eq 'encrypted') {
+                                $obscuredDefault = $default -replace '(....).*', '$1****'
+                                $prompt += " ($obscuredDefault)"
+                            }
+                            else {
+                                $prompt += " ($default)"
+                            }
                         }
 
                         # Prompt the user for text input.
