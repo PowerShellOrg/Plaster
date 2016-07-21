@@ -9,6 +9,7 @@ $PlasterParams = @{
     Destination = '..\Out'
     ModuleName = 'FooUtils'
     FullName = 'John Q. Doe'
+    Email = 'john.q.doe@outlook.com'
     Version = '1.2.0'
     Options = 'Git','PSake','Pester'
     Editor = 'VSCode'
