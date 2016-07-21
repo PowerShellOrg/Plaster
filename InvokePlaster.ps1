@@ -1,4 +1,18 @@
 <#
+NOTE TO DEVELOPERS:
+All text displayed to the user except for Write-Debug (or $PSCmdlet.WriteDebug()) text must be added to the
+string tables in:
+    en-US\Plaster.psd1
+    Plaster.psm1
+
+If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then in
+processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
+processed not only in the ProcessParameter function but also in the dynamicparam function.
+
+Please follow the scripting style of this file when adding new script.
+#>
+
+<#
 .SYNOPSIS
     Invokes the specified plaster template which will scaffold out a file or set of files.
 .DESCRIPTION
@@ -84,14 +98,14 @@ function Invoke-Plaster {
                 $paramAttribute.HelpMessage = $prompt
                 $attributeCollection.Add($paramAttribute)
 
-                switch ($type) {
-                    'input' {
+                switch -regex ($type) {
+                    'input|author|email' {
                         $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
                                      -ArgumentList ($name, [string], $attributeCollection)
                         break
                     }
 
-                    { 'choice','multichoice' -contains $_ } {
+                    'choice|multichoice' {
                         $choiceNodes = $node.ChildNodes
                         $setValues = New-Object string[] $choiceNodes.Count
                         $i = 0
@@ -254,7 +268,7 @@ __________.__                   __
                 # Not a dynamic parameter so prompt user for the value but first check for a stored default value.
                 if ($store -and ($null -ne $defaultValueStore[$name])) {
                     $default = $defaultValueStore[$name]
-                    $PSCmdlet.WriteDebug("Read default value '$default' for parameter '$name'.")
+                    $PSCmdlet.WriteDebug("Read default value '$default' for parameter '$name' from default value store.")
 
                     if (($store -eq 'encrypted') -and ($default -is [System.Security.SecureString])) {
                         try {
@@ -267,6 +281,9 @@ __________.__                   __
                         }
                     }
                 }
+
+                # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists
+                $defaultNotFromTemplate = $false
 
                 # Now prompt user for parameter value
                 switch -regex ($type) {
@@ -287,8 +304,9 @@ __________.__                   __
                     }
                     'author' {
                         # If no default, try to get a name from git config
-                        if (-not $default) {
+                        if (!$default) {
                             $default = GetGitConfigValue('name')
+                            $defaultNotFromTemplate = $true
                         }
 
                         if ($default) {
@@ -309,6 +327,7 @@ __________.__                   __
                         # If no default, try to get an email from git config
                         if (-not $default) {
                             $default = GetGitConfigValue('email')
+                            $defaultNotFromTemplate = $true
                         }
 
                         if ($default) {
@@ -340,13 +359,13 @@ __________.__                   __
 
                 # If parameter specifies that user's input be stored as the default value,
                 # store it to file if the value has changed.
-                if ($store -and ($default -ne $valueToStore)) {
+                if ($store -and (($default -ne $valueToStore) -or $defaultNotFromTemplate)) {
                     if ($store -eq 'encrypted') {
-                        $PSCmdlet.WriteDebug("Storing new, encrypted default value for parameter '$name'.")
+                        $PSCmdlet.WriteDebug("Storing new, encrypted default value for parameter '$name' to default value store.")
                         $defaultValueStore[$name] = ConvertTo-SecureString -String $valueToStore -AsPlainText -Force
                     }
                     else {
-                        $PSCmdlet.WriteDebug("Storing new default value '$valueToStore' for parameter '$name'.")
+                        $PSCmdlet.WriteDebug("Storing new default value '$valueToStore' for parameter '$name' to default value store.")
                         $defaultValueStore[$name] = $valueToStore
                     }
 
@@ -425,7 +444,7 @@ __________.__                   __
                 $newContent = [regex]::Replace($content, $pattern, {
                     param($match)
                     $expr = $match.groups[2].value
-                    Write-Verbose "Replacing template expr $expr in '$Path'"
+                    $PSCmdlet.WriteDebug("Replacing template expr $expr in '$Path'")
                     ExpandString $expr
                 },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
@@ -665,7 +684,7 @@ __________.__                   __
 
         # Outputs the processed template parameters to the verbose stream
         $parameters = Get-Variable -Name PLASTER_* | Out-String
-        Write-Verbose "Parameter values are:`n$($parameters -split "`n")"
+        $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
 
         # Stores any updated default values back to the store file.
         if ($flags.DefaultValueStoreDirty) {
@@ -826,7 +845,7 @@ function GetGitConfigValue($name) {
     # Very simplistic git config lookup
     # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
     $gitConfigPath = (Join-Path $env:Home '.gitconfig')
-    Write-Verbose "Looking for '$name' value in Git Config: $gitConfigPath"
+    Write-Debug "Looking for '$name' value in Git config: $gitConfigPath"
     if (Test-Path $gitConfigPath) {
         $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
         if (@($matches).Count -gt 0)
