@@ -47,7 +47,12 @@ function Invoke-Plaster {
         # prompt and allow the template to over write existing files.
         [Parameter()]
         [switch]
-        $Force
+        $Force,
+
+        # Suppresses the display of the Plaster logo.
+        [Parameter()]
+        [switch]
+        $NoLogo
     )
 
     # Process the template's plaster manifest file to convert parameters defined there into dynamic parameters.
@@ -165,9 +170,11 @@ __________.__                   __
 (_/
 '@
 
-        $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
-        Write-Host $randLogo
-        Write-Host ("=" * 50)
+        if (!$NoLogo) {
+            $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
+            Write-Host $randLogo
+            Write-Host ("=" * 50)
+        }
 
         InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
@@ -285,7 +292,7 @@ __________.__                   __
                 # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists
                 $defaultNotFromTemplate = $false
 
-                # Now prompt user for parameter value
+                # Now prompt user for parameter value based on the parameter type
                 switch -regex ($type) {
                     'input' {
                         # Display an appropriate "default" value in the prompt string.
@@ -354,7 +361,7 @@ __________.__                   __
                         $OFS = ","
                         $valueToStore = "$($selections.Indices)"
                     }
-                    default  { throw ($LocalizedData.UnrecognizedAttribute_F2 -f $type, $ParamNode.LocalName) }
+                    default  { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type, $ParamNode.LocalName) }
                 }
 
                 # If parameter specifies that user's input be stored as the default value,
@@ -429,7 +436,7 @@ __________.__                   __
                 }
 
                 # TODO: Temporary - remove this when this function makes use of ProcessFile
-                WriteOperationStatus 'Create' (ConvertToDestinationRelativePath $dstPath)
+                WriteOperationStatus $LocalizedData.OpCreate (ConvertToDestinationRelativePath $dstPath)
 
                 New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
                 $content = Get-Content -LiteralPath $dstPath -Raw
