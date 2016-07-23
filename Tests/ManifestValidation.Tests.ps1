@@ -30,50 +30,48 @@ function CleanDir {
     Set-Location $oldDir
 }
 
-Describe 'Module Manifest Tests' {
-    It 'Passes Test-ModuleManifest' {
-        Test-ModuleManifest -Path $PSScriptRoot\..\$ModuleManifestName
-        $? | Should Be $true
-    }
-}
-
 Describe 'Module Error Handling Tests' {
     Context 'Empty template dir' {
         It 'Throws on missing plasterManifest.xml' {
             CleanDir $TemplateDir
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir } | Should Throw
         }
     }
     Context 'Invalid Manifest File Tests' {
-        It 'Throws on invalid manifest (xml) file' {
+        It 'Throws on not well-formed XML manifest file' {
             CleanDir $TemplateDir
-            Copy-Item $PSScriptRoot\Manifests\plasterManifestInvalidXml.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir 3>$null } | Should Throw
+            Copy-Item $PSScriptRoot\Manifests\plasterManifestNotWellFormedXml.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
         }
         It 'Throws on missing plasterManifest (root) element' {
             CleanDir $TemplateDir
             Copy-Item $PSScriptRoot\Manifests\plasterManifestMissingRoot.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir } | Should Throw
+        }
+        It 'Throws on missing target namespace on (root) element' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\plasterManifestNoTargetNamespace.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir } | Should Throw
         }
         It 'Throws on missing metadata element' {
             CleanDir $TemplateDir
             Copy-Item $PSScriptRoot\Manifests\plasterManifestMissingMetadata.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir 3>$null } | Should Throw
         }
         It 'Throws on missing metadata id element' {
             CleanDir $TemplateDir
             Copy-Item $PSScriptRoot\Manifests\plasterManifestMissingMetadataId.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir 3>$null } | Should Throw
         }
         It 'Throws on missing metadata version element' {
             CleanDir $TemplateDir
             Copy-Item $PSScriptRoot\Manifests\plasterManifestMissingMetadataVersion.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir 3>$null } | Should Throw
         }
         It 'Throws on missing content element' {
             CleanDir $TemplateDir
             Copy-Item $PSScriptRoot\Manifests\plasterManifestMissingContent.xml $TemplateDir\plasterManifest.xml
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath -NoLogo $OutDir 3>$null } | Should Throw
         }
     }
 }

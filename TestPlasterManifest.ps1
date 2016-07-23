@@ -59,23 +59,34 @@ function Test-PlasterManifest {
 
         $filename = Split-Path $Path -Leaf
 
+        # Verify the manifest has the correct filename.
         if ($filename -ne 'plasterManifest.xml') {
             Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $filename)
             return
         }
 
+        # Verify the manifest loads into an XmlDocument i.e. verify it is well-formed.
         $manifest = $null
         try {
             $manifest = [xml](Get-Content $Path)
         }
         catch {
-            Write-Error ($LocalizedData.ManifestNotValidXml_F1 -f $Path)
+            $ex = New-Object System.Exception ($LocalizedData.ManifestNotWellFormedXml_F2 -f $Path, $_.Exception.Message), $_.Exception
+            $category = [System.Management.Automation.ErrorCategory]::InvalidData
+            $errRecord = New-Object System.Management.Automation.ErrorRecord $ex,'InvalidManifestFile',$category,$Path
+            $psCmdlet.WriteError($errRecord)
             return
         }
 
-        # Validate the required elements of the manifest are present
+        # Validate the manifest contains the required root element and target namespace that the following
+        # XML schema validation will apply to.
         if (!$manifest.plasterManifest) {
             Write-Error ($LocalizedData.ManifestMissingDocElement_F2 -f $Path,$targetNamespace)
+            return
+        }
+
+        if ($manifest.plasterManifest.NamespaceURI -cne $targetNamespace) {
+            Write-Error ($LocalizedData.ManifestMissingDocTargetNamespace_F2 -f $Path,$targetNamespace)
             return
         }
 
