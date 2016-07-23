@@ -395,7 +395,9 @@ __________.__                   __
             $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    Write-Verbose "Skipping message '$($text[0..40])', condition evaluated to false."
+                    $debugText = $trimmedText -replace '\r|\n',' '
+                    $maxLength = [Math]::Min(40, $debugText.Length)
+                    $PSCmdlet.WriteDebug("Skipping message '$($debugText.Substring(0, $maxLength))', condition evaluated to false.")
                     return
                 }
             }
@@ -413,7 +415,7 @@ __________.__                   __
             $condition  = $NewModuleManifestNode.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    Write-Verbose "Skipping module manifest generation for '$dstPath', condition evaluated to false."
+                    $PSCmdlet.WriteDebug("Skipping module manifest generation for '$dstPath', condition evaluated to false.")
                     return
                 }
             }
@@ -528,7 +530,7 @@ __________.__                   __
             $condition  = $FileNode.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    Write-Verbose "Skipping file '$dstRelPath', condition evaluated to false."
+                    $PSCmdlet.WriteDebug("Skipping file '$dstRelPath', condition evaluated to false.")
                     return
                 }
             }
@@ -611,7 +613,7 @@ __________.__                   __
             $condition  = $ModifyNode.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    Write-Verbose "Skipping file modify on '$path', condition evaluated to false."
+                    $PSCmdlet.WriteDebug("Skipping file modify on '$path', condition evaluated to false.")
                     return
                 }
             }
@@ -634,7 +636,7 @@ __________.__                   __
                             $condition  = $node.condition
                             if ($condition) {
                                 if (!(EvaluateCondition $condition)) {
-                                    Write-Verbose "Skipping file modify replace on '$path', condition evaluated to false."
+                                    $PSCmdlet.WriteDebug("Skipping file modify replace on '$path', condition evaluated to false.")
                                     continue
                                 }
                             }
