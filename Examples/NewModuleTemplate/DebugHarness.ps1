@@ -1,8 +1,11 @@
 # Use this file to debug the module.
-Import-Module ..\..\Plaster.psd1
+Import-Module $PSScriptRoot\..\..\Plaster.psd1
 
-Remove-Item ..\Out -Recurse
-New-Item ..\Out -ItemType Directory > $null
+#Import-Module Pester
+#Invoke-Pester $PSScriptRoot\..\..\Tests\ExpandFileSourceSpec.Tests.ps1
+
+Remove-Item $PSScriptRoot\..\Out -Recurse
+New-Item $PSScriptRoot\..\Out -ItemType Directory > $null
 
 $PlasterParams = @{
     TemplatePath = $PWD

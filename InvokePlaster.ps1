@@ -478,20 +478,19 @@ __________.__                   __
         }
 
         function ExpandFileSourceSpec([string]$srcRelPath, [string]$dstRelPath) {
+            $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
                 # No wildcard spec in srcRelPath so return info on single file
-                $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
                 return NewFileCopyInfo $srcPath $dstPath
             }
 
             # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
             $gciParams = @{}
-            $srcPath = Join-Path $TemplatePath $parent
             $parent = Split-Path $srcPath -Parent
             $leaf = Split-Path $srcPath -Leaf
-            $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+            $gciParams['LiteralPath'] = $parent
             $gciParams['File'] = $true
 
             if ($leaf -eq '**') {
@@ -505,7 +504,7 @@ __________.__                   __
                 $leaf = Split-Path $parent -Leaf
                 if ($leaf -eq '**') {
                     $parent = Split-Path $parent -Parent
-                    $gciParams['LiteralPath'] = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($parent)
+                    $gciParams['LiteralPath'] = $parent
                     $gciParams['Recurse'] = $true
                 }
             }
