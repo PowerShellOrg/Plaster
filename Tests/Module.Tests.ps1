@@ -1,6 +1,4 @@
-$ModuleManifestName = 'Plaster.psd1'
-
-Import-Module $PSScriptRoot\..\$ModuleManifestName
+. $PSScriptRoot\Shared.ps1
 
 Describe 'Module Manifest Tests' {
     It 'Passes Test-ModuleManifest' {
