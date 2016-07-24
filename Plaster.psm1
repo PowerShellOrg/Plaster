@@ -1,5 +1,6 @@
-data LocalizedData
-{
+#Microsoft.PowerShell.Core\Set-StrictMode -Version Latest
+
+$LocalizedData = data {
     # culture="en-US"
     ConvertFrom-StringData @'
     ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
@@ -33,7 +34,7 @@ data LocalizedData
 '@
 }
 
-Import-LocalizedData LocalizedData -FileName PlasterResources
+Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
 
 # Module variables
 $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
