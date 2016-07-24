@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="0.2" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <!-- For the default store file, we need a unique identifier to ensure one template's default value store
              doesn't get used with any other template.  -->
@@ -12,10 +12,10 @@
         <tags>Module, ModuleManifest, Build</tags>
     </metadata>
     <parameters>
-        <parameter name='ModuleName' type='input' prompt='Enter the name of the module'/>
-        <parameter name='Version' type='input' default='1.0.0' prompt='Enter the version number for the module'/>
-        <parameter name='FullName' type='author' store='text' prompt='Enter your full name'/>
-        <parameter name='Email' type='email' store='text' prompt='Enter your email address'/>
+        <parameter name='ModuleName' type='text' prompt='Enter the name of the module'/>
+        <parameter name='Version' type='text' default='1.0.0' prompt='Enter the version number for the module'/>
+        <parameter name='FullName' type='user-fullname' store='text' prompt='Enter your full name'/>
+        <parameter name='Email' type='user-email' store='text' prompt='Enter your email address'/>
         <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
