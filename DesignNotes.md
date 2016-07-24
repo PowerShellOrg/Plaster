@@ -94,9 +94,9 @@ This command will also have dynamic parameters that correspond to the template p
 the PlasterManifest file.  For instance, given these parameters:
 ```xml
     <parameters>
-        <parameter name='ModuleName' type='input' required='true' prompt='Enter the name of the module'/>
-        <parameter name='Version' type='input' default='1.0.0' prompt='Enter the version number for the module'/>
-        <parameter name='FullName' type='input' required='true' store='encrypt' prompt='Enter your fullname'/>
+        <parameter name='ModuleName' type='text' required='true' prompt='Enter the name of the module'/>
+        <parameter name='Version' type='text' default='1.0.0' prompt='Enter the version number for the module'/>
+        <parameter name='FullName' type='text' required='true' store='encrypt' prompt='Enter your fullname'/>
         <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."

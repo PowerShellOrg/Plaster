@@ -104,7 +104,7 @@ function Invoke-Plaster {
                 $attributeCollection.Add($paramAttribute)
 
                 switch -regex ($type) {
-                    'input|author|email' {
+                    'text|user-fullname|user-email' {
                         $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
                                      -ArgumentList ($name, [string], $attributeCollection)
                         break
@@ -294,7 +294,7 @@ __________.__                   __
 
                 # Now prompt user for parameter value based on the parameter type
                 switch -regex ($type) {
-                    'input' {
+                    'text' {
                         # Display an appropriate "default" value in the prompt string.
                         if ($default) {
                             if ($store -eq 'encrypted') {
@@ -309,7 +309,7 @@ __________.__                   __
                         $value = PromptForInput $prompt $default
                         $valueToStore = $value
                     }
-                    'author' {
+                    'user-fullname' {
                         # If no default, try to get a name from git config
                         if (!$default) {
                             $default = GetGitConfigValue('name')
@@ -330,7 +330,7 @@ __________.__                   __
                         $value = PromptForInput $prompt $default
                         $valueToStore = $value
                     }
-                    'email' {
+                    'user-email' {
                         # If no default, try to get an email from git config
                         if (-not $default) {
                             $default = GetGitConfigValue('email')

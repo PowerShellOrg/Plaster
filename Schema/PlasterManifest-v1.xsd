@@ -10,7 +10,7 @@
 	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 	elementFormDefault="qualified"
   attributeFormDefault="unqualified"
-  version="0.2"
+  version="0.3"
   xml:lang="en"
 	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
 		vs:friendlyname="Plaster Manifest Schema"
@@ -52,13 +52,15 @@
   <xs:simpleType name="ParameterType">
     <xs:annotation>
       <xs:documentation>
-        The type of the parameter: input, choice or multichoice.
+        The type of the parameter: text, user-fullname, user-email, choice or multichoice.
+        user-fullname and user-email are text entry fields that get their default values
+        (if no default is specified in the manifest file) from the user's .gitconfig file (if they have one).
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:enumeration value="input"/>
-			<xs:enumeration value="author"/>
-			<xs:enumeration value="email"/>
+      <xs:enumeration value="text"/>
+			<xs:enumeration value="user-fullname"/>
+			<xs:enumeration value="user-email"/>
       <xs:enumeration value="choice"/>
       <xs:enumeration value="multichoice"/>
     </xs:restriction>

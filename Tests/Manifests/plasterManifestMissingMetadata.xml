@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest version='0.1.0'>
+<plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <parameters>
         <parameter name='ModuleName' type='string' prompt='Enter the name of the module.'/>
         <parameter name='Version' type='string' default='1.0.0' store='true' prompt='Enter the version number for the module.'/>

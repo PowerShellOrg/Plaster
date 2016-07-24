@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="0.2" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>774de094-48ca-4772-bda9-1163230c539a</id>
         <title>Testing</title>
