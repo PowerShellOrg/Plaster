@@ -7,6 +7,7 @@ $LocalizedData = data {
     ErrorProcessingDynamicParams_F1=Error processing dynamic parameters: {0}
     ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
     ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
+    ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
     FileConflict=Plaster file conflict
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
     ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element <plasterManifest xmlns="{1}"></plasterManifest>.
@@ -24,6 +25,7 @@ $LocalizedData = data {
     OverwriteFile_F1=Overwrite {0}
     ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
     ShouldProcessCreateDir=Create directory
+    ShouldProcessExpandTemplate=Expand template file
     ShouldProcessGenerateModuleManifest=Generating a new module manifest
     ShouldProcessModifyContent=Modifying file
     ShouldProcessTemplateFile=Processing template file

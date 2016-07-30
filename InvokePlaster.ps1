@@ -24,6 +24,7 @@ Please follow the scripting style of this file when adding new script.
     General notes
 #>
 function Invoke-Plaster {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessTemplate')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyFile')]
@@ -32,10 +33,11 @@ function Invoke-Plaster {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         # Specifies the path to either the Template directory or a ZIP file containing the template.
-        [Parameter(Mandatory = $true)]
+        # If no directory is specified the current directory is used.
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $TemplatePath,
+        $TemplatePath = $pwd.Path,
 
         # Specifies the path to directory in which the template will use as a root directory when generating files.
         [Parameter(Mandatory = $true)]
@@ -62,8 +64,7 @@ function Invoke-Plaster {
         $manifestPath = $null
 
         if ($null -eq $TemplatePath) {
-            # Can't process dynamic parameters if we have no TemplatePath
-            return
+            $TemplatePath = $pwd.Path
         }
 
         try {
@@ -381,7 +382,7 @@ __________.__                   __
             }
 
             # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
-            Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script
+            Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script -WhatIf:$false
         }
 
         function ProcessMessage([ValidateNotNull()]$Node) {
@@ -409,6 +410,8 @@ __________.__                   __
             $moduleVersion = ExpandString $NewModuleManifestNode.moduleVersion
             $rootModule = ExpandString $NewModuleManifestNode.rootModule
             $author = ExpandString $NewModuleManifestNode.author
+            $companyName = ExpandString $NewModuleManifestNode.companyName
+            $description = ExpandString $NewModuleManifestNode.description
             $dstRelPath = ExpandString $NewModuleManifestNode.destination
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
@@ -425,24 +428,54 @@ __________.__                   __
                 $encoding = $DefaultEncoding
             }
 
-            # TODO: This generates a file and as such should participate in file
-            # conflict resolution. I think we should gen the file here and then
-            # use the normal ProcessFile (or function used by ProcessFile) to handle file conflicts.
             if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
                 $manifestDir = Split-Path $dstPath -Parent
                 if (!(Test-Path $manifestDir)) {
-                    # TODO: Create a function for this that tests that the directory is under
-                    #       the destination directory.
+                    VerifyPathIsUnderDestinationPath $manifestDir
                     Write-Verbose "Creating destination dir for module manifest: $manifestDir"
                     New-Item $manifestDir -ItemType Directory > $null
                 }
 
-                # TODO: Temporary - remove this when this function makes use of ProcessFile
-                WriteOperationStatus $LocalizedData.OpCreate (ConvertToDestinationRelativePath $dstPath)
+                $newModuleManifestParams = @{}
 
-                New-ModuleManifest -Path $dstPath -ModuleVersion $moduleVersion -RootModule $rootModule -Author $author
-                $content = Get-Content -LiteralPath $dstPath -Raw
-                WriteContentWithEncoding -Path $dstPath -Content $content -Encoding $encoding
+                if (![string]::IsNullOrWhiteSpace($moduleVersion)) {
+                    $newModuleManifestParams['ModuleVersion'] = $moduleVersion
+                }
+                if (![string]::IsNullOrWhiteSpace($rootModule)) {
+                    $newModuleManifestParams['RootModule'] = $rootModule
+                }
+                if (![string]::IsNullOrWhiteSpace($author)) {
+                    $newModuleManifestParams['Author'] = $author
+                }
+                if (![string]::IsNullOrWhiteSpace($companyName)) {
+                    $newModuleManifestParams['CompanyName'] = $companyName
+                }
+                if (![string]::IsNullOrWhiteSpace($description)) {
+                    $newModuleManifestParams['Description'] = $description
+                }
+
+                $tempFile = $null
+
+                try {
+                    $tempFile = [System.IO.Path]::GetTempPath() + "moduleManifest-" + [Guid]::NewGuid() + ".psd1"
+                    $PSCmdlet.WriteDebug("Created temp file for new module manifest - $tempFile")
+                    $newModuleManifestParams['Path'] = $tempFile
+
+                    # Generate manifest into a temp file
+                    New-ModuleManifest @newModuleManifestParams
+
+                    # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16
+                    $content = Get-Content -LiteralPath $tempFile -Raw
+                    WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
+
+                    CopyFileWithConflictDetection $tempFile $dstPath
+                }
+                finally {
+                    if ($tempFile -and (Test-Path $tempFile)) {
+                        Remove-Item -LiteralPath $tempFile
+                        $PSCmdlet.WriteDebug("Removed temp file for new module manifest - $tempFile")
+                    }
+                }
             }
         }
 
@@ -523,6 +556,33 @@ __________.__                   __
             }
         }
 
+        function CopyFileWithConflictDetection([string]$SrcPath, [string]$DstPath) {
+            # Check if new file (potentially after expansion) conflicts with corresponding existing file.
+            $operation = $LocalizedData.OpCreate
+            if (Test-Path $DstPath) {
+                if (AreFilesIdentical $SrcPath $DstPath) {
+                    $operation = $LocalizedData.OpIdentical
+                }
+                else {
+                    $operation = $LocalizedData.OpConflict
+                }
+            }
+
+            # Copy the file to the destination
+            if ($PSCmdlet.ShouldProcess($DstPath, $operation)) {
+                WriteOperationStatus $operation (ConvertToDestinationRelativePath $DstPath)
+                if ($operation -ne $LocalizedData.OpConflict) {
+                    Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                }
+                elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
+                                                            $LocalizedData.FileConflict,
+                                                            [ref]$fileConflictConfirmYesToAll,
+                                                            [ref]$fileConflictConfirmNoToAll)) {
+                    Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                }
+            }
+        }
+
         function ProcessFile([ValidateNotNull()]$FileNode) {
             $srcRelPath = ExpandString $FileNode.source
             $dstRelPath = ExpandString $FileNode.destination
@@ -558,8 +618,8 @@ __________.__                   __
 
                 try {
                     # If file is a template, copy to a temp file to process the template
-                    if ($isTemplate) {
-                        WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
+                    if ($isTemplate -and $PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessExpandTemplate)) {
+                        WriteOperationStatus $LocalizedData.OpExpand "{template}\$(ConvertToDestinationRelativePath $dstPath)"
 
                         $tempFile = [System.IO.Path]::GetTempFileName()
                         Copy-Item -LiteralPath $srcPath -Destination $tempFile
@@ -568,33 +628,10 @@ __________.__                   __
                         $srcPath = $tempFile
                     }
 
-                    # Check if new file (potentially after expansion) conflicts with corresponding existing file.
-                    $operation = $LocalizedData.OpCreate
-                    if (Test-Path $dstPath) {
-                        if (AreFilesIdentical $srcPath $dstPath) {
-                            $operation = $LocalizedData.OpIdentical
-                        }
-                        else {
-                            $operation = $LocalizedData.OpConflict
-                        }
-                    }
-
-                    # Copy the file to the destination
-                    if ($PSCmdlet.ShouldProcess($dstPath, $operation)) {
-                        WriteOperationStatus $operation (ConvertToDestinationRelativePath $dstPath)
-                        if ($operation -ne $LocalizedData.OpConflict) {
-                            Copy-Item -LiteralPath $srcPath -Destination $dstPath
-                        }
-                        elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $dstPath),
-                                                                    $LocalizedData.FileConflict,
-                                                                    [ref]$fileConflictConfirmYesToAll,
-                                                                    [ref]$fileConflictConfirmNoToAll)) {
-                            Copy-Item -LiteralPath $srcPath -Destination $dstPath
-                        }
-                    }
+                    CopyFileWithConflictDetection $srcPath $dstPath
                 }
                 finally {
-                    if ($tempFile) {
+                    if ($tempFile -and (Test-Path $tempFile)) {
                         Remove-Item -LiteralPath $tempFile
                     }
                 }
@@ -731,6 +768,9 @@ __________.__                   __
 #>
 
 function InitializePredefinedVariables([string]$destPath) {
+    # Always set these variables, even if the command has been run with -WhatIf
+    $WhatIfPreference = $false
+
     $destName = Split-Path -Path $destPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $destPath.TrimEnd('\','/') -Scope Script
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
@@ -749,7 +789,10 @@ function InitializePredefinedVariables([string]$destPath) {
 
 function ExpandString($str) {
     if ($null -eq $str) {
-        return ''
+        return [string]::Empty
+    }
+    elseif ([string]::IsNullOrWhiteSpace($str)) {
+        return $str
     }
 
     # There are at least two ways to go to provide "safe" string evaluation with *only* variable
@@ -807,6 +850,21 @@ function ConvertToDestinationRelativePath($Path) {
     }
 
     $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
+}
+
+function VerifyPathIsUnderDestinationPath([ValidateNotNullOrEmpty()][string]$FullPath) {
+    if (![System.IO.Path]::IsPathRooted($FullPath)) {
+        Write-Debug "The FullPath parameter '$FullPath' must be an absolute path."
+    }
+
+    $fullDestPath = $DestinationPath
+    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
+        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+    }
+
+    if (!$FullPath.StartsWith($fullDestPath, [StringComparison]::OrdinalIgnoreCase)) {
+        throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $FullPath, $fullDestPath)
+    }
 }
 
 function ColorForOperation($operation) {
