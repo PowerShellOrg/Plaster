@@ -508,7 +508,7 @@ __________.__                   __
             $hash1 -eq $hash2
         }
 
-        function NewFileCopyInfo([string]$srcPath, [string]$dstPath) {
+        function NewFileSystemCopyInfo([string]$srcPath, [string]$dstPath) {
             [PSCustomObject]@{SrcFileName=$srcPath; DstFileName=$dstPath}
         }
 
@@ -518,7 +518,7 @@ __________.__                   __
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
                 # No wildcard spec in srcRelPath so return info on single file
-                return NewFileCopyInfo $srcPath $dstPath
+                return NewFileSystemCopyInfo $srcPath $dstPath
             }
 
             # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
@@ -547,12 +547,23 @@ __________.__                   __
             $srcRelRootPathLength = $gciParams['LiteralPath'].Length
 
             # Generate a FileCopyInfo object for every file expanded by the wildcard spec
-            $files = Microsoft.PowerShell.Management\Get-ChildItem @gciParams
+            $files = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams)
             foreach ($file in $files) {
                 $fileSrcPath = $file.FullName
                 $relPath = $fileSrcPath.Substring($srcRelRootPathLength)
                 $fileDstPath = Join-Path $dstPath $relPath
-                NewFileCopyInfo $fileSrcPath $fileDstPath
+                NewFileSystemCopyInfo $fileSrcPath $fileDstPath
+            }
+
+            # Copy over empty directories - if any
+            $gciParams.Remove('File')
+            $gciParams['Directory'] = $true
+            $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams | Where {$_.GetFileSystemInfos().Length -eq 0})
+            foreach ($dir in $dirs) {
+                $dirSrcPath = $dir.FullName
+                $relPath = $dirSrcPath.Substring($srcRelRootPathLength)
+                $dirDstPath = Join-Path $dstPath $relPath
+                NewFileSystemCopyInfo $dirSrcPath $dirDstPath
             }
         }
 
@@ -601,14 +612,25 @@ __________.__                   __
                 $encoding = $DefaultEncoding
             }
 
-            $fileCopyInfoObjs = ExpandFileSourceSpec $srcRelPath $dstRelPath
-            foreach ($fileCopyInfo in $fileCopyInfoObjs) {
-                $srcPath = $fileCopyInfo.SrcFileName
-                $dstPath = $fileCopyInfo.DstFileName
+            $fileSystemCopyInfoObjs = ExpandFileSourceSpec $srcRelPath $dstRelPath
+            foreach ($fileSystemCopyInfo in $fileSystemCopyInfoObjs) {
+                $srcPath = $fileSystemCopyInfo.SrcFileName
+                $dstPath = $fileSystemCopyInfo.DstFileName
+
+                # Check to see if we're copying an empty dir
+                if (Test-Path -LiteralPath $srcPath -PathType Container) {
+                    if (!(Test-Path -LiteralPath $dstPath)) {
+                        if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
+                            New-Item -Path $dstPath -ItemType Directory > $null
+                        }
+                    }
+
+                    continue
+                }
 
                 # If the file's parent dir doesn't exist, create it.
                 $parentDir = Split-Path $dstPath -Parent
-                if (!(Test-Path $parentDir)) {
+                if (!(Test-Path -LiteralPath $parentDir)) {
                     if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
                         New-Item -Path $parentDir -ItemType Directory > $null
                     }
