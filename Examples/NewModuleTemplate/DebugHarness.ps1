@@ -11,6 +11,7 @@ $PlasterParams = @{
     TemplatePath = $PWD
     Destination = '..\Out'
     ModuleName = 'FooUtils'
+    ModuleDesc = 'Utilities for Foo.'
     FullName = 'John Q. Doe'
     Email = 'john.q.doe@outlook.com'
     Version = '1.2.0'

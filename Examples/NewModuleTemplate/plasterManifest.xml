@@ -13,6 +13,7 @@
     </metadata>
     <parameters>
         <parameter name='ModuleName' type='text' prompt='Enter the name of the module'/>
+        <parameter name='ModuleDesc' type='text' prompt='Enter a description of the module (required for publishing to the PowerShell Gallery)'/>
         <parameter name='Version' type='text' default='1.0.0' prompt='Enter the version number for the module'/>
         <parameter name='FullName' type='user-fullname' store='text' prompt='Enter your full name'/>
         <parameter name='Email' type='user-email' store='text' prompt='Enter your email address'/>
@@ -62,6 +63,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                            author='$PLASTER_PARAM_FullName'
+                           description='$PLASTER_PARAM_ModuleDesc'
                            encoding='UTF8-NoBOM'/>
         <!-- Recursively copy all *files* into the corresponding directory structure under dest dir Recurse -->
         <file source='RecurseTest\**'
