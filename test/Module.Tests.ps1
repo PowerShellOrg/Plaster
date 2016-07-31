@@ -2,7 +2,7 @@
 
 Describe 'Module Manifest Tests' {
     It 'Passes Test-ModuleManifest' {
-        Test-ModuleManifest -Path $PSScriptRoot\..\$ModuleManifestName
+        Test-ModuleManifest -Path $ModulePath
         $? | Should Be $true
     }
 }

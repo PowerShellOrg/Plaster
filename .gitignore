@@ -1,5 +1,5 @@
 *.zip
-Examples/Out/*
-Release/
-Tests/Out/*
-Tests/TemplateRootTemp/*
+.publish/
+examples/Out/*
+test/Out/*
+test/TemplateRootTemp/*
