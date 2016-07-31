@@ -51,7 +51,7 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Clean;",
+                "Write-Host 'Invoking PSake...'; Invoke-PSake build.psake.ps1 -taskList Clean;",
                 "Invoke-Command { Write-Host 'Completed Clean task in task runner.' }"
             ]
         },
@@ -61,7 +61,7 @@
             "isBuildCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Build;",
+                "Write-Host 'Invoking PSake...'; Invoke-PSake build.psake.ps1 -taskList Build;",
                 "Invoke-Command { Write-Host 'Completed Build task in task runner.' }"
             ]
         },
@@ -70,7 +70,7 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Publish;",
+                "Write-Host 'Invoking PSake...'; Invoke-PSake build.psake.ps1 -taskList Publish;",
                 "Invoke-Command { Write-Host 'Completed Publish task in task runner.' }"
             ]
         },

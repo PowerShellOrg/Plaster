@@ -64,8 +64,12 @@
 # Customize these properties for your module.
 ###############################################################################
 Properties {
+    # The root directory of the module source.  It could be the workspace root or
+    # a subdir such as src, module, <my-module-name>.
+    $ModuleRootDir = "$PSScriptRoot\src"
+
     # The name of your module should match the basename of the PSD1 file.
-    $ModuleName = (Get-Item $PSScriptRoot\*.psd1 |
+    $ModuleName = (Get-Item $ModuleRootDir\*.psd1 |
                    Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) {$_}})[0].BaseName
 
     # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
@@ -73,23 +77,13 @@ Properties {
 
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
-    $PublishRootDir = "$PSScriptRoot\Release"
+    $PublishRootDir = "$PSScriptRoot\.publish"
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The following items will not be copied to the $PublishDir.
     # Add items that should not be published with the module.
     $Exclude = @(
-        (Split-Path $PSCommandPath -Leaf),
-        'Release',
-        'Tests',
-        '.git*',
-        '.vscode',
-        # These files are unique to this examples dir.
-        'DebugTest.ps1',
-        'DesignNotes.md',
-        'PSScriptAnalyzerSettings.psd1',
-        'Readme.md',
-        'Stop*.ps1'
+        (Split-Path $PSCommandPath -Leaf)
     )
 
     # Name of the repository you wish to publish to. Default repo is the PSGallery.
@@ -174,7 +168,7 @@ Task Test -depends Build {
 }
 
 Task Build -depends Clean, Init -requiredVariables PublishDir, Exclude, ModuleName {
-    Copy-Item -Path $PSScriptRoot\* -Destination $PublishDir -Recurse -Exclude $Exclude
+    Copy-Item -Path $ModuleRootDir\* -Destination $PublishDir -Recurse -Exclude $Exclude
 
     # Get contents of the ReleaseNotes file and update the copied module manifest file
     # with the release notes.

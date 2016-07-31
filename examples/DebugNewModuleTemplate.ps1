@@ -1,15 +1,12 @@
 # Use this file to debug the module.
-Import-Module $PSScriptRoot\..\..\Plaster.psd1
+Import-Module $PSScriptRoot\..\src\Plaster.psd1
 
-#Import-Module Pester
-#Invoke-Pester $PSScriptRoot\..\..\Tests\ExpandFileSourceSpec.Tests.ps1
-
-Remove-Item $PSScriptRoot\..\Out -Recurse
-New-Item $PSScriptRoot\..\Out -ItemType Directory > $null
+Remove-Item $PSScriptRoot\Out -Recurse
+New-Item $PSScriptRoot\Out -ItemType Directory > $null
 
 $PlasterParams = @{
-    TemplatePath = $PWD
-    Destination = '..\Out'
+    TemplatePath = "$PSScriptRoot\NewModuleTemplate"
+    Destination = '.\Out'
     ModuleName = 'FooUtils'
     ModuleDesc = 'Utilities for Foo.'
     FullName = 'John Q. Doe'
