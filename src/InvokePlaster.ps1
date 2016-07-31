@@ -5,7 +5,7 @@ string tables in:
     en-US\Plaster.psd1
     Plaster.psm1
 
-If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then in
+If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then
 processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
 processed not only in the ProcessParameter function but also in the dynamicparam function.
 
@@ -26,7 +26,6 @@ Please follow the scripting style of this file when adding new script.
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessTemplate')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='ProcessFile')]
@@ -479,21 +478,9 @@ __________.__                   __
             }
         }
 
-        function ProcessTemplate([string]$Path, $encoding) {
-            if ($PSCmdlet.ShouldProcess($Path, $LocalizedData.ShouldProcessTemplateFile)) {
-                $content = Get-Content $Path -Raw
-                $pattern = '(<%=)(.*?)(%>)'
-                $newContent = [regex]::Replace($content, $pattern, {
-                    param($match)
-                    $expr = $match.groups[2].value
-                    $PSCmdlet.WriteDebug("Replacing template expr $expr in '$Path'")
-                    ExpandString $expr
-                },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
-
-                WriteContentWithEncoding -Path $Path -Content $newContent -Encoding $encoding
-            }
-        }
-
+        #
+        # Begin ProcessFile helper methods
+        #
         function AreFilesIdentical($Path1, $Path2) {
             $file1 = Get-Item -LiteralPath $Path1
             $file2 = Get-Item -LiteralPath $Path2
@@ -586,32 +573,43 @@ __________.__                   __
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
-                                                            $LocalizedData.FileConflict,
-                                                            [ref]$fileConflictConfirmYesToAll,
-                                                            [ref]$fileConflictConfirmNoToAll)) {
+                                                             $LocalizedData.FileConflict,
+                                                             [ref]$fileConflictConfirmYesToAll,
+                                                             [ref]$fileConflictConfirmNoToAll)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
                 }
             }
         }
 
-        function ProcessFile([ValidateNotNull()]$FileNode) {
-            $srcRelPath = ExpandString $FileNode.source
-            $dstRelPath = ExpandString $FileNode.destination
+        #
+        # End ProcessFile helper methods
+        #
 
-            $condition  = $FileNode.condition
+        # Processes both the <file> and <templateFile> directives.
+        function ProcessFile([ValidateNotNull()]$Node) {
+            $srcRelPath = ExpandString $Node.source
+            $dstRelPath = ExpandString $Node.destination
+
+            $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping file '$dstRelPath', condition evaluated to false.")
+                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$dstRelPath', condition evaluated to false.")
                     return
                 }
             }
 
-            $isTemplate = $FileNode.template -eq 'true'
-            $encoding = ExpandString $FileNode.encoding
-            if (!$encoding) {
-                $encoding = $DefaultEncoding
+            # Check if node is the specialized, <templateFile> node.
+            # Only <templateFile> nodes expand templates and use the encoding attribute.
+            $isTemplateFile = $Node.localName -eq 'templateFile'
+            if ($isTemplateFile) {
+                $encoding = ExpandString $Node.encoding
+                if (!$encoding) {
+                    $encoding = $DefaultEncoding
+                }
             }
 
+            # Check if source specifies a wildcard and if so, expand the wildcard
+            # and then process each file system object (file or empty directory).
             $fileSystemCopyInfoObjs = ExpandFileSourceSpec $srcRelPath $dstRelPath
             foreach ($fileSystemCopyInfo in $fileSystemCopyInfoObjs) {
                 $srcPath = $fileSystemCopyInfo.SrcFileName
@@ -639,15 +637,24 @@ __________.__                   __
                 $tempFile = $null
 
                 try {
-                    # If file is a template, copy to a temp file to process the template
-                    if ($isTemplate -and $PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessExpandTemplate)) {
-                        WriteOperationStatus $LocalizedData.OpExpand "{template}\$(ConvertToDestinationRelativePath $dstPath)"
+                    # If processing a <templateFile>, copy to a temp file to expand the template file.
+                    if ($isTemplateFile -and $PSCmdlet.ShouldProcess($dstPath, $LocalizedData.OpExpand)) {
+                        WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
 
-                        $tempFile = [System.IO.Path]::GetTempFileName()
-                        Copy-Item -LiteralPath $srcPath -Destination $tempFile
+                        $content = Get-Content -LiteralPath $srcPath -Raw
+                        $pattern = '(<%=)(.*?)(%>)'
+                        $newContent = [regex]::Replace($content, $pattern, {
+                            param($match)
+                            $expr = $match.groups[2].value
+                            $res = ExpandString $expr
+                            $PSCmdlet.WriteDebug("Replacing '$expr' with '$res' in contents of template file '$srcPath'")
+                            $res
+                        },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
-                        ProcessTemplate $tempFile $encoding
-                        $srcPath = $tempFile
+                        $srcPath = $tempFile = [System.IO.Path]::GetTempFileName()
+                        $PSCmdlet.WriteDebug("Writing modified template contents to temp file '$tempFile'")
+
+                        WriteContentWithEncoding -Path $tempFile -Content $newContent -Encoding $encoding
                     }
 
                     CopyFileWithConflictDetection $srcPath $dstPath
@@ -682,7 +689,7 @@ __________.__                   __
                 $encoding = $DefaultEncoding
             }
 
-            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.ShouldProcessModifyContent)) {
+            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.OpModify)) {
                 WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $filePath)
 
                 $modified = $false
@@ -769,8 +776,8 @@ __________.__                   __
         foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
             if ($node -isnot [System.Xml.XmlElement]) { continue }
 
-            switch ($node.LocalName) {
-                'file'              { ProcessFile $node; break }
+            switch -Regex ($node.LocalName) {
+                'file|templateFile' { ProcessFile $node; break }
                 'message'           { ProcessMessage $node; break }
                 'modify'            { ModifyFile $node; break }
                 'newModuleManifest' { GenerateModuleManifest $node; break }
