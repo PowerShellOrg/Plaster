@@ -6,7 +6,7 @@ support for Git, PSake build script, Pester tests.
 
 To run this example, cd to the NewModuleTemplate folder and execute:
 ```powershell
-Import-Module ..\..\Plaster.psd1
+Import-Module ..\..\src\Plaster.psd1
 Invoke-Plaster -TemplatePath . -Destination ..\Out
 ```
 This will prompt you for the template's required parameters as defined in plasterManifest.xml.  If you
@@ -21,7 +21,9 @@ $PlasterParams = @{
     TemplatePath = $PWD
     Destination = '..\Out'
     ModuleName = 'FooUtils'
+    ModuleDesc = 'Commands for Foo'
     FullName = 'John Q. Doe'
+    Email = 'john.q.doe@example.org'
     Version = '1.2.0'
     Options = 'Git','PSake','Pester'
     Editor = 'VSCode'
