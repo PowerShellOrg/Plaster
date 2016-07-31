@@ -267,16 +267,26 @@
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
-                  <xs:attribute name="encoding" type="ptd:encoding" default="Default">
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="templateFile" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Specify one or more template files to copy and expand under the destination folder.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="source" type="xs:string" use="required">
                     <xs:annotation>
-                      <xs:documentation>Only used when template attribute is true.</xs:documentation>
+                      <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
-                  <xs:attribute name="template" type="xs:boolean" default="false">
+                  <xs:attribute name="destination" type="xs:string" use="required">
                     <xs:annotation>
-                      <xs:documentation>If true, the content of the file is processed, expanding any template placeholders.</xs:documentation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                 </xs:complexType>
               </xs:element>
 

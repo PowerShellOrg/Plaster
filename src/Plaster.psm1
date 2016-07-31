@@ -25,10 +25,7 @@ $LocalizedData = data {
     OverwriteFile_F1=Overwrite {0}
     ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
     ShouldProcessCreateDir=Create directory
-    ShouldProcessExpandTemplate=Expand template file
-    ShouldProcessGenerateModuleManifest=Generating a new module manifest
-    ShouldProcessModifyContent=Modifying file
-    ShouldProcessTemplateFile=Processing template file
+    ShouldProcessGenerateModuleManifest=Generate new module manifest
     SubsitutionExpressionInvalid_F1=The substitution expression '{0}' is not supported.  Only string constants and string constants with variable expressions are supported.
     UnrecognizedParametersElement_F1=Unrecognized manifest parameters child element: {0}.
     UnrecognizedParameterType_F2=Unrecognized parameter type '{0}' on parameter name '{1}'.
