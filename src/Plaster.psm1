@@ -19,10 +19,14 @@ $LocalizedData = data {
     ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml'. Change the plaster manifest filename to 'plasterManifest.xml', and then try again.
     OpCreate=Create
     OpConflict=Conflict
-    OpExpand=Expand
+    OpExpand=Expanding
     OpIdentical=Identical
-    OpModify=Modify
+    OpModify=Modifying
+    OpUpdate=Update
+    OpMessageConflict_F1=with existing file {0}
+    OpMessageIdentical_F1=to existing file {0}
     OverwriteFile_F1=Overwrite {0}
+    TempFileOperation_F1={0} into a temp file
     ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
     ShouldProcessCreateDir=Create directory
     ShouldProcessGenerateModuleManifest=Generate new module manifest

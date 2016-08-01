@@ -142,6 +142,7 @@ function Invoke-Plaster {
 
     begin {
         $boundParameters = $PSBoundParameters
+        $templateCreatedFiles = @{}
         $defaultValueStore = @{}
         $fileConflictConfirmNoToAll = $false
         $fileConflictConfirmYesToAll = $false
@@ -260,12 +261,12 @@ __________.__                   __
             $retval
         }
 
-        function ProcessParameter([ValidateNotNull()]$ParamNode) {
-            $name = $ParamNode.name
-            $type = $ParamNode.type
-            $store = $ParamNode.store
-            $prompt = ExpandString $ParamNode.prompt
-            $default = ExpandString $ParamNode.default
+        function ProcessParameter([ValidateNotNull()]$Node) {
+            $name = $Node.name
+            $type = $Node.type
+            $store = $Node.store
+            $prompt = ExpandString $Node.prompt
+            $default = ExpandString $Node.default
 
             # Check if parameter was provided via a dynamic parameter
             if ($boundParameters.ContainsKey($name)) {
@@ -352,7 +353,7 @@ __________.__                   __
                         $valueToStore = $value
                     }
                     'choice|multichoice' {
-                        $choices = $ParamNode.ChildNodes
+                        $choices = $Node.ChildNodes
                         $defaults = [int[]]($default -split ',')
 
                         # Prompt the user for choice or multichoice selection input.
@@ -361,7 +362,7 @@ __________.__                   __
                         $OFS = ","
                         $valueToStore = "$($selections.Indices)"
                     }
-                    default  { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type, $ParamNode.LocalName) }
+                    default  { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type, $Node.LocalName) }
                 }
 
                 # If parameter specifies that user's input be stored as the default value,
@@ -405,16 +406,16 @@ __________.__                   __
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
-        function GenerateModuleManifest([ValidateNotNull()]$NewModuleManifestNode) {
-            $moduleVersion = ExpandString $NewModuleManifestNode.moduleVersion
-            $rootModule = ExpandString $NewModuleManifestNode.rootModule
-            $author = ExpandString $NewModuleManifestNode.author
-            $companyName = ExpandString $NewModuleManifestNode.companyName
-            $description = ExpandString $NewModuleManifestNode.description
-            $dstRelPath = ExpandString $NewModuleManifestNode.destination
+        function GenerateModuleManifest([ValidateNotNull()]$Node) {
+            $moduleVersion = ExpandString $Node.moduleVersion
+            $rootModule = ExpandString $Node.rootModule
+            $author = ExpandString $Node.author
+            $companyName = ExpandString $Node.companyName
+            $description = ExpandString $Node.description
+            $dstRelPath = ExpandString $Node.destination
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
-            $condition  = $NewModuleManifestNode.condition
+            $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
                     $PSCmdlet.WriteDebug("Skipping module manifest generation for '$dstPath', condition evaluated to false.")
@@ -422,7 +423,7 @@ __________.__                   __
                 }
             }
 
-            $encoding = ExpandString $NewModuleManifestNode.encoding
+            $encoding = ExpandString $Node.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }
@@ -555,28 +556,47 @@ __________.__                   __
         }
 
         function CopyFileWithConflictDetection([string]$SrcPath, [string]$DstPath) {
+            if (![System.IO.Path]::IsPathRooted($DstPath)) {
+                throw "Expected parameter DstPath value to be an absolute path, got '$DstPath'"
+            }
+
+            $relDstPath = (ConvertToDestinationRelativePath $DstPath)
+            $fileAddedByTemplate = $templateCreatedFiles.ContainsKey($DstPath)
+
             # Check if new file (potentially after expansion) conflicts with corresponding existing file.
             $operation = $LocalizedData.OpCreate
-            if (Test-Path $DstPath) {
-                if (AreFilesIdentical $SrcPath $DstPath) {
+            $opmessage = $relDstPath
+            if (Test-Path -LiteralPath $DstPath) {
+                if ($fileAddedByTemplate) {
+                    $operation = $LocalizedData.OpUpdate
+                }
+                elseif (AreFilesIdentical $SrcPath $DstPath) {
                     $operation = $LocalizedData.OpIdentical
+                    $opmessage = $LocalizedData.OpMessageIdentical_F1 -f $relDstPath
                 }
                 else {
                     $operation = $LocalizedData.OpConflict
+                    $opmessage = $LocalizedData.OpMessageConflict_F1 -f $relDstPath
                 }
             }
 
             # Copy the file to the destination
             if ($PSCmdlet.ShouldProcess($DstPath, $operation)) {
-                WriteOperationStatus $operation (ConvertToDestinationRelativePath $DstPath)
-                if ($operation -ne $LocalizedData.OpConflict) {
+                WriteOperationStatus $operation $opmessage
+
+                if (($operation -eq $LocalizedData.OpCreate) -or ($operation -eq $LocalizedData.OpUpdate)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    $templateCreatedFiles[$DstPath] = $null
+                }
+                elseif ($operation -eq $LocalizedData.OpIdentical) {
+                    # If the files are identical, no need to do anything
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
                                                              $LocalizedData.FileConflict,
                                                              [ref]$fileConflictConfirmYesToAll,
                                                              [ref]$fileConflictConfirmNoToAll)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    $templateCreatedFiles[$DstPath] = $null
                 }
             }
         }
@@ -593,7 +613,7 @@ __________.__                   __
             $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$dstRelPath', condition evaluated to false.")
+                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
                     return
                 }
             }
@@ -639,7 +659,7 @@ __________.__                   __
                 try {
                     # If processing a <templateFile>, copy to a temp file to expand the template file.
                     if ($isTemplateFile -and $PSCmdlet.ShouldProcess($dstPath, $LocalizedData.OpExpand)) {
-                        WriteOperationStatus $LocalizedData.OpExpand (ConvertToDestinationRelativePath $dstPath)
+                        WriteOperationStatus $LocalizedData.OpExpand ($LocalizedData.TempFileOperation_F1 -f (ConvertToDestinationRelativePath $dstPath))
 
                         $content = Get-Content -LiteralPath $srcPath -Raw
                         $pattern = '(<%=)(.*?)(%>)'
@@ -652,7 +672,7 @@ __________.__                   __
                         },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
                         $srcPath = $tempFile = [System.IO.Path]::GetTempFileName()
-                        $PSCmdlet.WriteDebug("Writing modified template contents to temp file '$tempFile'")
+                        $PSCmdlet.WriteDebug("Created temp file for expanded templateFile - $tempFile")
 
                         WriteContentWithEncoding -Path $tempFile -Content $newContent -Encoding $encoding
                     }
@@ -662,13 +682,14 @@ __________.__                   __
                 finally {
                     if ($tempFile -and (Test-Path $tempFile)) {
                         Remove-Item -LiteralPath $tempFile
+                        $PSCmdlet.WriteDebug("Removed temp file for expanded templateFile - $tempFile")
                     }
                 }
             }
         }
 
-        function ModifyFile([ValidateNotNull()]$ModifyNode) {
-            $path = ExpandString $ModifyNode.path
+        function ModifyFile([ValidateNotNull()]$Node) {
+            $path = ExpandString $Node.path
             $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
 
             $PLASTER_FileContent = ''
@@ -676,56 +697,56 @@ __________.__                   __
                 $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
             }
 
-            $condition  = $ModifyNode.condition
+            $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping file modify on '$path', condition evaluated to false.")
+                    $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) of '$filePath', condition evaluated to false.")
                     return
                 }
             }
 
-            $encoding = ExpandString $ModifyNode.encoding
+            $encoding = ExpandString $Node.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }
 
             if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.OpModify)) {
-                WriteOperationStatus $LocalizedData.OpModify (ConvertToDestinationRelativePath $filePath)
+                WriteOperationStatus $LocalizedData.OpModify ($LocalizedData.TempFileOperation_F1 -f (ConvertToDestinationRelativePath $filePath))
 
                 $modified = $false
 
-                foreach ($node in $ModifyNode.ChildNodes) {
-                    if ($node -isnot [System.Xml.XmlElement]) { continue }
+                foreach ($childNode in $Node.ChildNodes) {
+                    if ($childNode -isnot [System.Xml.XmlElement]) { continue }
 
-                    switch ($node.LocalName) {
+                    switch ($childNode.LocalName) {
                         'replace' {
-                            $condition  = $node.condition
+                            $condition  = $childNode.condition
                             if ($condition) {
                                 if (!(EvaluateCondition $condition)) {
-                                    $PSCmdlet.WriteDebug("Skipping file modify replace on '$path', condition evaluated to false.")
+                                    $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) $($childNode.LocalName) of '$filePath', condition evaluated to false.")
                                     continue
                                 }
                             }
 
-                            if ($node.original -is [string]) {
-                                $original = $node.original
+                            if ($childNode.original -is [string]) {
+                                $original = $childNode.original
                             }
                             else {
-                                $original = $node.original.InnerText
+                                $original = $childNode.original.InnerText
                             }
 
-                            if ($node.original.expand -eq 'true') {
+                            if ($childNode.original.expand -eq 'true') {
                                 $original = ExpandString $original
                             }
 
-                            if ($node.substitute -is [string]) {
-                                $substitute = $node.substitute
+                            if ($childNode.substitute -is [string]) {
+                                $substitute = $childNode.substitute
                             }
                             else {
-                                $substitute = $node.substitute.InnerText
+                                $substitute = $childNode.substitute.InnerText
                             }
 
-                            if ($node.substitute.expand -eq 'true') {
+                            if ($childNode.substitute.expand -eq 'true') {
                                 $substitute = ExpandString $substitute
                             }
 
@@ -733,14 +754,35 @@ __________.__                   __
 
                             $modified = $true
                         }
-                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $childNode.LocalName) }
                     }
                 }
 
-                # TODO: write to temp file and introduce file conflict handling
+                $tempFile = $null
 
-                if ($modified) {
-                    WriteContentWithEncoding -Path $filePath -Content $PLASTER_FileContent -Encoding $encoding
+                try {
+                    # We could use CopyFileWithConflictDetection to handle the "identical" (not modified) case
+                    # but if nothing was changed, I'd prefer not to generate a temp file, copy the unmodified contents
+                    # into that temp file with hopefully the right encoding and then potentially overwrite the original file
+                    # (different encoding will make the files look different) with the same contents but different encoding.
+                    # If the intent of the <modify> was simple to change an existing file's encoding then the directive will
+                    # need to make a whitespace change to the file.
+                    if ($modified) {
+                        $tempFile = [System.IO.Path]::GetTempFileName()
+                        $PSCmdlet.WriteDebug("Created temp file for modified file - $tempFile")
+
+                        WriteContentWithEncoding -Path $tempFile -Content $PLASTER_FileContent -Encoding $encoding
+                        CopyFileWithConflictDetection $tempFile $filePath
+                    }
+                    else {
+                        WriteOperationStatus $LocalizedData.OpIdentical (ConvertToDestinationRelativePath $filePath)
+                    }
+                }
+                finally {
+                    if ($tempFile -and (Test-Path $tempFile)) {
+                        Remove-Item -LiteralPath $tempFile
+                        $PSCmdlet.WriteDebug("Removed temp file for modified file - $tempFile")
+                    }
                 }
             }
         }
@@ -756,7 +798,7 @@ __________.__                   __
             }
         }
 
-        # Outputs the processed template parameters to the verbose stream
+        # Outputs the processed template parameters to the debug stream
         $parameters = Get-Variable -Name PLASTER_* | Out-String
         $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
 
@@ -900,9 +942,10 @@ function ColorForOperation($operation) {
     switch ($operation) {
         $LocalizedData.OpConflict  { 'Red' }
         $LocalizedData.OpCreate    { 'Green' }
-        $LocalizedData.OpExpand    { 'Green' }
+        $LocalizedData.OpExpand    { 'Magenta' }
         $LocalizedData.OpIdentical { 'Cyan' }
-        $LocalizedData.OpModify    { 'Green' }
+        $LocalizedData.OpModify    { 'Magenta' }
+        $LocalizedData.OpUpdate    { 'Green' }
         default { $Host.UI.RawUI.ForegroundColor }
     }
 }
@@ -930,7 +973,8 @@ function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$en
 function WriteOperationStatus($operation, $message) {
     $maxLen = ($LocalizedData.OpCreate, $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpExpand,
-               $LocalizedData.OpModify | Measure-Object -Property Length -Maximum).Maximum
+               $LocalizedData.OpModify, $LocalizedData.OpUpate |
+                  Measure-Object -Property Length -Maximum).Maximum
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
@@ -941,8 +985,8 @@ function GetGitConfigValue($name) {
     # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
     $gitConfigPath = (Join-Path $env:Home '.gitconfig')
     Write-Debug "Looking for '$name' value in Git config: $gitConfigPath"
-    if (Test-Path $gitConfigPath) {
-        $matches = Select-String -Path $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
+    if (Test-Path -LiteralPath $gitConfigPath) {
+        $matches = Select-String -LiteralPath $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
         if (@($matches).Count -gt 0)
         {
             $matches.Matches.Groups[1].Value
