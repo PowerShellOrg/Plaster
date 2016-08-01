@@ -149,6 +149,7 @@ function Invoke-Plaster {
         $flags = @{
             DefaultValueStoreDirty = $false
         }
+
         $logo = @'
 __________.__                   __
 \______   \  | _____    _______/  |_  ___________
@@ -432,7 +433,7 @@ __________.__                   __
                 $manifestDir = Split-Path $dstPath -Parent
                 if (!(Test-Path $manifestDir)) {
                     VerifyPathIsUnderDestinationPath $manifestDir
-                    Write-Verbose "Creating destination dir for module manifest: $manifestDir"
+                    Write-Verbose ($LocalizedData.NewModManifest_CreatingDir_F1 -f $manifestDir)
                     New-Item $manifestDir -ItemType Directory > $null
                 }
 
@@ -556,8 +557,10 @@ __________.__                   __
         }
 
         function CopyFileWithConflictDetection([string]$SrcPath, [string]$DstPath) {
+            # Just double-checking that DstPath parameter is an absolute path otherwise
+            # it could fail the check that the DstPath is under the overall DestinationPath.
             if (![System.IO.Path]::IsPathRooted($DstPath)) {
-                throw "Expected parameter DstPath value to be an absolute path, got '$DstPath'"
+                $DstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DstPath)
             }
 
             $relDstPath = (ConvertToDestinationRelativePath $DstPath)
@@ -917,7 +920,7 @@ function ConvertToDestinationRelativePath($Path) {
 
     $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
     if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
-        throw "$Path must contain $fullDestPath"
+        throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $fullPath, $fullDestPath)
     }
 
     $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
