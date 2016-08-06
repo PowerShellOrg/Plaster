@@ -2,10 +2,8 @@
 Import-Module $PSScriptRoot\..\src\Plaster.psd1
 
 $OutDir = "$PSScriptRoot\Out"
-if (Test-Path $OutDir) {
-    Remove-Item $OutDir -Recurse
-}
-New-Item $OutDir -ItemType Directory > $null
+Remove-Item $OutDir -Recurse -ErrorAction SilentlyContinue
+New-Item $OutDir -ItemType Directory -ErrorAction SilentlyContinue > $null
 
 $PlasterParams = @{
     TemplatePath = "$PSScriptRoot\NewModuleTemplate"
