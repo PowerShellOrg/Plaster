@@ -60,7 +60,7 @@ function Test-PlasterManifest {
         $filename = Split-Path $Path -Leaf
 
         # Verify the manifest has the correct filename.
-        if ($filename -ne 'plasterManifest.xml') {
+        if (!(($filename -eq 'plasterManifest.xml') -or ($filename -match 'plasterManifest_[a-zA-Z]+(-[a-zA-Z]+){0,2}.xml'))) {
             Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $filename)
             return
         }

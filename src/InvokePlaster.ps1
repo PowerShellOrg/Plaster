@@ -70,14 +70,9 @@ function Invoke-Plaster {
             # If TemplatePath is a zipped template, extract the template to a temp dir and use that path
             $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
 
-            $manifestPath = Join-Path $TemplatePath plasterManifest.xml
-            if ($null -eq $manifestPath) {
-                return
-            }
-
-            # Can't seem to use $PSCmdlet.GetUnresolvedProviderPathFromPSPath in dynamicparam scriptblock.
-            $manifestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($manifestPath)
-            if (!(Test-Path $manifestPath)) {
+            # Load manifest file using culture lookup
+            $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
+            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
                 return
             }
 
@@ -180,18 +175,17 @@ __________.__                   __
 
         InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
-        # If user does not supply the TemplatePath parameter, the dynamicparam scriptblock bails early without
-        # loading the Plaster manifest.  If that's the case, load the manifest now.
-        if ($null -eq $manifestPath) {
-            $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
-            $manifestPath = Join-Path $TemplatePath plasterManifest.xml
-            $manifestPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($manifestPath)
-        }
-
-        # Validate that the dynamicparam scriptblock was able to load the template manifest and it is valid.
+        # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest or it wasn't valid.
+        # If so, let's try to load it here. If anything, we can provide better errors here.
         if ($null -eq $manifest) {
+            if ($null -eq $manifestPath) {
+                $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
+                $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
+            }
+
             if (Test-Path $manifestPath) {
                 $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+                $PSCmdlet.WriteDebug("In Begin, loading manifest file '$manifestPath'")
             }
             else {
                 throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
@@ -876,6 +870,37 @@ function InitializePredefinedVariables([string]$destPath) {
     Set-Variable -Name PLASTER_Date -Value ($now.ToShortDateString()) -Scope Script
     Set-Variable -Name PLASTER_Time -Value ($now.ToShortTimeString()) -Scope Script
     Set-Variable -Name PLASTER_Year -Value ($now.Year) -Scope Script
+}
+
+function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNull()][CultureInfo]$Culture) {
+    if (![System.IO.Path]::IsPathRooted($TemplatePath)) {
+        $TemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+    }
+
+    # Check for culture-locale first
+    $plasterManifestBasename = "plasterManifest"
+    $plasterManifestFilename = "${plasterManifestBasename}_$($culture.Name).xml"
+    $plasterManifestPath = Join-Path $TemplatePath $plasterManifestFilename
+    if (Test-Path $plasterManifestPath) {
+        return $plasterManifestPath
+    }
+
+    # Check for culture next
+    if ($culture.Parent.Name) {
+        $plasterManifestFilename = "${plasterManifestBasename}_$($culture.Parent.Name).xml"
+        $plasterManifestPath = Join-Path $TemplatePath $plasterManifestFilename
+        if (Test-Path $plasterManifestPath) {
+            return $plasterManifestPath
+        }
+    }
+
+    # Fallback to invariant culture manifest
+    $plasterManifestPath = Join-Path $TemplatePath "${plasterManifestBasename}.xml"
+    if (Test-Path $plasterManifestPath) {
+        return $plasterManifestPath
+    }
+
+    $null
 }
 
 function ExpandString($str) {

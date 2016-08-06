@@ -1,6 +1,6 @@
 #Microsoft.PowerShell.Core\Set-StrictMode -Version Latest
 
-$LocalizedData = data {
+data LocalizedData {
     # culture="en-US"
     ConvertFrom-StringData @'
     ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
@@ -16,7 +16,7 @@ $LocalizedData = data {
     ManifestErrorReading_F1=Plaster manifest error: {0}
     ManifestNotValid_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
     ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
-    ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml'. Change the plaster manifest filename to 'plasterManifest.xml', and then try again.
+    ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the plaster manifest filename and then try again.
     NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}
     OpCreate=Create
     OpConflict=Conflict
