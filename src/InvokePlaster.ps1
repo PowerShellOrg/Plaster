@@ -556,6 +556,17 @@ __________.__                   __
             }
         }
 
+        # Plaster zen for file handling.  All file related operations should use this method
+        # to actually write/overwrite/modify files in the DestinationPath.  This method
+        # handles detecting conflicts, gives the user a chance to determine how to handle
+        # conflicts.  The user can choose to use the Force parameter to force the overwriting
+        # of existing files at the destination path.
+        # File processing (expanding substitution variable, modifying file contents) should always
+        # be done to a temp file (be sure to always remove temp file when done).  That temp file
+        # is what gets passed to this function as the $SrcPath.  This allows Plaster to alert the
+        # user when the repeated application of a template will modify any existing file.
+        # NOTE: Plaster keeps track of which files it has "created" (as opposed to overwritten)
+        # so that any later change to that file doesn't trigger conflict handling.
         function CopyFileWithConflictDetection([string]$SrcPath, [string]$DstPath) {
             # Just double-checking that DstPath parameter is an absolute path otherwise
             # it could fail the check that the DstPath is under the overall DestinationPath.
@@ -563,23 +574,23 @@ __________.__                   __
                 $DstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DstPath)
             }
 
-            $relDstPath = (ConvertToDestinationRelativePath $DstPath)
-            $fileAddedByTemplate = $templateCreatedFiles.ContainsKey($DstPath)
-
-            # Check if new file (potentially after expansion) conflicts with corresponding existing file.
+            # Check if DstPath file conflicts with an existing SrcPath file.
             $operation = $LocalizedData.OpCreate
-            $opmessage = $relDstPath
+            $opmessage = (ConvertToDestinationRelativePath $DstPath)
             if (Test-Path -LiteralPath $DstPath) {
-                if ($fileAddedByTemplate) {
+                if (AreFilesIdentical $SrcPath $DstPath) {
+                    $operation = $LocalizedData.OpIdentical
+                }
+                elseif ($templateCreatedFiles.ContainsKey($DstPath)) {
+                    # Plaster created this file previously during template invocation
+                    # therefore, there is no conflict.  We're simply updating the file.
                     $operation = $LocalizedData.OpUpdate
                 }
-                elseif (AreFilesIdentical $SrcPath $DstPath) {
-                    $operation = $LocalizedData.OpIdentical
-                    $opmessage = $LocalizedData.OpMessageIdentical_F1 -f $relDstPath
+                elseif ($Force) {
+                    $operation = $LocalizedData.OpForce
                 }
-                else {
+                else  {
                     $operation = $LocalizedData.OpConflict
-                    $opmessage = $LocalizedData.OpMessageConflict_F1 -f $relDstPath
                 }
             }
 
@@ -587,12 +598,14 @@ __________.__                   __
             if ($PSCmdlet.ShouldProcess($DstPath, $operation)) {
                 WriteOperationStatus $operation $opmessage
 
+                if ($operation -eq $LocalizedData.OpIdentical) {
+                    # If the files are identical, no need to do anything
+                    return
+                }
+
                 if (($operation -eq $LocalizedData.OpCreate) -or ($operation -eq $LocalizedData.OpUpdate)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
                     $templateCreatedFiles[$DstPath] = $null
-                }
-                elseif ($operation -eq $LocalizedData.OpIdentical) {
-                    # If the files are identical, no need to do anything
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
                                                              $LocalizedData.FileConflict,
@@ -660,9 +673,10 @@ __________.__                   __
                 $tempFile = $null
 
                 try {
-                    # If processing a <templateFile>, copy to a temp file to expand the template file.
-                    if ($isTemplateFile -and $PSCmdlet.ShouldProcess($dstPath, $LocalizedData.OpExpand)) {
-                        WriteOperationStatus $LocalizedData.OpExpand ($LocalizedData.TempFileOperation_F1 -f (ConvertToDestinationRelativePath $dstPath))
+                    # If processing a <templateFile>, copy to a temp file to expand the template file,
+                    # then apply the normal file conflict detection/resolution handling.
+                    $target = $LocalizedData.TempFileTarget_F1 -f (ConvertToDestinationRelativePath $dstPath)
+                    if ($isTemplateFile -and $PSCmdlet.ShouldProcess($target, $LocalizedData.ShouldProcessExpandTemplate)) {
 
                         $content = Get-Content -LiteralPath $srcPath -Raw
                         $pattern = '(<%=)(.*?)(%>)'
@@ -713,7 +727,10 @@ __________.__                   __
                 $encoding = $DefaultEncoding
             }
 
-            if ($PSCmdlet.ShouldProcess($filePath, $LocalizedData.OpModify)) {
+            # If processing a <modify> directive, write the modified contents to a temp file,
+            # then apply the normal file conflict detection/resolution handling.
+            $target = $LocalizedData.TempFileTarget_F1 -f $filePath
+            if ($PSCmdlet.ShouldProcess($target, $LocalizedData.OpModify)) {
                 WriteOperationStatus $LocalizedData.OpModify ($LocalizedData.TempFileOperation_F1 -f (ConvertToDestinationRelativePath $filePath))
 
                 $modified = $false
@@ -941,18 +958,6 @@ function VerifyPathIsUnderDestinationPath([ValidateNotNullOrEmpty()][string]$Ful
     }
 }
 
-function ColorForOperation($operation) {
-    switch ($operation) {
-        $LocalizedData.OpConflict  { 'Red' }
-        $LocalizedData.OpCreate    { 'Green' }
-        $LocalizedData.OpExpand    { 'Magenta' }
-        $LocalizedData.OpIdentical { 'Cyan' }
-        $LocalizedData.OpModify    { 'Magenta' }
-        $LocalizedData.OpUpdate    { 'Green' }
-        default { $Host.UI.RawUI.ForegroundColor }
-    }
-}
-
 function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$encoding) {
     if ($encoding -match '-nobom') {
         $encoding,$dummy = $encoding -split '-'
@@ -973,10 +978,22 @@ function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$en
     }
 }
 
+function ColorForOperation($operation) {
+    switch ($operation) {
+        $LocalizedData.OpConflict  { 'Red' }
+        $LocalizedData.OpCreate    { 'Green' }
+        $LocalizedData.OpForce     { 'Yellow' }
+        $LocalizedData.OpIdentical { 'Cyan' }
+        $LocalizedData.OpModify    { 'Magenta' }
+        $LocalizedData.OpUpdate    { 'Green' }
+        default { $Host.UI.RawUI.ForegroundColor }
+    }
+}
+
 function WriteOperationStatus($operation, $message) {
-    $maxLen = ($LocalizedData.OpCreate, $LocalizedData.OpIdentical,
-               $LocalizedData.OpConflict, $LocalizedData.OpExpand,
-               $LocalizedData.OpModify, $LocalizedData.OpUpate |
+    $maxLen = ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
+               $LocalizedData.OpConflict, $LocalizedData.OpForce,
+               $LocalizedData.OpModify,   $LocalizedData.OpUpate |
                   Measure-Object -Property Length -Maximum).Maximum
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
