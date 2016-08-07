@@ -32,11 +32,10 @@ function Invoke-Plaster {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         # Specifies the path to either the Template directory or a ZIP file containing the template.
-        # If no directory is specified the current directory is used.
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $TemplatePath = $pwd.Path,
+        $TemplatePath,
 
         # Specifies the path to directory in which the template will use as a root directory when generating files.
         [Parameter(Mandatory = $true)]
@@ -62,13 +61,23 @@ function Invoke-Plaster {
         $manifest = $null
         $manifestPath = $null
 
+        # Nothing to do until the TemplatePath parameter has been provided.
         if ($null -eq $TemplatePath) {
-            $TemplatePath = $pwd.Path
+            return
         }
 
         try {
+            # Let's convert non-terminating errors in this function to terminating so we
+            # catch and format the error message as a warning.
+            $ErrorActionPreference = 'Stop'
+
+            $resolvedTemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+            if (!(Test-Path -LiteralPath $resolvedTemplatePath -PathType Container)) {
+                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $resolvedTemplatePath)
+            }
+
             # If TemplatePath is a zipped template, extract the template to a temp dir and use that path
-            $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
+            $TemplatePath = ExtractTemplateAndReturnPath $resolvedTemplatePath
 
             # Load manifest file using culture lookup
             $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
@@ -128,8 +137,8 @@ function Invoke-Plaster {
                 $paramDictionary.Add($name, $param)
             }
         }
-        catch [System.Exception] {
-            Write-Verbose ($LocalizedData.ErrorProcessingDynamicParams_F1 -f $_)
+        catch {
+            Write-Warning ($LocalizedData.ErrorProcessingDynamicParams_F1 -f $_)
         }
 
         $paramDictionary
@@ -167,6 +176,29 @@ __________.__                   __
 (_/
 '@
 
+        # Verify TemplatePath parameter value is valid.
+        $resolvedTemplatePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+        if (!(Test-Path -LiteralPath $resolvedTemplatePath -PathType Container)) {
+            throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $resolvedTemplatePath)
+        }
+
+        # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest
+        # or it wasn't valid. If so, let's try to load it here. If anything, we can provide better errors here.
+        if ($null -eq $manifest) {
+            if ($null -eq $manifestPath) {
+                $TemplatePath = ExtractTemplateAndReturnPath $resolvedTemplatePath
+                $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
+            }
+
+            if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+                $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
+            }
+            else {
+                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
+            }
+        }
+
         if (!$NoLogo) {
             $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
             Write-Host $randLogo
@@ -174,23 +206,6 @@ __________.__                   __
         }
 
         InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-
-        # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest or it wasn't valid.
-        # If so, let's try to load it here. If anything, we can provide better errors here.
-        if ($null -eq $manifest) {
-            if ($null -eq $manifestPath) {
-                $TemplatePath = ExtractTemplateAndReturnPath $TemplatePath
-                $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
-            }
-
-            if (Test-Path $manifestPath) {
-                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
-                $PSCmdlet.WriteDebug("In Begin, loading manifest file '$manifestPath'")
-            }
-            else {
-                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
-            }
-        }
 
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
