@@ -7,7 +7,7 @@ New-Item $OutDir -ItemType Directory -ErrorAction SilentlyContinue > $null
 
 $PlasterParams = @{
     TemplatePath = "$PSScriptRoot\NewModuleTemplate"
-    Destination = '.\Out'
+    DestinationPath = $OutDir
     ModuleName = 'FooUtils'
     ModuleDesc = 'Utilities for Foo.'
     FullName = 'John Q. Doe'
