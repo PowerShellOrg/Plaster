@@ -66,6 +66,17 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="SchemaVersionType">
+    <xs:annotation>
+      <xs:documentation>
+        A schemaVersion value must be of the form major.minor
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,4}\.[0-9]{1,4}" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="StoreFormatType">
     <xs:annotation>
       <xs:documentation>
@@ -382,9 +393,9 @@
         </xs:element>
     	</xs:sequence>
 
-      <xs:attribute name="schemaVersion" type="xs:decimal" use="required">
+      <xs:attribute name="schemaVersion" type="ptd:SchemaVersionType" use="required">
         <xs:annotation>
-          <xs:documentation>Version level of the associated XML schema. Only major/breaking changes to the XML schema result in a new target namespace.</xs:documentation>
+          <xs:documentation>Version level of the associated XML schema. Only breaking changes to the XML schema result in a new target namespace.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>
