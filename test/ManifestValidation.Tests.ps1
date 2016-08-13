@@ -51,4 +51,37 @@ Describe 'Module Error Handling Tests' {
             { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null} | Should Throw
         }
     }
+
+    Context 'Template cannot write outside of the user-specified DestinationPath' {
+        It 'Throws on modify path that is absolute path' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\modifyAbsolutePath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+        It 'Throws on newModuleManifest destination that is absolute path' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\newModManifestAbsolutePath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+        It 'Throws on templateFile destination that is absolute path' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\templateFileAbsolutePath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+        It 'Throws on modify relativePath outside of DestinationPath' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\modifyOutsideDestPath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+        It 'Throws on newModuleManifest relativePath outside of DestinationPath' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\newModManOutsideDestPath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+        It 'Throws on templateFile relativePath outside of DestinationPath' {
+            CleanDir $TemplateDir
+            Copy-Item $PSScriptRoot\Manifests\templateFileOutsideDestPath.xml $TemplateDir\plasterManifest.xml
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+        }
+    }
 }

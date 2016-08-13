@@ -1,4 +1,3 @@
-#Microsoft.PowerShell.Core\Set-StrictMode -Version Latest
 
 data LocalizedData {
     # culture="en-US"
@@ -8,6 +7,7 @@ data LocalizedData {
     ErrorTemplatePathIsInvalid_F1=The TemplatePath parameter value must refer to an existing directory. The specified path '{0}' does not.
     ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
     ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
+    ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
     ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
     FileConflict=Plaster file conflict
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.

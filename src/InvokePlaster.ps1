@@ -423,6 +423,14 @@ __________.__                   __
             $companyName = ExpandString $Node.companyName
             $description = ExpandString $Node.description
             $dstRelPath = ExpandString $Node.destination
+
+            # We could choose to not check this if the condition eval'd to false
+            # but I think it is better to let the template author know they've broken the
+            # rules for any of the file directives (not just the ones they're testing/enabled).
+            if ([System.IO.Path]::IsPathRooted($dstRelPath)) {
+                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
+            }
+
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             $condition  = $Node.condition
@@ -635,6 +643,17 @@ __________.__                   __
             $srcRelPath = ExpandString $Node.source
             $dstRelPath = ExpandString $Node.destination
 
+            # We could choose to not check this if the condition eval'd to false
+            # but I think it is better to let the template author know they've broken the
+            # rules for any of the file directives (not just the ones they're testing/enabled).
+            if ([System.IO.Path]::IsPathRooted($srcRelPath)) {
+                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $srcRelPath,$Node.LocalName)
+            }
+
+            if ([System.IO.Path]::IsPathRooted($dstRelPath)) {
+                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
+            }
+
             $condition  = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
@@ -659,6 +678,9 @@ __________.__                   __
             foreach ($fileSystemCopyInfo in $fileSystemCopyInfoObjs) {
                 $srcPath = $fileSystemCopyInfo.SrcFileName
                 $dstPath = $fileSystemCopyInfo.DstFileName
+
+                # The file's destination path must be under the DestinationPath specified by the user.
+                VerifyPathIsUnderDestinationPath $dstPath
 
                 # Check to see if we're copying an empty dir
                 if (Test-Path -LiteralPath $srcPath -PathType Container) {
@@ -716,19 +738,30 @@ __________.__                   __
 
         function ModifyFile([ValidateNotNull()]$Node) {
             $path = ExpandString $Node.path
-            $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
 
-            $PLASTER_FileContent = ''
-            if (Test-Path $filePath) {
-                $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+            # We could choose to not check this if the condition eval'd to false
+            # but I think it is better to let the template author know they've broken the
+            # rules for any of the file directives (not just the ones they're testing/enabled).
+            if ([System.IO.Path]::IsPathRooted($path)) {
+                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $path,$Node.LocalName)
             }
 
-            $condition  = $Node.condition
+            $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
+
+            # The file's path must be under the DestinationPath specified by the user.
+            VerifyPathIsUnderDestinationPath $filePath
+
+            $condition = $Node.condition
             if ($condition) {
                 if (!(EvaluateCondition $condition)) {
                     $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) of '$filePath', condition evaluated to false.")
                     return
                 }
+            }
+
+            $PLASTER_FileContent = [string]::Empty
+            if (Test-Path $filePath) {
+                $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
             }
 
             $encoding = ExpandString $Node.encoding
