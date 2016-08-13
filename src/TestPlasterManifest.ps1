@@ -127,6 +127,11 @@ function Test-PlasterManifest {
         }
 
         if ($manifestIsValid.Value) {
+            $manifestSchemaVersion = [System.Version]$manifest.plasterManifest.schemaVersion
+            if ($manifestSchemaVersion -gt $LatestSupportedSchemaVersion) {
+                throw ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
+            }
+
             $manifest
         }
         else {
