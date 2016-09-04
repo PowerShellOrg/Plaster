@@ -708,21 +708,25 @@ __________.__                   __
                     # then apply the normal file conflict detection/resolution handling.
                     $target = $LocalizedData.TempFileTarget_F1 -f (ConvertToDestinationRelativePath $dstPath)
                     if ($isTemplateFile -and $PSCmdlet.ShouldProcess($target, $LocalizedData.ShouldProcessExpandTemplate)) {
-
                         $content = Get-Content -LiteralPath $srcPath -Raw
-                        $pattern = '(<%=)(.*?)(%>)'
-                        $newContent = [regex]::Replace($content, $pattern, {
-                            param($match)
-                            $expr = $match.groups[2].value
-                            $res = ExpandString $expr
-                            $PSCmdlet.WriteDebug("Replacing '$expr' with '$res' in contents of template file '$srcPath'")
-                            $res
-                        },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
+                        if ($content -and ($content.Count -gt 0)) {
+                            $pattern = '(<%=)(.*?)(%>)'
+                            $newContent = [regex]::Replace($content, $pattern, {
+                                param($match)
+                                $expr = $match.groups[2].value
+                                $res = ExpandString $expr
+                                $PSCmdlet.WriteDebug("Replacing '$expr' with '$res' in contents of template file '$srcPath'")
+                                $res
+                            },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
 
-                        $srcPath = $tempFile = [System.IO.Path]::GetTempFileName()
-                        $PSCmdlet.WriteDebug("Created temp file for expanded templateFile - $tempFile")
+                            $srcPath = $tempFile = [System.IO.Path]::GetTempFileName()
+                            $PSCmdlet.WriteDebug("Created temp file for expanded templateFile - $tempFile")
 
-                        WriteContentWithEncoding -Path $tempFile -Content $newContent -Encoding $encoding
+                            WriteContentWithEncoding -Path $tempFile -Content $newContent -Encoding $encoding
+                        }
+                        else {
+                            $PSCmdlet.WriteDebug("Skipping template file expansion for $($Node.localName) '$srcPath', file is empty.")
+                        }
                     }
 
                     CopyFileWithConflictDetection $srcPath $dstPath

@@ -30,7 +30,7 @@ Describe 'File Directive ExpandFileSource Tests' {
         }
     }
     Context 'Recurse\*.txt case' {
-        It 'It copies only foo.txt under the Recurse dir' {
+        It 'It copies only empty.txt, foo.txt under the Recurse dir' {
             CleanDir $TemplateDir
             CleanDir $OutDir
 
@@ -41,7 +41,7 @@ Describe 'File Directive ExpandFileSource Tests' {
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Filter *.txt -Name
             $dst = Get-ChildItem $OutDir\RecurseOut -Recurse -File -Filter *.txt -Name
-            $dst | Should Be "foo.txt"
+            $dst | Should Be "empty.txt", "foo.txt"
         }
     }
     Context 'Recurse\**\*.txt case' {
