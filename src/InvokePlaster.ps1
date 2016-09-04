@@ -1070,7 +1070,7 @@ function ColorForOperation($operation) {
 function WriteOperationStatus($operation, $message) {
     $maxLen = ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpForce,
-               $LocalizedData.OpModify,   $LocalizedData.OpUpate |
+               $LocalizedData.OpModify,   $LocalizedData.OpUpdate |
                   Measure-Object -Property Length -Maximum).Maximum
 
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
