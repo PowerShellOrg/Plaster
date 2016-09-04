@@ -70,8 +70,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <file source='_gitignore'
               destination='.gitignore'
               condition='$PLASTER_PARAM_Options -contains "Git"'/>
-        <file source='Build.ps1'
-              destination='Build.ps1'
+        <file source='build*.ps1'
+              destination=''
               condition='$PLASTER_PARAM_Options -contains "PSake"'/>
         <!-- Recursively copy all *files* into the corresponding directory structure under dest dir RecurseFile -->
         <file source='RecurseFile\**'
