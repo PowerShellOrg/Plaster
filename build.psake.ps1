@@ -34,11 +34,11 @@
 # command which will execute the build task.  This task "builds"
 # a temporary folder from which the module can be published.
 #
-# PS C:\> invoke-psake build.ps1
+# PS C:\> invoke-psake build.psake.ps1
 #
 # You can run your Pester tests (if any) by running the following command.
 #
-# PS C:\> invoke-psake build.ps1 -taskList test
+# PS C:\> invoke-psake build.psake.ps1 -taskList test
 #
 # You can execute the publish task with the following command. Note that
 # the publish task will run the test task first. The Pester tests must pass
@@ -47,101 +47,220 @@
 # After entering the key, it is encrypted and stored so you will not have to
 # enter it again.
 #
-# PS C:\> invoke-psake build.ps1 -taskList publish
+# PS C:\> invoke-psake build.psake.ps1 -taskList publish
 #
 # You can verify the stored and encrypted NuGetApiKey by running the following
 # command. This will display your NuGetApiKey in plain text!
 #
-# PS C:\> invoke-psake build.ps1 -taskList showKey
+# PS C:\> invoke-psake build.psake.ps1 -taskList showApiKey
 #
 # You can store a new NuGetApiKey with this command. You can leave off
 # the -properties parameter and you'll be prompted for the key.
 #
-# PS C:\> invoke-psake build.ps1 -taskList storeKey -properties @{NuGetApiKey='test123'}
+# PS C:\> invoke-psake build.psake.ps1 -taskList storeApiKey -properties @{NuGetApiKey='test123'}
 #
+
 
 ###############################################################################
 # Customize these properties for your module.
 ###############################################################################
-Properties {
-    # The root directory of the module source.  It could be the workspace root or
-    # a subdir such as src, module, <my-module-name>.
-    $ModuleRootDir = "$PSScriptRoot\src"
 
-    # The name of your module should match the basename of the PSD1 file.
-    $ModuleName = (Get-Item $ModuleRootDir\*.psd1 |
-                   Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) {$_}})[0].BaseName
+Properties {
+    # ----------------------- Basic properties --------------------------------
+
+    # The root directory of the module source and tests.  It could be the workspace
+    # root or a subdir such as src, module, <my-module-name>.
+    $SourceRootDir = "$PSScriptRoot/src"
+    $TestRootDir   = "$PSScriptRoot/test"
+
+    # -------------------- Publishing properties ------------------------------
 
     # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
-    $ReleaseNotesPath = "$PSScriptRoot\ReleaseNotes.md"
+    # The contents of this file are used during publishing for the ReleaseNotes parameter.
+    $ReleaseNotesPath = "$PSScriptRoot/ReleaseNotes.md"
+
+    # Set to $true if you want to sign your scripts. You will need to have a code-signing certificate.
+    # You can specify the certificate's subject name below. If not specified, you will be prompted to
+    # provide either a subject name or path to a PFX file.  After this one time prompt, the value will
+    # saved for future use and you will no longer be prompted.
+    $SignScripts = $false
+
+    # Specify the Subject Name of the certificate used to sign your scripts.  Leave it as $null and the
+    # first time you build, you will be prompted to enter your API key. This variable is used only if
+    # $SignScripts is set to $true.  This does require the code-signing certificate to be installed
+    # to your certificate store.  If you have a code-signing certificate in a PFX file, install the
+    # certificate to your certificate store with the command below. You may be prompted for the
+    # certificate's password.
+    #
+    # Import-PfxCertificate -FilePath .\myCodeSigingCert.pfx -CertStoreLocation Cert:\CurrentUser\My
+    $CertSubjectName = $null
+
+    # Your NuGet API key for the PSGallery.  Leave it as $null and the first time
+    # you publish, you will be prompted to enter your API key.  The build will
+    # store the key encrypted in the settings file, so that on subsequent
+    # publishes you will no longer be prompted for the API key.
+    $NuGetApiKey = $null
+
+    # Name of the repository you wish to publish to. Default repo is the PowerShellGallery.
+    $PublishRepository = $null
+
+    # ----------------------- Misc properties ---------------------------------
+
+    # In addition, PFX certificates are supported in an interactive scenario only,
+    # as a way to import a certificate into the user personal store for later use.
+    # This can be provided using the CertPfxPath parameter. PFX passwords will not be stored.
+    $SettingsPath = "$env:LOCALAPPDATA\Plaster\NewModuleTemplate\SecuredBuildSettings.clixml"
+
+    # The name of your module should match the basename of the PSD1 file.
+    $ModuleName = (Get-Item $SourceRootDir/*.psd1 |
+                   Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
 
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
     $PublishRootDir = "$PSScriptRoot\.publish"
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
-    # The following items will not be copied to the $PublishDir.
-    # Add items that should not be published with the module.
-    $Exclude = @(
-        (Split-Path $PSCommandPath -Leaf)
-    )
-
-    # Name of the repository you wish to publish to. Default repo is the PSGallery.
-    $PublishRepository = $null
-
-    # Your NuGet API key for the PSGallery.  Leave it as $null and the first time
-    # you publish you will be prompted to enter your API key.  The build will
-    # store the key encrypted in a file, so that on subsequent publishes you
-    # will no longer be prompted for the API key.
-    $NuGetApiKey = $null
-    $EncryptedApiKeyPath = "$env:LOCALAPPDATA\vscode-powershell\NuGetApiKey.clixml"
-
-    # If you specify the certificate subject when running a build that certificate
-    # must exist in the users personal certificate store. The build will import the
-    # certificate (if required), then store the subject, so that on subsequent
-    # signing the build will use the same (or newer) certificate with that subject.
-    $CertSubjectPath  = "$env:LOCALAPPDATA\WindowsPowerShell\CertificateSubject.clixml"
-
-    # In addition, PFX certificates are supported in an interactive scenario only,
-    # as a way to import a certificate into the user personal store for later use.
-    # This can be provided using the CertPfxPath parameter.
-    # PFX passwords will not be stored.
+    # The following items will not be copied to the $PublishDir. Typically you
+    # wouldn't put any file under the src dir unless the file was going to ship with
+    # the module. However, if there are such files, add them to the exclude list below.
+    $Exclude = @()
 }
 
 ###############################################################################
 # Customize these tasks for performing operations before and/or after publish.
 ###############################################################################
+
+# Executes before src is copied to publish dir
+Task PreCopySource {
+}
+
+# Executes after src is copied to publish dir
+Task PostCopySource {
+}
+
+# Executes before publishing occurs.
 Task PrePublish {
 }
 
+# Executes after publishing occurs.
 Task PostPublish {
 }
 
+
 ###############################################################################
-# Core task implementations - this possibly "could" ship as part of the
-# vscode-powershell extension and then get dot sourced into this file.
+# Core task implementations
 ###############################################################################
 Task default -depends Build
+
+Task Init -requiredVariables PublishDir {
+    if (!(Test-Path $PublishDir) -and $PublishDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
+        New-Item $PublishDir -ItemType Directory > $null
+    }
+}
+
+Task Clean -requiredVariables PublishRootDir {
+    if ((Test-Path $PublishRootDir) -and $PublishRootDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
+        Get-ChildItem $PublishRootDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
+    }
+}
+
+Task CopySource -depends Init, Clean -requiredVariables SourceRootDir, PublishDir {
+    Copy-Item -Path $SourceRootDir -Destination $PublishDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
+}
+
+Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
+    if (!$SignScripts) {
+        "Script signing is not enabled.  Skipping Sign task."
+        return
+    }
+
+    $certSubjectNameKey = "CertSubjectName"
+    $storeCertSubjectName = $true
+
+    # Get the subject name of the code-signing certificate to be used for script signing.
+    if (!$CertSubjectName -and ($CertSubjectName = GetSetting -Key $certSubjectNameKey -Path $SettingsPath)) {
+        $storeCertSubjectName = $false
+    }
+    elseif (!$CertSubjectName) {
+        $CertSubjectName = 'CN='
+        $CertSubjectName += Read-Host -Prompt 'Enter the certificate subject name for script signing. Use exact casing, CN= prefix will be added'
+    }
+    elseif ($CertSubjectName -notmatch "^CN=") {
+        $CertSubjectName = "CN=$CertSubjectName"
+    }
+
+    # Find a code-signing certificate that matches the specified subject name.
+    $cert = Get-ChildItem -Path Cert:\ -CodeSigningCert -Recurse |
+                Where-Object { $_.SubjectName.Name.StartsWith($CertSubjectName) -and $_.NotAfter -gt (Get-Date) } |
+                Sort-Object -Property NotAfter -Descending | Select-Object -First 1
+
+    if ($cert) {
+        if ($storeCertSubjectName) {
+            SetSetting -Key $certSubjectNameKey -Value $cert.SubjectName.Name -Path $SettingsPath
+            "The new certificate subject name has been stored in ${SettingsPath}."
+        }
+        else {
+            "Using stored certificate subject name $CertSubjectName from ${SettingsPath}."
+        }
+
+        $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Thumbprint -eq $cert.Thumbprint }
+        "Using certificate $certificate to sign scripts."
+
+        $files = @(Get-ChildItem -Path $PublishDir\* -Recurse -Include '*.ps1', '*.psm1')
+        foreach ($file in $files) {
+            $result = Set-AuthenticodeSignature -FilePath $file.FullName -Certificate $certificate -Verbose:$VerbosePreference
+            if ($result.Status -ne 'Valid') {
+                throw "Failed to sign script: $($file.FullName)."
+            }
+
+            "Successfully signed script: $($file.Name)"
+        }
+    }
+    else {
+        throw 'No valid certificate subject name supplied or stored.'
+    }
+}
+
+Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
+}
+
+Task Test -depends Build {
+    Import-Module Pester
+    try {
+        Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
+        Invoke-Pester
+    }
+    finally {
+        Microsoft.PowerShell.Management\Pop-Location
+    }
+}
 
 Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
 }
 
-Task PublishImpl -depends Test -requiredVariables EncryptedApiKeyPath, PublishDir {
+Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
+    $publishParams = @{
+        Path        = $PublishDir
+        NuGetApiKey = $NuGetApiKey
+    }
+
+    # Publishing to the PSGallery requires an API key, so get it.
     if ($NuGetApiKey) {
         "Using script embedded NuGetApiKey"
     }
-    elseif (Test-Path -LiteralPath $EncryptedApiKeyPath) {
-        $NuGetApiKey = LoadAndUnencryptString $EncryptedApiKeyPath
+    elseif ($NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey) {
         "Using stored NuGetApiKey"
     }
     else {
-        $KeyCred = @{
-            DestinationPath = $EncryptedApiKeyPath
+        $promptForKeyCredParams = @{
+            DestinationPath = $SettingsPath
             Message         = 'Enter your NuGet API key in the password field'
+            Key             = 'NuGetApiKey'
         }
-        $cred = PromptUserForKeyCredential @KeyCred
+
+        $cred = PromptUserForCredentialAndStorePassword @promptForKeyCredParams
         $NuGetApiKey = $cred.GetNetworkCredential().Password
-        "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
+        "The NuGetApiKey has been stored in $SettingsPath"
     }
 
     $publishParams = @{
@@ -149,6 +268,7 @@ Task PublishImpl -depends Test -requiredVariables EncryptedApiKeyPath, PublishDi
         NuGetApiKey = $NuGetApiKey
     }
 
+    # If an alternate repository is specified, set the appropriate parameter.
     if ($PublishRepository) {
         $publishParams['Repository'] = $PublishRepository
     }
@@ -159,166 +279,100 @@ Task PublishImpl -depends Test -requiredVariables EncryptedApiKeyPath, PublishDi
     }
 
     "Calling Publish-Module..."
+    # TODO: Remove the -WhatIf before finalizing this
     Publish-Module @publishParams -WhatIf
 }
 
-Task Test -depends Build {
-    Import-Module Pester
-    Invoke-Pester $PSScriptRoot
-}
 
-Task Build -depends Clean, Init -requiredVariables PublishDir, Exclude, ModuleName {
-    Copy-Item -Path $ModuleRootDir\* -Destination $PublishDir -Recurse -Exclude $Exclude
-
-    # Get contents of the ReleaseNotes file and update the copied module manifest file
-    # with the release notes.
-    # DO NOT USE UNTIL UPDATE-MODULEMANIFEST IS FIXED - DOES NOT HANDLE SINGLE QUOTES CORRECTLY.
-    # if ($ReleaseNotesPath) {
-    #     $releaseNotes = @(Get-Content $ReleaseNotesPath)
-    #     Update-ModuleManifest -Path $PublishDir\${ModuleName}.psd1 -ReleaseNotes $releaseNotes
-    # }
-}
-
-Task Clean -requiredVariables PublishRootDir {
-    # Sanity check the dir we are about to "clean".  If $PublishRootDir were to
-    # inadvertently get set to $null, the Remove-Item commmand removes the
-    # contents of \*.  That's a bad day.  Ask me how I know?  :-(
-    if ((Test-Path $PublishRootDir) -and $PublishRootDir.Contains($PSScriptRoot)) {
-        Remove-Item $PublishRootDir\* -Recurse -Force
-    }
-}
-
-Task Init -requiredVariables PublishDir {
-    if (!(Test-Path $PublishDir)) {
-        $null = New-Item $PublishDir -ItemType Directory
-    }
-}
-
-Task RemoveKey -requiredVariables EncryptedApiKeyPath {
-    if (Test-Path -LiteralPath $EncryptedApiKeyPath) {
-        Remove-Item -LiteralPath $EncryptedApiKeyPath
-    }
-}
-
-Task StoreKey -requiredVariables EncryptedApiKeyPath {
-    $KeyCred = @{
-        DestinationPath = $EncryptedApiKeyPath
-        Message = 'Enter your NuGet API key in the password field'
-    }
-    PromptUserForKeyCredential @KeyCred
-    "The NuGetApiKey has been stored in $EncryptedApiKeyPath"
-}
-
-Task ShowKey -requiredVariables EncryptedApiKeyPath {
-    if ($NuGetApiKey) {
-        "The embedded (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
-    }
-    else {
-        $NuGetApiKey = LoadAndUnencryptString -Path $EncryptedApiKeyPath
-        "The stored (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
-    }
-
-    "To see the full key, use the task 'ShowFullKey'"
-}
-
-Task ShowFullKey -requiredVariables EncryptedApiKeyPath {
-    if ($NuGetApiKey) {
-        "The embedded NuGetApiKey is: $NuGetApiKey"
-    }
-    else {
-        $NuGetApiKey = LoadAndUnencryptString -Path $EncryptedApiKeyPath
-        "The stored NuGetApiKey is: $NuGetApiKey"
-    }
-}
+###############################################################################
+# Secondary/utility tasks - typically used to manage stored build settings.
+###############################################################################
 
 Task ? -description 'Lists the available tasks' {
     "Available tasks:"
     $PSake.Context.Peek().Tasks.Keys | Sort-Object
 }
 
-Task Sign -depends Test -requiredVariables CertSubjectPath {
-    if ($CertPfxPath) {
-        $CertImport = @{
-            CertStoreLocation = 'Cert:\CurrentUser\My'
-            FilePath          = $CertPfxPath
-            Password          = $(PromptUserForKeyCredential -Message 'Enter the PFX password to import the certificate').Password
-            ErrorAction       = 'Stop'
-        }
+Task RemoveApiKey -requiredVariables SettingsPath {
+    if (GetSetting -Path $SettingsPath -Key NuGetApiKey) {
+        RemoveSetting -Path $SettingsPath -Key NuGetApiKey
+    }
+}
 
-        $Cert = Import-PfxCertificate @CertImport -Verbose:$VerbosePreference
+Task StoreApiKey -requiredVariables SettingsPath {
+    $promptForKeyCredParams = @{
+        DestinationPath = $SettingsPath
+        Message         = 'Enter your NuGet API key in the password field'
+        Key             = 'NuGetApiKey'
+    }
+
+    PromptUserForCredentialAndStorePassword @promptForKeyCredParams
+    "The NuGetApiKey has been stored in $SettingsPath"
+}
+
+Task ShowApiKey -requiredVariables SettingsPath {
+    $OFS = ""
+    if ($NuGetApiKey) {
+        "The embedded (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
+    }
+    elseif ($NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey) {
+        "The stored (partial) NuGetApiKey is: $($NuGetApiKey[0..7])"
     }
     else {
-        if ($CertSubject -eq $null -and (Test-Path -LiteralPath $CertSubjectPath)) {
-            $CertSubject = LoadAndUnencryptString $CertSubjectPath
-            $LoadedFromSubjectFile = $true
-        }
-        else {
-            $CertSubject = 'CN='
-            $CertSubject += Read-Host -Prompt 'Enter the certificate subject you wish to use (CN= prefix will be added)'
-        }
+        "The NuGetApiKey has not been provided or stored."
+        return
+    }
 
-        $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
-            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
+    "To see the full key, use the task 'ShowFullApiKey'"
+}
+
+Task ShowFullApiKey -requiredVariables SettingsPath {
+    if ($NuGetApiKey) {
+        "The embedded NuGetApiKey is: $NuGetApiKey"
+    }
+    elseif ($NuGetApiKey = GetSetting -Path $SettingsPath -Key NuGetApiKey) {
+        "The stored NuGetApiKey is: $NuGetApiKey"
+    }
+    else {
+        "The NuGetApiKey has not been provided or stored."
+    }
+}
+
+Task RemoveCertSubjectName -requiredVariables SettingsPath {
+    if (GetSetting -Path $SettingsPath -Key CertSubjectName) {
+        RemoveSetting -Path $SettingsPath -Key CertSubjectName
+    }
+}
+
+Task StoreCertSubjectName -requiredVariables SettingsPath {
+    $certSubjectName = 'CN='
+    $certSubjectName += Read-Host -Prompt 'Enter the certificate subject name for script signing. Use exact casing, CN= prefix will be added'
+    SetSetting -Key CertSubjectName -Value $certSubjectName -Path $SettingsPath
+    "The new certificate subject name '$certSubjectName' has been stored in ${SettingsPath}."
+}
+
+Task ShowCertSubjectName -requiredVariables SettingsPath {
+    $CertSubjectName = GetSetting -Path $SettingsPath -Key CertSubjectName
+    "The stored certificate is: $CertSubjectName"
+
+    $cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
+            Where-Object { $_.Subject -eq $CertSubjectName -and $_.NotAfter -gt (Get-Date) } |
             Sort-Object -Property NotAfter -Descending | Select-Object -First 1
-    }
 
-    if ($Cert) {
-        if (-not $LoadedFromSubjectFile) {
-            EncryptAndSaveString -String $Cert.Subject -Path $CertSubjectPath
-            Write-Output "The new certificate subject has been stored in $CertSubjectPath"
-        }
-        else {
-            Write-Output "Using stored certificate subject $CertSubject from $CertSubjectPath"
-        }
-
-        $Authenticode   = @{
-            FilePath    = @(Get-ChildItem -Path "$PublishDir\*" -Recurse -Include '*.ps1', '*.psm1')
-            Certificate = Get-ChildItem Cert:\CurrentUser\My |
-                Where-Object { $_.Thumbprint -eq $Cert.Thumbprint }
-        }
-
-        Write-Output -InputObject $Authenticode.FilePath | Out-Default
-        Write-Output -InputObject $Authenticode.Certificate | Out-Default
-        $SignResult = Set-AuthenticodeSignature @Authenticode -Verbose:$VerbosePreference
-        if ($SignResult.Status -ne 'Valid') {
-            throw "Signing one or more scripts failed."
-        }
+    if ($cert) {
+        "A valid certificate for the subject $CertSubjectName has been found"
     }
     else {
-        throw 'No valid certificate subject supplied or stored.'
+        'A valid certificate has not been found'
     }
 }
 
-Task RemoveCertSubject -requiredVariables CertSubjectPath {
-    if (Test-Path -LiteralPath $CertSubjectPath) {
-        Remove-Item -LiteralPath $CertSubjectPath
-    }
-}
-
-Task ShowCertSubject -requiredVariables CertSubjectPath {
-    $CertSubject = LoadAndUnencryptString -Path $CertSubjectPath
-    Write-Output "The stored certificate is: $CertSubject"
-    $Cert = Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert |
-            Where-Object { $_.Subject -eq $CertSubject -and $_.NotAfter -gt (Get-Date) } |
-            Sort-Object -Property NotAfter -Descending | Select-Object -First 1
-
-    if ($Cert) {
-        Write-Output "A valid certificate for the subject $CertSubject has been found"
-    }
-
-    else {
-        Write-Output 'A valid certificate has not been found'
-    }
-}
-
-Task BuildSigned -depends Sign, Build {}
-
-Task PublishSigned -depends Sign, Publish {}
 
 ###############################################################################
 # Helper functions
 ###############################################################################
-function PromptUserForKeyCredential {
+
+function PromptUserForCredentialAndStorePassword {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
     param(
         [Parameter()]
@@ -328,63 +382,120 @@ function PromptUserForKeyCredential {
 
         [Parameter(Mandatory)]
         [string]
-        $Message
+        $Message,
+
+        [Parameter(Mandatory, ParameterSetName = 'SaveSetting')]
+        [string]
+        $Key
     )
 
-    $KeyCred = Get-Credential -Message $Message -UserName "ignored"
-
+    $cred = Get-Credential -Message $Message -UserName "ignored"
     if ($DestinationPath) {
-        EncryptAndSaveString -SecureString $KeyCred.Password -Path $DestinationPath
+        SetSetting -Key $Key -Value $cred.Password -Path $DestinationPath
     }
 
-    $KeyCred
+    $cred
 }
 
-function EncryptAndSaveString {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingConvertToSecureStringWithPlainText", '')]
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
+function AddSetting {
     param(
-        [Parameter(Mandatory, ParameterSetName='SecureString')]
+        [Parameter(Mandatory)]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
         [ValidateNotNull()]
-        [SecureString]
-        $SecureString,
-
-        [Parameter(Mandatory, ParameterSetName='PlainText')]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $String,
-
-        [Parameter(Mandatory)]
-        $Path
+        [object]$Value
     )
 
-    if ($PSCmdlet.ParameterSetName -eq 'PlainText') {
-        $SecureString = ConvertTo-SecureString -String $String -AsPlainText -Force
+    switch ($type = $Value.GetType().Name) {
+        'securestring' { $setting = $Value | ConvertFrom-SecureString }
+        default        { $setting = $Value }
     }
 
-    $parentDir = Split-Path $Path -Parent
-    if (!(Test-Path -LiteralPath $parentDir)) {
-        $null = New-Item -Path $parentDir -ItemType Directory
+    if (Test-Path -LiteralPath $Path) {
+        $storedSettings = Import-Clixml -Path $Path
+        $storedSettings.Add($Key, @($type, $setting))
+        $storedSettings | Export-Clixml -Path $Path
     }
-    elseif (Test-Path -LiteralPath $Path) {
-        Remove-Item -LiteralPath $Path
-    }
+    else {
+        $parentDir = Split-Path -Path $Path -Parent
+        if (!(Test-Path -LiteralPath $parentDir)) {
+            New-Item $parentDir -ItemType Directory > $null
+        }
 
-    $SecureString | ConvertFrom-SecureString | Export-Clixml $Path
-    Write-Verbose "The data has been encrypted and saved to $Path"
+        @{$Key = @($type, $setting)} | Export-Clixml -Path $Path
+    }
 }
 
-function LoadAndUnencryptString {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSProvideDefaultParameterValue", '')]
+function GetSetting {
     param(
         [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $Path
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [string]$Path
     )
 
-    $storedKey = Import-Clixml $Path | ConvertTo-SecureString
-    $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr',$storedKey
-    $cred.GetNetworkCredential().Password
-    Write-Verbose "The data has been loaded and unencrypted from $Path"
+    if (Test-Path -LiteralPath $Path) {
+        $securedSettings = Import-Clixml -Path $Path
+        if ($securedSettings.$Key) {
+            switch ($securedSettings.$Key[0]) {
+                'securestring' {
+                    $value = $securedSettings.$Key[1] | ConvertTo-SecureString
+                    $cred = New-Object -TypeName PSCredential -ArgumentList 'jpgr', $value
+                    $cred.GetNetworkCredential().Password
+                }
+                default {
+                    $securedSettings.$Key[1]
+                }
+            }
+        }
+    }
+}
+
+function SetSetting {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNull()]
+        [object]$Value
+    )
+
+    if (GetSetting -Key $Key -Path $Path) {
+        RemoveSetting -Key $Key -Path $Path
+    }
+
+    AddSetting -Key $Key -Value $Value -Path $Path
+}
+
+function RemoveSetting {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (Test-Path -LiteralPath $Path) {
+        $storedSettings = Import-Clixml -Path $Path
+        $storedSettings.Remove($Key)
+        if ($storedSettings.Count -eq 0) {
+            Remove-Item -Path $Path
+        }
+        else {
+            $storedSettings | Export-Clixml -Path $Path
+        }
+    }
+    else {
+        Write-Warning "The build setting file '$Path' has not been created yet."
+    }
 }
