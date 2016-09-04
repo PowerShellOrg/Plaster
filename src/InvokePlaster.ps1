@@ -1080,8 +1080,16 @@ function WriteOperationStatus($operation, $message) {
 function GetGitConfigValue($name) {
     # Very simplistic git config lookup
     # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
-    $gitConfigPath = (Join-Path $env:Home '.gitconfig')
+
+    # The $env:Home dir may not be reachable e.g. if on network share and/or script not running as admin.
+    # See issue https://github.com/PowerShell/Plaster/issues/92
+    if (!(Test-Path -LiteralPath $env:Home)) {
+        return
+    }
+
+    $gitConfigPath = Join-Path $env:Home '.gitconfig'
     Write-Debug "Looking for '$name' value in Git config: $gitConfigPath"
+
     if (Test-Path -LiteralPath $gitConfigPath) {
         $matches = Select-String -LiteralPath $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
         if (@($matches).Count -gt 0)
