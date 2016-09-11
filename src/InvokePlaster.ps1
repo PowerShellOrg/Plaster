@@ -12,6 +12,9 @@ processed not only in the ProcessParameter function but also in the dynamicparam
 Please follow the scripting style of this file when adding new script.
 #>
 
+# Constrained runspace used to expand manifest attribute strings and evaluates conditions
+$Runspace = $null
+
 <#
 .SYNOPSIS
     Invokes the specified plaster template which will scaffold out a file or set of files.
@@ -911,6 +914,7 @@ function InitializePredefinedVariables([string]$destPath) {
     $destName = Split-Path -Path $destPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $destPath.TrimEnd('\','/') -Scope Script
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
+    Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
 
     Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script
     Set-Variable -Name PLASTER_Guid2 -Value ([Guid]::NewGuid()) -Scope Script
@@ -955,7 +959,91 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
     $null
 }
 
-function ExpandString($str) {
+function NewConstrainedRunspace() {
+    $iss = [System.Management.Automation.Runspaces.InitialSessionState]::Create()
+    $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+    $iss.LanguageMode = [System.Management.Automation.PSLanguageMode]::ConstrainedLanguage
+    $iss.DisableFormatUpdates = $true
+
+    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment',([Microsoft.PowerShell.Commands.EnvironmentProvider]),$null
+    $iss.Providers.Add($sspe)
+
+    # Uncomment for debugging runspace capabilities
+    # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
+    # $iss.Commands.Add($ssce)
+    # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-PSDrive',([Microsoft.PowerShell.Commands.GetPSDriveCommand]),$null
+    # $iss.Commands.Add($ssce)
+
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Date',([Microsoft.PowerShell.Commands.GetDateCommand]),$null
+    $iss.Commands.Add($ssce)
+
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ChildItem',([Microsoft.PowerShell.Commands.GetChildItemCommand]),$null
+    $iss.Commands.Add($ssce)
+
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Item',([Microsoft.PowerShell.Commands.GetItemCommand]),$null
+    $iss.Commands.Add($ssce)
+
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ItemProperty',([Microsoft.PowerShell.Commands.GetItemPropertyCommand]),$null
+    $iss.Commands.Add($ssce)
+
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Module',([Microsoft.PowerShell.Commands.GetModuleCommand]),$null
+    $iss.Commands.Add($ssce)
+
+    $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
+    $plasterVars = Get-Variable -Name PLASTER_*
+    foreach ($var in $plasterVars) {
+        $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry $var.Name,$var.Value,$var.Description,$scopedItemOptions
+        $iss.Variables.Add($ssve)
+    }
+
+    $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
+    $runspace.Open()
+    $runspace
+}
+
+function ExpandString($Str) {
+    if ($null -eq $Str) {
+        return [string]::Empty
+    }
+    elseif ([string]::IsNullOrWhiteSpace($Str)) {
+        return $Str
+    }
+
+    # There are at least two ways to go to provide "safe" string evaluation with *only* variable
+    # expansion and not arbitrary script execution via subexpressions.  We could a regex to pull
+    # out a variable name e.g. '\$\{(.*?)\}', then use
+    # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
+    # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
+    # of the AST and vet it before using $ExecutionContext.InvokeCommand.ExpandString().
+
+    # TODO: fix issue with input containing `$1 (regex substitution group) getting eliminated by Expression.Value
+
+    try {
+        $powershell = [PowerShell]::Create()
+
+        # if (!$script:Runspace) {
+        #     $script:Runspace = NewConstrainedRunspace
+        # }
+        # $powershell.Runspace = $script:Runspace
+        $powershell.Runspace = NewConstrainedRunspace
+
+        $powershell.AddScript("`"$Str`"") > $null
+        $res = $powershell.Invoke()
+        $res
+    }
+    catch {
+        throw "hmmm"
+    }
+    finally {
+        if ($powershell) {
+            $powershell.Runspace.Dispose()
+            $powershell.Streams.Error | Write-Error
+            $powershell.Dispose()
+        }
+    }
+}
+
+function ExpandString2($str) {
     if ($null -eq $str) {
         return [string]::Empty
     }
@@ -964,7 +1052,7 @@ function ExpandString($str) {
     }
 
     # There are at least two ways to go to provide "safe" string evaluation with *only* variable
-    # expansion and not arbitrary script execution via subexpressions.  We could a regex to pull
+    # expansion and not arbitrary script execution via subexpressions.  We could use a regex to pull
     # out a variable name e.g. '\$\{(.*?)\}', then use
     # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
     # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
