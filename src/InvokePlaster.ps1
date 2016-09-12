@@ -13,7 +13,7 @@ Please follow the scripting style of this file when adding new script.
 #>
 
 # Constrained runspace used to expand manifest attribute strings and evaluates conditions
-$Runspace = $null
+$ConstrainedRunspace = $null
 
 <#
 .SYNOPSIS
@@ -274,6 +274,34 @@ __________.__                   __
             $retval
         }
 
+        function SetPlasterVariable() {
+            param(
+                [Parameter(Mandatory=$true)]
+                [ValidateNotNullOrEmpty()]
+                [string]$Name,
+
+                [Parameter(Mandatory=$true)]
+                $Value,
+
+                [Parameter()]
+                [bool]
+                $IsParam = $true
+            )
+
+            # Variables created from a <parameter> in the plaster manifset are prefixed PLASTER_PARAM all others
+            # are just PLASTER_.
+            $variableName = if ($IsParam) { "PLASTER_PARAM_$Name" } else { "PLASTER_$Name" }
+
+            Set-Variable -Name $variableName -Value $Value -Scope Script -WhatIf:$false
+
+            # If the constrained runspace has been created, it needs to be disposed so that the next string
+            # expansion (or condition eval) gets an updated runspace that contains this variable or its new value.
+            if ($null -ne $script:ConstrainedRunspace) {
+                $script:ConstrainedRunspace.Dispose()
+                $script:ConstrainedRunspace = $null
+            }
+        }
+
         function ProcessParameter([ValidateNotNull()]$Node) {
             $name = $Node.name
             $type = $Node.type
@@ -395,7 +423,7 @@ __________.__                   __
             }
 
             # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
-            Set-Variable -Name "PLASTER_PARAM_$name" -Value $value -Scope Script -WhatIf:$false
+            SetPlasterVariable -Name $name -Value $value -IsParam $true
         }
 
         function ProcessMessage([ValidateNotNull()]$Node) {
@@ -766,10 +794,13 @@ __________.__                   __
                 }
             }
 
-            $PLASTER_FileContent = [string]::Empty
-            if (Test-Path $filePath) {
-                $PLASTER_FileContent = Get-Content -LiteralPath $filePath -Raw
+            $fileContent = [string]::Empty
+            if (Test-Path -LiteralPath $filePath) {
+                $fileContent = Get-Content -LiteralPath $filePath -Raw
             }
+
+            # Set a Plaster (non-parameter) variable in this and the constrained runspace.
+            SetPlasterVariable -Name FileContent -Value $fileContent -IsParam $false
 
             $encoding = ExpandString $Node.encoding
             if (!$encoding) {
@@ -819,7 +850,10 @@ __________.__                   __
                                 $substitute = ExpandString $substitute
                             }
 
-                            $PLASTER_FileContent = $PLASTER_FileContent -replace $original,$substitute
+                            $fileContent = $fileContent -replace $original,$substitute
+
+                            # Update the Plaster (non-parameter) variable's value in this and the constrained runspace.
+                            SetPlasterVariable -Name FileContent -Value $fileContent -IsParam $false
 
                             $modified = $true
                         }
@@ -858,41 +892,50 @@ __________.__                   __
     }
 
     end {
-        # Process parameters
-        foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
-            if ($node -isnot [System.Xml.XmlElement]) { continue }
-            switch ($node.LocalName) {
-                'parameter'  { ProcessParameter $node }
-                default      { throw ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
-            }
-        }
-
-        # Outputs the processed template parameters to the debug stream
-        $parameters = Get-Variable -Name PLASTER_* | Out-String
-        $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
-
-        # Stores any updated default values back to the store file.
-        if ($flags.DefaultValueStoreDirty) {
-            $directory = Split-Path $defaultValueStorePath -Parent
-            if (!(Test-Path $directory)) {
-                $PSCmdlet.WriteDebug("Creating directory for template's DefaultValueStore '$directory'.")
-                New-Item $directory -ItemType Directory > $null
+        try {
+            # Process parameters
+            foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
+                if ($node -isnot [System.Xml.XmlElement]) { continue }
+                switch ($node.LocalName) {
+                    'parameter'  { ProcessParameter $node }
+                    default      { throw ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
+                }
             }
 
-            $PSCmdlet.WriteDebug("DefaultValueStore is dirty, saving updated values to '$defaultValueStorePath'.")
-            $defaultValueStore | Export-Clixml -LiteralPath $defaultValueStorePath
+            # Outputs the processed template parameters to the debug stream
+            $parameters = Get-Variable -Name PLASTER_* | Out-String
+            $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
+
+            # Stores any updated default values back to the store file.
+            if ($flags.DefaultValueStoreDirty) {
+                $directory = Split-Path $defaultValueStorePath -Parent
+                if (!(Test-Path $directory)) {
+                    $PSCmdlet.WriteDebug("Creating directory for template's DefaultValueStore '$directory'.")
+                    New-Item $directory -ItemType Directory > $null
+                }
+
+                $PSCmdlet.WriteDebug("DefaultValueStore is dirty, saving updated values to '$defaultValueStorePath'.")
+                $defaultValueStore | Export-Clixml -LiteralPath $defaultValueStorePath
+            }
+
+            # Process content
+            foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
+                if ($node -isnot [System.Xml.XmlElement]) { continue }
+
+                switch -Regex ($node.LocalName) {
+                    'file|templateFile' { ProcessFile $node; break }
+                    'message'           { ProcessMessage $node; break }
+                    'modify'            { ModifyFile $node; break }
+                    'newModuleManifest' { GenerateModuleManifest $node; break }
+                    default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                }
+            }
         }
-
-        # Process content
-        foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
-            if ($node -isnot [System.Xml.XmlElement]) { continue }
-
-            switch -Regex ($node.LocalName) {
-                'file|templateFile' { ProcessFile $node; break }
-                'message'           { ProcessMessage $node; break }
-                'modify'            { ModifyFile $node; break }
-                'newModuleManifest' { GenerateModuleManifest $node; break }
-                default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+        finally {
+            # Dispose of the constrained runspace.
+            if ($script:Runspace) {
+                $script.Runspace.Dispose()
+                $script.Runspace = $null
             }
         }
     }
@@ -971,8 +1014,6 @@ function NewConstrainedRunspace() {
     # Uncomment for debugging runspace capabilities
     # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
     # $iss.Commands.Add($ssce)
-    # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-PSDrive',([Microsoft.PowerShell.Commands.GetPSDriveCommand]),$null
-    # $iss.Commands.Add($ssce)
 
     $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Date',([Microsoft.PowerShell.Commands.GetDateCommand]),$null
     $iss.Commands.Add($ssce)
@@ -1009,89 +1050,53 @@ function ExpandString($Str) {
         return $Str
     }
 
-    # There are at least two ways to go to provide "safe" string evaluation with *only* variable
-    # expansion and not arbitrary script execution via subexpressions.  We could a regex to pull
-    # out a variable name e.g. '\$\{(.*?)\}', then use
-    # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
-    # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
-    # of the AST and vet it before using $ExecutionContext.InvokeCommand.ExpandString().
-
-    # TODO: fix issue with input containing `$1 (regex substitution group) getting eliminated by Expression.Value
-
     try {
         $powershell = [PowerShell]::Create()
 
-        # if (!$script:Runspace) {
-        #     $script:Runspace = NewConstrainedRunspace
-        # }
-        # $powershell.Runspace = $script:Runspace
-        $powershell.Runspace = NewConstrainedRunspace
+        if ($null -eq $script:ConstrainedRunspace) {
+            $script:ConstrainedRunspace = NewConstrainedRunspace
+        }
+        $powershell.Runspace = $script:ConstrainedRunspace
 
         $powershell.AddScript("`"$Str`"") > $null
         $res = $powershell.Invoke()
-        $res
-    }
-    catch {
-        throw "hmmm"
+        $res[0]
+
+        if ($powershell.Streams.Error.Count -gt 0) {
+            $err = $powershell.Streams.Error[0]
+            throw ($LocalizedData.SubsitutionExpressionError_F2 -f $Str,$err)
+        }
     }
     finally {
         if ($powershell) {
-            $powershell.Runspace.Dispose()
-            $powershell.Streams.Error | Write-Error
             $powershell.Dispose()
         }
     }
 }
 
-function ExpandString2($str) {
-    if ($null -eq $str) {
-        return [string]::Empty
-    }
-    elseif ([string]::IsNullOrWhiteSpace($str)) {
-        return $str
-    }
+function EvaluateCondition([string]$Expression) {
+    try {
+        $powershell = [PowerShell]::Create()
 
-    # There are at least two ways to go to provide "safe" string evaluation with *only* variable
-    # expansion and not arbitrary script execution via subexpressions.  We could use a regex to pull
-    # out a variable name e.g. '\$\{(.*?)\}', then use
-    # [System.Management.Automation.Language.CodeGeneration]::EscapeVariableName followed by
-    # $ExecutionContext.InvokeCommand.ExpandString().  The other way to go is to pick a specific part
-    # of the AST and vet it before using $ExecutionContext.InvokeCommand.ExpandString().
-
-    # TODO: fix issue with input containing `$1 (regex substitution group) getting eliminated by Expression.Value
-
-    $sb = [scriptblock]::Create("`"$str`"")
-
-    $endBlockAst = $sb.Ast.EndBlock.Statements[0].PipelineElements[0]
-    if ($endBlockAst -isnot [System.Management.Automation.Language.CommandExpressionAst]) {
-        throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
-    }
-
-    if ($endBlockAst.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
-        $evalStr = $endBlockAst.Expression.Value
-    }
-    elseif ($endBlockAst.Expression -is [System.Management.Automation.Language.ExpandableStringExpressionAst]) {
-        foreach ($nestedExpr in $endBlockAst.Expression.NestedExpressions) {
-            if ($nestedExpr -isnot [System.Management.Automation.Language.VariableExpressionAst]) {
-                throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
-            }
+        if ($null -eq $script:ConstrainedRunspace) {
+            $script:ConstrainedRunspace = NewConstrainedRunspace
         }
+        $powershell.Runspace = $script:ConstrainedRunspace
 
-        $evalStr = $endBlockAst.Expression.Value
+        $powershell.AddScript($Expression) > $null
+        $res = $powershell.Invoke()
+        [bool]$res[0]
+
+        if ($powershell.Streams.Error.Count -gt 0) {
+            $err = $powershell.Streams.Error[0]
+            throw ($LocalizedData.InvalidConditionExpression_F2 -f $Str,$err)
+        }
     }
-    else {
-        throw ($LocalizedData.SubsitutionExpressionInvalid_F1 -f $endBlockAst.Extent.Text)
+    finally {
+        if ($powershell) {
+            $powershell.Dispose()
+        }
     }
-
-    $ExecutionContext.InvokeCommand.ExpandString($evalStr)
-}
-
-function EvaluateCondition([string]$expr) {
-    # TODO: Yeah, this is *not* a safe eval function - yet.
-
-    $sb = [scriptblock]::Create($expr)
-    $res = $sb.Invoke()
-    [bool]$res
 }
 
 function ConvertToDestinationRelativePath($Path) {

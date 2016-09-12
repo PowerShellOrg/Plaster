@@ -98,7 +98,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                 condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
             <replace condition="$PLASTER_FileContent -notmatch '// Author:'">
                 <original>(?s)^(.*)</original>
-                <substitute expand='true'>``$1`r`n// Author: $PLASTER_PARAM_FullName</substitute>
+                <substitute expand='true'>// Author: $PLASTER_PARAM_FullName`r`n`$1</substitute>
             </replace>
             <replace condition="$PLASTER_PARAM_Options -contains 'Pester' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Test&quot;'">
                 <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
