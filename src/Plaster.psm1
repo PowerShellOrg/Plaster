@@ -10,6 +10,7 @@ data LocalizedData {
     ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
     ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
     FileConflict=Plaster file conflict
+    InvalidConditionExpression_F2=The condition expression '{0}' is invalid.  Error: {1}
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
     ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
@@ -33,7 +34,7 @@ data LocalizedData {
     ShouldProcessCreateDir=Create directory
     ShouldProcessExpandTemplate=Expand template file
     ShouldProcessGenerateModuleManifest=Generate new module manifest
-    SubsitutionExpressionInvalid_F1=The substitution expression '{0}' is not supported.  Only string constants and string constants with variable expressions are supported.
+    SubsitutionExpressionError_F2=The substitution expression '{0}' failed expansion.  Error: {1}
     UnrecognizedParametersElement_F1=Unrecognized manifest parameters child element: {0}.
     UnrecognizedParameterType_F2=Unrecognized parameter type '{0}' on parameter name '{1}'.
     UnrecognizedContentElement_F1=Unrecognized manifest content child element: {0}.
