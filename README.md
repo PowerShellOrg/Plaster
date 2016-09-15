@@ -16,7 +16,7 @@ You can think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell commun
 ## Trying it Out
 
 If you'd like to try out an early version of this project, clone this repo to your
-hard drive and then follow the instructions in our [Examples\README.md](Examples/README.md)
+hard drive and then follow the instructions in our [Examples\README.md](examples/README.md)
 file.
 
 ## Maintainers
