@@ -2,9 +2,9 @@
 
 [![Join the chat at https://gitter.im/PowerShell/Plaster](https://badges.gitter.im/PowerShell/Plaster.svg)](https://gitter.im/PowerShell/Plaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Plaster is a template-based artifact generator written in PowerShell.  Its purpose is to
+Plaster is a template-based file and project generator written in PowerShell.  Its purpose is to
 streamline the creation of PowerShell module projects, Pester tests, DSC configurations,
-and more. Artifact generation is performed using crafted templates which allow the user to
+and more. File generation is performed using crafted templates which allow the user to
 fill in details and choose from options to get their desired output.
 
 You can think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
