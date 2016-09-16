@@ -17,9 +17,9 @@ $ConstrainedRunspace = $null
 
 <#
 .SYNOPSIS
-    Invokes the specified plaster template which will scaffold out a file or set of files.
+    Invokes the specified Plaster template which will scaffold out a file or set of files.
 .DESCRIPTION
-    Invokes the specified plaster template which will scaffold out a file or set of files.
+    Invokes the specified Plaster template which will scaffold out a file or set of files.
 .EXAMPLE
     C:\PS> Invoke-Plaster -TemplatePath NewModule.zip -Destination .\NewModule
     Explanation of what the example does
@@ -58,7 +58,7 @@ function Invoke-Plaster {
         $NoLogo
     )
 
-    # Process the template's plaster manifest file to convert parameters defined there into dynamic parameters.
+    # Process the template's Plaster manifest file to convert parameters defined there into dynamic parameters.
     dynamicparam {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $manifest = $null
@@ -288,7 +288,7 @@ __________.__                   __
                 $IsParam = $true
             )
 
-            # Variables created from a <parameter> in the plaster manifset are prefixed PLASTER_PARAM all others
+            # Variables created from a <parameter> in the Plaster manifset are prefixed PLASTER_PARAM all others
             # are just PLASTER_.
             $variableName = if ($IsParam) { "PLASTER_PARAM_$Name" } else { "PLASTER_$Name" }
 
