@@ -1176,7 +1176,7 @@ function GetGitConfigValue($name) {
 
     # The $env:Home dir may not be reachable e.g. if on network share and/or script not running as admin.
     # See issue https://github.com/PowerShell/Plaster/issues/92
-    if (!(Test-Path -LiteralPath $env:Home)) {
+    if (!(Test-Path -LiteralPath $Home)) {
         return
     }
 
