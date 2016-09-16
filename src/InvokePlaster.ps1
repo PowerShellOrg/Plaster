@@ -1174,13 +1174,13 @@ function GetGitConfigValue($name) {
     # Very simplistic git config lookup
     # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
 
-    # The $env:Home dir may not be reachable e.g. if on network share and/or script not running as admin.
+    # The $Home dir may not be reachable e.g. if on network share and/or script not running as admin.
     # See issue https://github.com/PowerShell/Plaster/issues/92
     if (!(Test-Path -LiteralPath $Home)) {
         return
     }
 
-    $gitConfigPath = Join-Path $env:Home '.gitconfig'
+    $gitConfigPath = Join-Path $Home '.gitconfig'
     Write-Debug "Looking for '$name' value in Git config: $gitConfigPath"
 
     if (Test-Path -LiteralPath $gitConfigPath) {
