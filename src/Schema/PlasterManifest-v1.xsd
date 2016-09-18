@@ -406,23 +406,24 @@
                 <xs:complexType>
                   <xs:attribute name="name" type="xs:string" use="required">
                     <xs:annotation>
-                      <xs:documentation>Specifies the required module's name.</xs:documentation>
+                      <xs:documentation>Specifies the module's name.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="minimumVersion" type="ptd:ModuleVersionType">
                     <xs:annotation>
-                      <xs:documentation>Specifies the required module's minimum version.</xs:documentation>
+                      <xs:documentation>Specifies the module's minimum version.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="maximumVersion" type="ptd:ModuleVersionType">
                     <xs:annotation>
-                      <xs:documentation>Specifies the required module's maximum version.</xs:documentation>
+                      <xs:documentation>Specifies the module's maximum version.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="requiredVersion" type="ptd:ModuleVersionType">
                     <xs:annotation>
                       <xs:documentation>
-                        Specifies the required module's required version. This version must matcht the installed module's version number exactly.
+                        Specifies the module's required version. This version must match the installed module's version number EXACTLY.
+                        Use this attribute rarely as any update to the module that changes its version will result in this check failing.
                         The requiredVersion attribute cannot be used together with either the version or maximumVersion attributes.
                       </xs:documentation>
                     </xs:annotation>
@@ -431,8 +432,8 @@
                   <xs:attribute name="message" type="xs:string">
                     <xs:annotation>
                       <xs:documentation>
-                        Specifies a custom message to display after the standard Plaster message when the required module's is not available on the target machine.
-                        Use this message to tell the user what functionality will not work without the required module.
+                        Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine.
+                        Use this message to tell the user what functionality will not work without the specified module.
                       </xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
