@@ -1,7 +1,8 @@
-$ModuleManifestName = 'Plaster.psd1'
-$ModulePath  = "$PSScriptRoot\..\src\$ModuleManifestName"
-$TemplateDir = "$PSScriptRoot\TemplateRootTemp"
-$OutDir      = "$PSScriptRoot\Out"
+$ModuleManifestName  = 'Plaster.psd1'
+$ModulePath          = "$PSScriptRoot\..\src\$ModuleManifestName"
+$TemplateDir         = "$PSScriptRoot\TemplateRootTemp"
+$OutDir              = "$PSScriptRoot\Out"
+$PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
 
 Import-Module $ModulePath
 

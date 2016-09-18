@@ -10,7 +10,7 @@
 	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 	elementFormDefault="qualified"
   attributeFormDefault="unqualified"
-  version="0.3"
+  version="0.4"
   xml:lang="en"
 	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
 		vs:friendlyname="Plaster Manifest Schema"
@@ -63,6 +63,17 @@
 			<xs:enumeration value="user-email"/>
       <xs:enumeration value="choice"/>
       <xs:enumeration value="multichoice"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ModuleVersionType">
+    <xs:annotation>
+      <xs:documentation>
+        A module version specification value must be of the form of major.minor.[patch[.revision][(+|-).*]]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+\.\d+(\.\d+((\.\d+|(\+|-).*)?)?)?" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -385,6 +396,46 @@
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="requireModule" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Checks to see if the specified module is installed. If not, the user is notified of the need to install the module.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the required module's name.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="minimumVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the required module's minimum version.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="maximumVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the required module's maximum version.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="requiredVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>
+                        Specifies the required module's required version. This version must matcht the installed module's version number exactly.
+                        The requiredVersion attribute cannot be used together with either the version or maximumVersion attributes.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="message" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>
+                        Specifies a custom message to display after the standard Plaster message when the required module's is not available on the target machine.
+                        Use this message to tell the user what functionality will not work without the required module.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
                 </xs:complexType>
               </xs:element>
 

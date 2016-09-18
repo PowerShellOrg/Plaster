@@ -28,9 +28,10 @@ $ConstrainedRunspace = $null
 #>
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessModifyFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessNewModuleManifest')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='ProcessFile')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
@@ -157,26 +158,12 @@ function Invoke-Plaster {
             DefaultValueStoreDirty = $false
         }
 
-        $logo = @'
-__________.__                   __
-\______   \  | _____    _______/  |_  ___________
- |     ___/  | \__  \  /  ___/\   __\/ __ \_  __ \
- |    |   |  |__/ __ \_\___ \  |  | \  ___/|  | \/
- |____|   |____(____  /____  > |__|  \___  >__|
-                    \/     \/            \/
-'@, @'
+        $plasterLogo = @'
   ____  _           _
  |  _ \| | __ _ ___| |_ ___ _ __
  | |_) | |/ _` / __| __/ _ \ '__|
  |  __/| | (_| \__ \ ||  __/ |
  |_|   |_|\__,_|___/\__\___|_|
-'@, @'
-    _____
-   (, /   ) /)
-    _/__ / // _   _  _/_  _  __
-    /     (/_(_(_/_)_(___(/_/ (_
- ) /
-(_/
 '@
 
         # Verify TemplatePath parameter value is valid.
@@ -203,8 +190,7 @@ __________.__                   __
         }
 
         if (!$NoLogo) {
-            $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
-            Write-Host $randLogo
+            Write-Host $plasterLogo
             Write-Host ("=" * 50)
         }
 
@@ -274,6 +260,10 @@ __________.__                   __
             $retval
         }
 
+        # All Plaster variables should be set via this method so that the ConstrainedRunspace can be
+        # configured to use the new variable. This method will null out the ConstrainedRunspace so that
+        # later, when we need to evaluate script in that runspace, it will get recreated first with all
+        # the latest Plaster variables.
         function SetPlasterVariable() {
             param(
                 [Parameter(Mandatory=$true)]
@@ -309,7 +299,7 @@ __________.__                   __
             $prompt = ExpandString $Node.prompt
             $default = ExpandString $Node.default
 
-            # Check if parameter was provided via a dynamic parameter
+            # Check if parameter was provided via a dynamic parameter.
             if ($boundParameters.ContainsKey($name)) {
                 $value = $boundParameters[$name]
             }
@@ -331,10 +321,10 @@ __________.__                   __
                     }
                 }
 
-                # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists
+                # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists.
                 $defaultNotFromTemplate = $false
 
-                # Now prompt user for parameter value based on the parameter type
+                # Now prompt user for parameter value based on the parameter type.
                 switch -regex ($type) {
                     'text' {
                         # Display an appropriate "default" value in the prompt string.
@@ -352,7 +342,7 @@ __________.__                   __
                         $valueToStore = $value
                     }
                     'user-fullname' {
-                        # If no default, try to get a name from git config
+                        # If no default, try to get a name from git config.
                         if (!$default) {
                             $default = GetGitConfigValue('name')
                             $defaultNotFromTemplate = $true
@@ -422,7 +412,7 @@ __________.__                   __
                 }
             }
 
-            # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
+            # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>.
             SetPlasterVariable -Name $name -Value $value -IsParam $true
         }
 
@@ -447,7 +437,7 @@ __________.__                   __
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
-        function GenerateModuleManifest([ValidateNotNull()]$Node) {
+        function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
             $moduleVersion = ExpandString $Node.moduleVersion
             $rootModule = ExpandString $Node.rootModule
             $author = ExpandString $Node.author
@@ -477,7 +467,7 @@ __________.__                   __
                 $encoding = $DefaultEncoding
             }
 
-            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
+            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessNewModuleManifest)) {
                 $manifestDir = Split-Path $dstPath -Parent
                 if (!(Test-Path $manifestDir)) {
                     VerifyPathIsUnderDestinationPath $manifestDir
@@ -510,10 +500,10 @@ __________.__                   __
                     $PSCmdlet.WriteDebug("Created temp file for new module manifest - $tempFile")
                     $newModuleManifestParams['Path'] = $tempFile
 
-                    # Generate manifest into a temp file
+                    # Generate manifest into a temp file.
                     New-ModuleManifest @newModuleManifestParams
 
-                    # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16
+                    # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16.
                     $content = Get-Content -LiteralPath $tempFile -Raw
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
@@ -554,11 +544,11 @@ __________.__                   __
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
-                # No wildcard spec in srcRelPath so return info on single file
+                # No wildcard spec in srcRelPath so return info on single file.
                 return NewFileSystemCopyInfo $srcPath $dstPath
             }
 
-            # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
+            # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec.
             $gciParams = @{}
             $parent = Split-Path $srcPath -Parent
             $leaf = Split-Path $srcPath -Leaf
@@ -583,7 +573,7 @@ __________.__                   __
 
             $srcRelRootPathLength = $gciParams['LiteralPath'].Length
 
-            # Generate a FileCopyInfo object for every file expanded by the wildcard spec
+            # Generate a FileCopyInfo object for every file expanded by the wildcard spec.
             $files = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams)
             foreach ($file in $files) {
                 $fileSrcPath = $file.FullName
@@ -592,7 +582,7 @@ __________.__                   __
                 NewFileSystemCopyInfo $fileSrcPath $fileDstPath
             }
 
-            # Copy over empty directories - if any
+            # Copy over empty directories - if any.
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
             $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams | Where {$_.GetFileSystemInfos().Length -eq 0})
@@ -771,7 +761,7 @@ __________.__                   __
             }
         }
 
-        function ModifyFile([ValidateNotNull()]$Node) {
+        function ProcessModifyFile([ValidateNotNull()]$Node) {
             $path = ExpandString $Node.path
 
             # We could choose to not check this if the condition eval'd to false
@@ -889,6 +879,70 @@ __________.__                   __
                 }
             }
         }
+
+        function ProcessRequireModule([ValidateNotNull()]$Node) {
+            $name = ExpandString $Node.name
+
+            $condition  = $Node.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
+                    return
+                }
+            }
+
+            $message = ExpandString $Node.message
+            $minimumVersion = ExpandString $Node.minimumVersion
+            $maximumVersion = ExpandString $Node.maximumVersion
+            $requiredVersion = ExpandString $Node.requiredVersion
+
+            $getModuleParams = @{
+                ListAvailable = $true
+                ErrorAction = 'SilentlyContinue'
+            }
+
+            # Configure $getModuleParams with correct parameters based on parameterset to be used.
+            # Also construct an array of version strings that can be displayed to the user.
+            $versionInfo = @()
+            if ($requiredVersion) {
+                $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name; RequiredVersion = $requiredVersion}
+                $versionInfo += $LocalizedData.RequireModuleRequiredVersion_F1 -f $requiredVersion
+            }
+            elseif ($minimumVersion -or $maximumVersion) {
+                $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name}
+
+                if ($minimumVersion) {
+                    $getModuleParams.FullyQualifiedName["ModuleVersion"] = $minimumVersion
+                    $versionInfo += $LocalizedData.RequireModuleMinVersion_F1 -f $minimumVersion
+                }
+                if ($maximumVersion) {
+                    $getModuleParams.FullyQualifiedName["MaximumVersion"] = $maximumVersion
+                    $versionInfo += $LocalizedData.RequireModuleMaxVersion_F1 -f $maximumVersion
+                }
+            }
+            else {
+                $getModuleParams["Name"] = $name
+            }
+
+            # Flatten array of version strings into a single string.
+            $versionRequirements = ""
+            if ($versionInfo.Length -gt 0) {
+                $OFS = ", "
+                $versionRequirements = " ($versionInfo)"
+            }
+
+            $module = Get-Module @getModuleParams
+
+            if ($null -ne $module) {
+                WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+            }
+            else {
+                WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
+                if ($message) {
+                    WriteOperationAdditionalStatus $message
+                }
+            }
+        }
     }
 
     end {
@@ -925,8 +979,9 @@ __________.__                   __
                 switch -Regex ($node.LocalName) {
                     'file|templateFile' { ProcessFile $node; break }
                     'message'           { ProcessMessage $node; break }
-                    'modify'            { ModifyFile $node; break }
-                    'newModuleManifest' { GenerateModuleManifest $node; break }
+                    'modify'            { ProcessModifyFile $node; break }
+                    'newModuleManifest' { ProcessNewModuleManifest $node; break }
+                    'requireModule'     { ProcessRequireModule $node; break }
                     default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
             }
@@ -940,7 +995,6 @@ __________.__                   __
         }
     }
 }
-
 
 <#
 ██   ██ ███████ ██      ██████  ███████ ██████  ███████
@@ -1150,24 +1204,40 @@ function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$en
 
 function ColorForOperation($operation) {
     switch ($operation) {
-        $LocalizedData.OpConflict  { 'Red' }
-        $LocalizedData.OpCreate    { 'Green' }
-        $LocalizedData.OpForce     { 'Yellow' }
-        $LocalizedData.OpIdentical { 'Cyan' }
-        $LocalizedData.OpModify    { 'Magenta' }
-        $LocalizedData.OpUpdate    { 'Green' }
+        $LocalizedData.OpConflict      { 'Red' }
+        $LocalizedData.OpCreate        { 'Green' }
+        $LocalizedData.OpForce         { 'Yellow' }
+        $LocalizedData.OpIdentical     { 'Cyan' }
+        $LocalizedData.OpModify        { 'Magenta' }
+        $LocalizedData.OpUpdate        { 'Green' }
+        $LocalizedData.OpMissing       { 'Red' }
+        $LocalizedData.OpVerify        { 'Green' }
         default { $Host.UI.RawUI.ForegroundColor }
     }
 }
 
-function WriteOperationStatus($operation, $message) {
-    $maxLen = ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
+function GetMaxOperationLabelLength {
+    ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpForce,
-               $LocalizedData.OpModify,   $LocalizedData.OpUpdate |
+               $LocalizedData.OpMissing,  $LocalizedData.OpModify,
+               $LocalizedData.OpUpdate,   $LocalizedData.OpVerify |
                   Measure-Object -Property Length -Maximum).Maximum
+}
 
+function WriteOperationStatus($operation, $message) {
+    $maxLen = GetMaxOperationLabelLength
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
+}
+
+function WriteOperationAdditionalStatus([string[]]$Message) {
+    $maxLen = GetMaxOperationLabelLength
+    foreach ($msg in $Message) {
+        $lines = $msg -split "`n"
+        foreach ($line in $lines) {
+            Write-Host ("{0,$maxLen} {1}" -f "",$line)
+        }
+    }
 }
 
 function GetGitConfigValue($name) {
