@@ -939,7 +939,7 @@ function Invoke-Plaster {
             else {
                 WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
                 if ($message) {
-                    WriteOperationAdditionalStatusLine $message
+                    WriteOperationAdditionalStatus $message
                 }
             }
         }
@@ -1230,7 +1230,7 @@ function WriteOperationStatus($operation, $message) {
     Write-Host $message
 }
 
-function WriteOperationAdditionalStatusLine([string[]]$Message) {
+function WriteOperationAdditionalStatus([string[]]$Message) {
     $maxLen = GetMaxOperationLabelLength
     foreach ($msg in $Message) {
         $lines = $msg -split "`n"
