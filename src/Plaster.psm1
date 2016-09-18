@@ -39,6 +39,7 @@ data LocalizedData {
     RequireModuleMinVersion_F1=minimum version: {0}
     RequireModuleMaxVersion_F1=maximum version: {0}
     RequireModuleRequiredVersion_F1=required version: {0}
+    ShouldCreateNewPlasterManifest=Create Plaster manifest
     ShouldProcessCreateDir=Create directory
     ShouldProcessExpandTemplate=Expand template file
     ShouldProcessNewModuleManifest=Create new module manifest
@@ -52,8 +53,13 @@ data LocalizedData {
 Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
 
 # Module variables
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='LatestSupportedSchemaVersion')]
 $LatestSupportedSchemaVersion = [System.Version]'0.4'
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TargetNamespace')]
+$TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
 $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultEncoding')]
 $DefaultEncoding = 'Default'
 
 # Shared, private helper functions
@@ -75,6 +81,7 @@ function ExtractTemplateAndReturnPath([string]$TemplatePath) {
 }
 
 # Dot source the module command scripts
+. $PSScriptRoot\NewPlasterManifest.ps1
 . $PSScriptRoot\TestPlasterManifest.ps1
 . $PSScriptRoot\InvokePlaster.ps1
 

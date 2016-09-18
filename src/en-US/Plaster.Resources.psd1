@@ -39,6 +39,7 @@ RequireModuleMissing_F2=The required module {0}{1} was not found.
 RequireModuleMinVersion_F1=minimum version: {0}
 RequireModuleMaxVersion_F1=maximum version: {0}
 RequireModuleRequiredVersion_F1=required version: {0}
+ShouldCreateNewPlasterManifest=Create Plaster manifest
 ShouldProcessCreateDir=Create directory
 ShouldProcessExpandTemplate=Expand template file
 ShouldProcessNewModuleManifest=Create new module manifest

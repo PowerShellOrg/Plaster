@@ -86,7 +86,8 @@ PowerShellVersion = '5.0'
 # exported.  This improves performance of PowerShell when discovering the commands in
 # module.
 FunctionsToExport = @(
-    'Invoke-Plaster',
+    'Invoke-Plaster'
+    'New-PlasterManifest'
     'Test-PlasterManifest'
     )
 
