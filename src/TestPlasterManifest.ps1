@@ -59,7 +59,7 @@ function Test-PlasterManifest {
 
         $filename = Split-Path $Path -Leaf
 
-        # Verify the manifest has the correct filename.
+        # Verify the manifest has the correct filename. Allow for localized template manifest files as well.
         if (!(($filename -eq 'plasterManifest.xml') -or ($filename -match 'plasterManifest_[a-zA-Z]+(-[a-zA-Z]+){0,2}.xml'))) {
             Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $filename)
             return
@@ -118,7 +118,7 @@ function Test-PlasterManifest {
             while ($xmlReader.Read()) {}
         }
         catch {
-            Write-Error ($LocalizedData.ManifestErrorReading_F1 -f $_.Message)
+            Write-Error ($LocalizedData.ManifestErrorReading_F1 -f $_)
             $manifestIsValid.Value = $false
         }
         finally {
@@ -126,9 +126,25 @@ function Test-PlasterManifest {
             if ($xmlReader) { $xmlReader.Dispose() }
         }
 
+        # Validate that the requireModule attribute requiredVersion is mutually exclusive from both
+        # the version and maximumVersion attributes.
+        $requireModules= Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $targetNamespace}
+        foreach ($requireModuleInfo in $requireModules) {
+            $requireModuleNode = $requireModuleInfo.Node
+            if ($requireModuleNode.requiredVersion -and ($requireModuleNode.minimumVersion -or $requireModuleNode.maximumVersion)) {
+                $PSCmdLet.WriteVerbose($LocalizedData.ManifestSchemaInvalidRequireModuleAttrs_F1 -f $requireModuleNode.name)
+                $manifestIsValid.Value = $false
+            }
+        }
+
         if ($manifestIsValid.Value) {
             $manifestSchemaVersion = [System.Version]$manifest.plasterManifest.schemaVersion
-            if ($manifestSchemaVersion -gt $LatestSupportedSchemaVersion) {
+
+            # Use a simplified form (no patch version) of semver for checking XML schema version compatibility.
+            if (($manifestSchemaVersion.Major -ne $LatestSupportedSchemaVersion.Major) -or
+                ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor)) {
+
+                # TODO: should this use write-error / return?
                 throw ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
             }
 

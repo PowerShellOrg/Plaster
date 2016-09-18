@@ -157,26 +157,12 @@ function Invoke-Plaster {
             DefaultValueStoreDirty = $false
         }
 
-        $logo = @'
-__________.__                   __
-\______   \  | _____    _______/  |_  ___________
- |     ___/  | \__  \  /  ___/\   __\/ __ \_  __ \
- |    |   |  |__/ __ \_\___ \  |  | \  ___/|  | \/
- |____|   |____(____  /____  > |__|  \___  >__|
-                    \/     \/            \/
-'@, @'
+        $plasterLogo = @'
   ____  _           _
  |  _ \| | __ _ ___| |_ ___ _ __
  | |_) | |/ _` / __| __/ _ \ '__|
  |  __/| | (_| \__ \ ||  __/ |
  |_|   |_|\__,_|___/\__\___|_|
-'@, @'
-    _____
-   (, /   ) /)
-    _/__ / // _   _  _/_  _  __
-    /     (/_(_(_/_)_(___(/_/ (_
- ) /
-(_/
 '@
 
         # Verify TemplatePath parameter value is valid.
@@ -203,8 +189,7 @@ __________.__                   __
         }
 
         if (!$NoLogo) {
-            $randLogo = $logo[(Get-Random -Minimum 0 -Maximum $logo.Length)]
-            Write-Host $randLogo
+            Write-Host $plasterLogo
             Write-Host ("=" * 50)
         }
 
@@ -274,6 +259,10 @@ __________.__                   __
             $retval
         }
 
+        # All Plaster variables should be set via this method so that the ConstrainedRunspace can be
+        # configured to use the new variable. This method will null out the ConstrainedRunspace so that
+        # later, when we need to evaluate script in that runspace, it will get recreated first with all
+        # the latest Plaster variables.
         function SetPlasterVariable() {
             param(
                 [Parameter(Mandatory=$true)]
@@ -889,6 +878,66 @@ __________.__                   __
                 }
             }
         }
+
+        function ProcessRequireModule([ValidateNotNull()]$Node) {
+            $name = ExpandString $Node.name
+
+            $condition  = $Node.condition
+            if ($condition) {
+                if (!(EvaluateCondition $condition)) {
+                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
+                    return
+                }
+            }
+
+            $message = ExpandString $Node.message
+            $minimumVersion = ExpandString $Node.minimumVersion
+            $maximumVersion = ExpandString $Node.maximumVersion
+            $requiredVersion = ExpandString $Node.requiredVersion
+
+            $getModuleParams = @{
+                ListAvailable = $true
+                ErrorAction = 'SilentlyContinue'
+            }
+
+            $versionInfo = @()
+            if ($requiredVersion) {
+                $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name; RequiredVersion = $requiredVersion}
+                $versionInfo += "RequiredVersion: $requiredVersion"
+            }
+            elseif ($minimumVersion -or $maximumVersion) {
+                $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name}
+
+                if ($minimumVersion) {
+                    $getModuleParams.FullyQualifiedName["ModuleVersion"] = $minimumVersion
+                    $versionInfo += "ModuleVersion: $minimumVersion"
+                }
+                if ($maximumVersion) {
+                    $getModuleParams.FullyQualifiedName["MaximumVersion"] = $maximumVersion
+                    $versionInfo += "MaximumVersion: $maximumVersion"
+                }
+            }
+            else {
+                $getModuleParams["Name"] = $name
+            }
+
+            $versionRequirements = ""
+            if ($versionInfo.Length -gt 0) {
+                $OFS = ", "
+                $versionRequirements = " ($versionInfo)"
+            }
+
+            $module = Get-Module @getModuleParams
+            if ($module -ne $null) {
+                WriteOperationStatus $LocalizedData.OpVerify "The required module ${name}${versionRequirements} is already installed."
+            }
+            else {
+                WriteOperationStatus $LocalizedData.OpMissing "The required module ${name}${versionRequirements} was not found."
+                if ($message) {
+                    WriteOperationAdditionalStatusLine $message
+                }
+            }
+        }
     }
 
     end {
@@ -927,6 +976,7 @@ __________.__                   __
                     'message'           { ProcessMessage $node; break }
                     'modify'            { ModifyFile $node; break }
                     'newModuleManifest' { GenerateModuleManifest $node; break }
+                    'requireModule'     { ProcessRequireModule $node; break }
                     default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
             }
@@ -1150,24 +1200,40 @@ function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$en
 
 function ColorForOperation($operation) {
     switch ($operation) {
-        $LocalizedData.OpConflict  { 'Red' }
-        $LocalizedData.OpCreate    { 'Green' }
-        $LocalizedData.OpForce     { 'Yellow' }
-        $LocalizedData.OpIdentical { 'Cyan' }
-        $LocalizedData.OpModify    { 'Magenta' }
-        $LocalizedData.OpUpdate    { 'Green' }
+        $LocalizedData.OpConflict      { 'Red' }
+        $LocalizedData.OpCreate        { 'Green' }
+        $LocalizedData.OpForce         { 'Yellow' }
+        $LocalizedData.OpIdentical     { 'Cyan' }
+        $LocalizedData.OpModify        { 'Magenta' }
+        $LocalizedData.OpUpdate        { 'Green' }
+        $LocalizedData.OpMissing       { 'Red' }
+        $LocalizedData.OpVerify        { 'Green' }
         default { $Host.UI.RawUI.ForegroundColor }
     }
 }
 
-function WriteOperationStatus($operation, $message) {
-    $maxLen = ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
+function GetMaxOperationLabelLength {
+    ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
                $LocalizedData.OpConflict, $LocalizedData.OpForce,
-               $LocalizedData.OpModify,   $LocalizedData.OpUpdate |
+               $LocalizedData.OpMissing,  $LocalizedData.OpModify,
+               $LocalizedData.OpUpdate,   $LocalizedData.OpVerify |
                   Measure-Object -Property Length -Maximum).Maximum
+}
 
+function WriteOperationStatus($operation, $message) {
+    $maxLen = GetMaxOperationLabelLength
     Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
     Write-Host $message
+}
+
+function WriteOperationAdditionalStatusLine([string[]]$Message) {
+    $maxLen = GetMaxOperationLabelLength
+    foreach ($msg in $Message) {
+        $lines = $msg -split "`n"
+        foreach ($line in $lines) {
+            Write-Host ("{0,$maxLen} {1}" -f "",$line)
+        }
+    }
 }
 
 function GetGitConfigValue($name) {

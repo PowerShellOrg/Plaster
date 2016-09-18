@@ -59,6 +59,7 @@
 Scaffold a PowerShell Module with the files required to run Pester tests, build with PSake and publish to the PSGallery.
 
         </message>
+
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
@@ -146,6 +147,13 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         },$1]]></substitute>
             </replace>
         </modify>
+
+        <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"'
+            minimumVersion="3.5.0"
+            message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.5.0, Visual Studio Code will not be able to display Pester warnings and errors in the Problems panel."/>
+
+        <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "PSake"'
+            message="Without psake, you will not be able to run the provided build script to build and/or publish your module."/>
 
         <message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
         <message nonewline='true' condition="$PLASTER_PARAM_Options -contains 'Git'">with Git version control </message>

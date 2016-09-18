@@ -9,26 +9,29 @@ data LocalizedData {
     ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
     ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
     ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
-    FileConflict=Plaster file conflict
     InvalidConditionExpression_F2=The condition expression '{0}' is invalid.  Error: {1}
+    FileConflict=Plaster file conflict
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
-    ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element <plasterManifest xmlns="{1}"></plasterManifest>.
+    ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
     ManifestSchemaVersionNotSupported_F1=The template's manifest schema version ({0}) requires a newer version of Plaster. Update the Plaster module and try again.
-    ManifestErrorReading_F1=Plaster manifest error: {0}
+    ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
+    ManifestErrorReading_F1=Error reading Plaster manifest: {0}
     ManifestNotValid_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
     ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
     ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the Plaster manifest filename and then try again.
     NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}
-    OpCreate=Create
     OpConflict=Conflict
-    OpIdentical=Identical
-    OpModify=Modify
+    OpCreate=Create
     OpForce=Force
+    OpIdentical=Identical
+    OpMissing=Missing
+    OpModify=Modify
     OpUpdate=Update
+    OpVerify=Verify
     OverwriteFile_F1=Overwrite {0}
-    TempFileOperation_F1={0} into temp file
+    TempFileOperation_F1={0} into temp file before copying to destination
     TempFileTarget_F1=temp file for '{0}'
     ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
     ShouldProcessCreateDir=Create directory
@@ -44,7 +47,7 @@ data LocalizedData {
 Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
 
 # Module variables
-$LatestSupportedSchemaVersion = [System.Version]'0.3'
+$LatestSupportedSchemaVersion = [System.Version]'0.4'
 $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 $DefaultEncoding = 'Default'
 
