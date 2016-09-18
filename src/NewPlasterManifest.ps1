@@ -7,10 +7,10 @@
 
     Template authors can use this command to create a manifest for their template. A template manifest is a file
     named plasterManifest.xml or plasterManifest_<culture-name>.xml.  The information stored in the manifest is
-    used scaffold files and folders.
+    used to scaffold files and folders.
 
     The parameters section of the manifest is used to describe choices the template user can choose from. Those
-    choices are then used to conditionally create files and folders and modify existing files in the specified
+    choices are then used to conditionally create files and folders and modify existing files under the specified
     destination path.
 .EXAMPLE
     PS C:\> New-PlasterManifest
@@ -22,7 +22,7 @@
 .EXAMPLE
     PS C:\> New-PlasterManifest -AddContent
     Creates a plasterManifest.xml file in the current directory with the content element filled in with all the files
-    in and below the current (except for plasterManifest files).
+    in and below the current directory (except for any plasterManifest files).
 .INPUTS
     None
 
