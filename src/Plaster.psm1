@@ -34,9 +34,14 @@ data LocalizedData {
     TempFileOperation_F1={0} into temp file before copying to destination
     TempFileTarget_F1=temp file for '{0}'
     ParameterTypeChoiceMultipleDefault_F1=Parameter name {0} is of type='choice' and can only have one default value.
+    RequireModuleVerified_F2=The required module {0}{1} is already installed.
+    RequireModuleMissing_F2=The required module {0}{1} was not found.
+    RequireModuleMinVersion_F1=minimum version: {0}
+    RequireModuleMaxVersion_F1=maximum version: {0}
+    RequireModuleRequiredVersion_F1=required version: {0}
     ShouldProcessCreateDir=Create directory
     ShouldProcessExpandTemplate=Expand template file
-    ShouldProcessGenerateModuleManifest=Generate new module manifest
+    ShouldProcessNewModuleManifest=Create new module manifest
     SubsitutionExpressionError_F2=The substitution expression '{0}' failed expansion.  Error: {1}
     UnrecognizedParametersElement_F1=Unrecognized manifest parameters child element: {0}.
     UnrecognizedParameterType_F2=Unrecognized parameter type '{0}' on parameter name '{1}'.

@@ -149,8 +149,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         </modify>
 
         <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"'
-            minimumVersion="3.5.0"
-            message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.5.0, Visual Studio Code will not be able to display Pester warnings and errors in the Problems panel."/>
+            minimumVersion="3.4.0"
+            message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 
         <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "PSake"'
             message="Without psake, you will not be able to run the provided build script to build and/or publish your module."/>

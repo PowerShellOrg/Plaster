@@ -144,8 +144,8 @@ function Test-PlasterManifest {
             if (($manifestSchemaVersion.Major -ne $LatestSupportedSchemaVersion.Major) -or
                 ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor)) {
 
-                # TODO: should this use write-error / return?
-                throw ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
+                Write-Error  ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
+                return
             }
 
             $manifest

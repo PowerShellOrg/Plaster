@@ -28,9 +28,10 @@ $ConstrainedRunspace = $null
 #>
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='GenerateModuleManifest')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ModifyFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessModifyFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessNewModuleManifest')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='ProcessFile')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
@@ -298,7 +299,7 @@ function Invoke-Plaster {
             $prompt = ExpandString $Node.prompt
             $default = ExpandString $Node.default
 
-            # Check if parameter was provided via a dynamic parameter
+            # Check if parameter was provided via a dynamic parameter.
             if ($boundParameters.ContainsKey($name)) {
                 $value = $boundParameters[$name]
             }
@@ -320,10 +321,10 @@ function Invoke-Plaster {
                     }
                 }
 
-                # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists
+                # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists.
                 $defaultNotFromTemplate = $false
 
-                # Now prompt user for parameter value based on the parameter type
+                # Now prompt user for parameter value based on the parameter type.
                 switch -regex ($type) {
                     'text' {
                         # Display an appropriate "default" value in the prompt string.
@@ -341,7 +342,7 @@ function Invoke-Plaster {
                         $valueToStore = $value
                     }
                     'user-fullname' {
-                        # If no default, try to get a name from git config
+                        # If no default, try to get a name from git config.
                         if (!$default) {
                             $default = GetGitConfigValue('name')
                             $defaultNotFromTemplate = $true
@@ -411,7 +412,7 @@ function Invoke-Plaster {
                 }
             }
 
-            # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>
+            # Make template defined parameters available as a PowerShell variable PLASTER_PARAM_<parameterName>.
             SetPlasterVariable -Name $name -Value $value -IsParam $true
         }
 
@@ -436,7 +437,7 @@ function Invoke-Plaster {
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
-        function GenerateModuleManifest([ValidateNotNull()]$Node) {
+        function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
             $moduleVersion = ExpandString $Node.moduleVersion
             $rootModule = ExpandString $Node.rootModule
             $author = ExpandString $Node.author
@@ -466,7 +467,7 @@ function Invoke-Plaster {
                 $encoding = $DefaultEncoding
             }
 
-            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessGenerateModuleManifest)) {
+            if ($PSCmdlet.ShouldProcess($dstPath, $LocalizedData.ShouldProcessNewModuleManifest)) {
                 $manifestDir = Split-Path $dstPath -Parent
                 if (!(Test-Path $manifestDir)) {
                     VerifyPathIsUnderDestinationPath $manifestDir
@@ -499,10 +500,10 @@ function Invoke-Plaster {
                     $PSCmdlet.WriteDebug("Created temp file for new module manifest - $tempFile")
                     $newModuleManifestParams['Path'] = $tempFile
 
-                    # Generate manifest into a temp file
+                    # Generate manifest into a temp file.
                     New-ModuleManifest @newModuleManifestParams
 
-                    # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16
+                    # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16.
                     $content = Get-Content -LiteralPath $tempFile -Raw
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
@@ -543,11 +544,11 @@ function Invoke-Plaster {
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
-                # No wildcard spec in srcRelPath so return info on single file
+                # No wildcard spec in srcRelPath so return info on single file.
                 return NewFileSystemCopyInfo $srcPath $dstPath
             }
 
-            # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec
+            # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec.
             $gciParams = @{}
             $parent = Split-Path $srcPath -Parent
             $leaf = Split-Path $srcPath -Leaf
@@ -572,7 +573,7 @@ function Invoke-Plaster {
 
             $srcRelRootPathLength = $gciParams['LiteralPath'].Length
 
-            # Generate a FileCopyInfo object for every file expanded by the wildcard spec
+            # Generate a FileCopyInfo object for every file expanded by the wildcard spec.
             $files = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams)
             foreach ($file in $files) {
                 $fileSrcPath = $file.FullName
@@ -581,7 +582,7 @@ function Invoke-Plaster {
                 NewFileSystemCopyInfo $fileSrcPath $fileDstPath
             }
 
-            # Copy over empty directories - if any
+            # Copy over empty directories - if any.
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
             $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams | Where {$_.GetFileSystemInfos().Length -eq 0})
@@ -760,7 +761,7 @@ function Invoke-Plaster {
             }
         }
 
-        function ModifyFile([ValidateNotNull()]$Node) {
+        function ProcessModifyFile([ValidateNotNull()]$Node) {
             $path = ExpandString $Node.path
 
             # We could choose to not check this if the condition eval'd to false
@@ -900,27 +901,30 @@ function Invoke-Plaster {
                 ErrorAction = 'SilentlyContinue'
             }
 
+            # Configure $getModuleParams with correct parameters based on parameterset to be used.
+            # Also construct an array of version strings that can be displayed to the user.
             $versionInfo = @()
             if ($requiredVersion) {
                 $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name; RequiredVersion = $requiredVersion}
-                $versionInfo += "RequiredVersion: $requiredVersion"
+                $versionInfo += $LocalizedData.RequireModuleRequiredVersion_F1 -f $requiredVersion
             }
             elseif ($minimumVersion -or $maximumVersion) {
                 $getModuleParams["FullyQualifiedName"] = @{ModuleName = $name}
 
                 if ($minimumVersion) {
                     $getModuleParams.FullyQualifiedName["ModuleVersion"] = $minimumVersion
-                    $versionInfo += "ModuleVersion: $minimumVersion"
+                    $versionInfo += $LocalizedData.RequireModuleMinVersion_F1 -f $minimumVersion
                 }
                 if ($maximumVersion) {
                     $getModuleParams.FullyQualifiedName["MaximumVersion"] = $maximumVersion
-                    $versionInfo += "MaximumVersion: $maximumVersion"
+                    $versionInfo += $LocalizedData.RequireModuleMaxVersion_F1 -f $maximumVersion
                 }
             }
             else {
                 $getModuleParams["Name"] = $name
             }
 
+            # Flatten array of version strings into a single string.
             $versionRequirements = ""
             if ($versionInfo.Length -gt 0) {
                 $OFS = ", "
@@ -928,11 +932,12 @@ function Invoke-Plaster {
             }
 
             $module = Get-Module @getModuleParams
-            if ($module -ne $null) {
-                WriteOperationStatus $LocalizedData.OpVerify "The required module ${name}${versionRequirements} is already installed."
+
+            if ($null -ne $module) {
+                WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
             }
             else {
-                WriteOperationStatus $LocalizedData.OpMissing "The required module ${name}${versionRequirements} was not found."
+                WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
                 if ($message) {
                     WriteOperationAdditionalStatusLine $message
                 }
@@ -974,8 +979,8 @@ function Invoke-Plaster {
                 switch -Regex ($node.LocalName) {
                     'file|templateFile' { ProcessFile $node; break }
                     'message'           { ProcessMessage $node; break }
-                    'modify'            { ModifyFile $node; break }
-                    'newModuleManifest' { GenerateModuleManifest $node; break }
+                    'modify'            { ProcessModifyFile $node; break }
+                    'newModuleManifest' { ProcessNewModuleManifest $node; break }
                     'requireModule'     { ProcessRequireModule $node; break }
                     default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
@@ -990,7 +995,6 @@ function Invoke-Plaster {
         }
     }
 }
-
 
 <#
 ██   ██ ███████ ██      ██████  ███████ ██████  ███████
