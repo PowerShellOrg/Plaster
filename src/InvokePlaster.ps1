@@ -1118,7 +1118,7 @@ function ExpandString($Str) {
 
         if ($powershell.Streams.Error.Count -gt 0) {
             $err = $powershell.Streams.Error[0]
-            throw ($LocalizedData.SubsitutionExpressionError_F2 -f $Str,$err)
+            throw ($LocalizedData.SubstitutionExpressionError_F2 -f $Str,$err)
         }
     }
     finally {
