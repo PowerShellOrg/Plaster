@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Schema versioning guidance:
+     https://msdn.microsoft.com/en-us/library/ms950793.aspx
+     http://stackoverflow.com/questions/2014237/what-are-the-best-practices-for-versioning-xml-schemas
+     http://www.xfront.com/Versioning.pdf
+     -->
+<xs:schema
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+	elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  version="0.4"
+  xml:lang="en"
+	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
+		vs:friendlyname="Plaster Manifest Schema"
+		vs:ishtmlschema="false">
+
+	<xs:annotation>
+		<xs:documentation>
+      Schema for a Plaster manifest file that is used to define
+      the metadata, parameters and content of a template.  For information of
+      the Plaster project see http://github.com/PowerShell/Plaster.
+    </xs:documentation>
+	</xs:annotation>
+
+
+  <!-- **************************************************************** -->
+  <!-- Type definitions                                                 -->
+  <!-- **************************************************************** -->
+
+  <xs:simpleType name="EncodingType">
+    <xs:annotation>
+      <xs:documentation>
+        The encoding to use for writing to a file.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Ascii"/>
+      <xs:enumeration value="BigEndianUnicode"/>
+      <xs:enumeration value="BigEndianUTF32"/>
+      <xs:enumeration value="Oem"/>
+      <xs:enumeration value="Unicode"/>
+      <xs:enumeration value="UTF32"/>
+      <xs:enumeration value="UTF7"/>
+      <xs:enumeration value="UTF8"/>
+      <xs:enumeration value="UTF8-NoBOM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ParameterType">
+    <xs:annotation>
+      <xs:documentation>
+        The type of the parameter: text, user-fullname, user-email, choice or multichoice.
+        user-fullname and user-email are text entry fields that get their default values
+        (if no default is specified in the manifest file) from the user's .gitconfig file (if they have one).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="text"/>
+			<xs:enumeration value="user-fullname"/>
+			<xs:enumeration value="user-email"/>
+      <xs:enumeration value="choice"/>
+      <xs:enumeration value="multichoice"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ModuleVersionType">
+    <xs:annotation>
+      <xs:documentation>
+        A module version specification value must be of the form of major.minor.[patch[.revision][(+|-).*]]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+\.\d+(\.\d+((\.\d+|(\+|-).*)?)?)?" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SchemaVersionType">
+    <xs:annotation>
+      <xs:documentation>
+        A schemaVersion value must be of the form major.minor
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,4}\.[0-9]{1,4}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StoreFormatType">
+    <xs:annotation>
+      <xs:documentation>
+        The format for storing a default value: text or encrypted.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="text"/>
+      <xs:enumeration value="encrypted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- **************************************************************** -->
+  <!-- Global attribute definitions                                     -->
+  <!-- **************************************************************** -->
+
+  <xs:simpleType name="condition">
+    <xs:annotation>
+      <xs:documentation>Used to determine whether a directive is executed. If the condition evaluates to true, it will execute. Otherwise it will not.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="encoding">
+    <xs:annotation>
+      <xs:documentation>Specifies the file encoding to use when writing the modified file.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="ptd:EncodingType"/>
+  </xs:simpleType>
+
+
+  <!-- **************************************************************** -->
+  <!-- Global element definitions                                       -->
+  <!-- **************************************************************** -->
+
+  <xs:element name="choice">
+    <xs:annotation>
+      <xs:documentation>Specifies a choice for the choice or multichoice parameter type.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="label" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The label for the choice that is presented in the user interface. The &amp; character must be respresented with the entity ref &amp;amp;</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The value that will get assigned the parameter if the user selects this choice.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="help" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Help message that is displayed for this choice if the user presses ? for help.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="parameter">
+    <xs:annotation>
+      <xs:documentation>Define a parameter that the user needs to provide a value during template invocation.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ptd:choice" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The name of the parameter which will be made available as $PLASTER_PARAM_{name}.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="type" type="ptd:ParameterType" use="required" />
+      <xs:attribute name="prompt" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>The text presented to the user when they are asked to provide the value for the parameter.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="default" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>The default value for the parameter which the user will be able to accept or change.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="store" type="ptd:StoreFormatType"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="original">
+    <xs:annotation>
+      <xs:documentation>Specify the regular expression for the text to be replaced.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="expand" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="substitute">
+    <xs:annotation>
+      <xs:documentation>Specify the replacement text.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="expand" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+
+  <!-- **************************************************************** -->
+  <!-- Root document element definition                                 -->
+  <!-- **************************************************************** -->
+  <xs:element name="plasterManifest">
+    <xs:annotation>
+      <xs:documentation>The top-level element for a Plaster template manifest.</xs:documentation>
+    </xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+
+        <xs:element name="metadata" minOccurs="1" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>Describes the Plaster template.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="id" maxOccurs="1" minOccurs="1" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>The unique identifier for the Plaster template.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="version" maxOccurs="1" minOccurs="1" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>The version of the package, in a format like '1.2.3'.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="title" maxOccurs="1" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>The "display" name of the package used in editor user interfaces. If none is specified, the ID is used instead.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="description" maxOccurs="1" minOccurs="1" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>Description of what the template scaffolds.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="author" maxOccurs="1" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>The template author.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="tags" maxOccurs="1" minOccurs="1" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>A comma-separated list of tags.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="parameters" maxOccurs="1" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Defines parameter values that need to be provided by the user during template invocation.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="ptd:parameter" maxOccurs="unbounded" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="content" maxOccurs="1" minOccurs="1">
+          <xs:annotation>
+            <xs:documentation>Specifies the recipe for content scaffolded by the Plaster template.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+
+              <xs:element name="file" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Specify one or more files to copy under the destination folder.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="source" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="destination" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="templateFile" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Specify one or more template files to copy and expand under the destination folder.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="source" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path to the file in the template's root folder.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="destination" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="message" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Displays the specified content as a message to the user.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="condition" type="ptd:condition"/>
+                      <xs:attribute name="nonewline" type="xs:boolean" default="false">
+                        <xs:annotation>
+                          <xs:documentation>If true, suppresses output of a newline at the end of the message.</xs:documentation>
+                        </xs:annotation>
+                      </xs:attribute>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="modify" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Modify an existing file under the destination folder.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="replace" maxOccurs="unbounded" minOccurs="1">
+                      <xs:annotation>
+                        <xs:documentation>Specify a replacement operation of the file content.</xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element ref="ptd:original" maxOccurs="1" minOccurs="1"/>
+                          <xs:element ref="ptd:substitute" maxOccurs="1" minOccurs="1"/>
+                        </xs:sequence>
+                        <xs:attribute name="condition" type="ptd:condition"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="path" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, of the file to be modified.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="newModuleManifest" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Create a new module manifest file using the New-ModuleManifest command.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="destination" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the relative path, under the destination folder, to where the file will be copied.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="author" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the Author property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="companyName" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the CompanyName property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="description" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="moduleVersion" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the ModuleVersion property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="rootModule" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the value of the RootModule property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                </xs:complexType>
+              </xs:element>
+
+              <xs:element name="requireModule" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>Checks to see if the specified module is installed. If not, the user is notified of the need to install the module.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the module's name.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="minimumVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the module's minimum version.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="maximumVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the module's maximum version.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="requiredVersion" type="ptd:ModuleVersionType">
+                    <xs:annotation>
+                      <xs:documentation>
+                        Specifies the module's required version. This version must match the installed module's version number EXACTLY.
+                        Use this attribute rarely as any update to the module that changes its version will result in this check failing.
+                        The requiredVersion attribute cannot be used together with either the version or maximumVersion attributes.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="message" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>
+                        Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine.
+                        Use this message to tell the user what functionality will not work without the specified module.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+    	</xs:sequence>
+
+      <xs:attribute name="schemaVersion" type="ptd:SchemaVersionType" use="required">
+        <xs:annotation>
+          <xs:documentation>Version level of the associated XML schema. Only breaking changes to the XML schema result in a new target namespace.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

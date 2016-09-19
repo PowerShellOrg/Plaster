@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+    <metadata>
+        <description>Plaster template for creating the files for a PowerShell module.</description>
+        <version>0.1.0</version>
+        <tags>Module, ModuleManifest, Build</tags>
+    </metadata>
+    <parameters>
+        <parameter name='ModuleName' type='string' prompt='Enter the name of the module.'/>
+        <parameter name='Version' type='string' default='1.0.0' store='true' prompt='Enter the version number for the module.'/>
+        <parameter name='CreateRootFoler' type='bool' default='true' prompt='Do you want to create the root folder for the project?'/>
+    </parameters>
+    <content>
+        <!--<directory name='!ModuleName!' condition='!CreateRootFoler!'>-->
+            <!--<file source='Module.psd1' destination='!ModuleName!.psd1' updateContent='true' encoding='utf8'>
+                <replace pattern='(?<=ModuleVersion\s*=\s*'')[^'']+(?='')' replacement='!ModuleVersion!' />
+            </file>-->
+            <file source='Module.psm1' destination='ModuleName.psm1'/>
+        <!--</directory>-->
+    </content>
+</plasterManifest>

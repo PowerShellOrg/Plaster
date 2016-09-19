@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+    <metadata>
+        <id>997a137c-b867-44fd-be5f-a62d3a010a85</id>
+        <title>Testing</title>
+        <description>Manifest file for testing.</description>
+        <version>0.2.0</version>
+        <tags></tags>
+    </metadata>
+    <content>
+        <file source='Recurse\**\*.txt' destination='RecurseOut'/>
+    </content>
+</plasterManifest>
