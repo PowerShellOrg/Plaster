@@ -120,6 +120,9 @@ Properties {
     $PublishRootDir = "$PSScriptRoot\.publish"
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
+    # The local installation directory for the install task. Defaults to your user PSModulePath.
+    $InstallPath = "$($($env:PSModulePath).Split(';')[0])\$ModuleName"
+
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
     # the module. However, if there are such files, add them to the exclude list below.
@@ -219,6 +222,15 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
     else {
         throw 'No valid certificate subject name supplied or stored.'
     }
+}
+
+Task Install -depends Test {
+    if (-not (Test-Path -Path $InstallPath)) {
+        Write-Verbose -Message 'Creating local install directory'
+        New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
+    }
+
+    Copy-Item -Path "$PublishDir\*" -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
 Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
