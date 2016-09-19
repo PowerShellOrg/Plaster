@@ -200,7 +200,7 @@ function Invoke-Plaster {
         $templateId = $manifest.plasterManifest.metadata.id
         $templateVersion = $manifest.plasterManifest.metadata.version
         $templateBaseName = [System.IO.Path]::GetFileNameWithoutExtension($TemplatePath)
-        $storeFilename = "$templateBaseName-$templateVersion-$templateId"
+        $storeFilename = "$templateBaseName-$templateVersion-$templateId.clixml"
         $defaultValueStorePath = Join-Path $ParameterDefaultValueStoreRootPath $storeFilename
         if (Test-Path $defaultValueStorePath) {
             try {
