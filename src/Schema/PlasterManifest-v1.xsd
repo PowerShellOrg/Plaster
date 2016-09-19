@@ -233,7 +233,12 @@
               </xs:element>
               <xs:element name="version" maxOccurs="1" minOccurs="1" type="xs:string">
                 <xs:annotation>
-                  <xs:documentation>The version of the package, in a format like `1.2.3`.</xs:documentation>
+                  <xs:documentation>The version of the package, in a format like '1.2.3'.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="title" maxOccurs="1" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>The "display" name of the package used in editor user interfaces. If none is specified, the ID is used instead.</xs:documentation>
                 </xs:annotation>
               </xs:element>
               <xs:element name="description" maxOccurs="1" minOccurs="1" type="xs:string">
@@ -241,14 +246,14 @@
                   <xs:documentation>Description of what the template scaffolds.</xs:documentation>
                 </xs:annotation>
               </xs:element>
-              <xs:element name="title" maxOccurs="1" minOccurs="0" type="xs:string">
+              <xs:element name="author" maxOccurs="1" minOccurs="0" type="xs:string">
                 <xs:annotation>
-                  <xs:documentation>The human-friendly title of the package displayed in the Manage NuGet Packages dialog. If none is specified, the ID is used instead.</xs:documentation>
+                  <xs:documentation>The template author.</xs:documentation>
                 </xs:annotation>
               </xs:element>
               <xs:element name="tags" maxOccurs="1" minOccurs="1" type="xs:string">
                 <xs:annotation>
-                  <xs:documentation>A comma-separated list of authors of the package code.</xs:documentation>
+                  <xs:documentation>A comma-separated list of tags.</xs:documentation>
                 </xs:annotation>
               </xs:element>
             </xs:all>

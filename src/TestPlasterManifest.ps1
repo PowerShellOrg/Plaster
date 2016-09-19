@@ -40,10 +40,9 @@ function Test-PlasterManifest {
     )
 
     begin {
-        $targetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
         $schemaPath = "$PSScriptRoot\Schema\PlasterManifest-v1.xsd"
         $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
-        $null = $xmlSchemaSet.Add($targetNamespace, $schemaPath)
+        $xmlSchemaSet.Add($targetNamespace, $schemaPath) > $null
     }
 
     process {
