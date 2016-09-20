@@ -4,7 +4,7 @@ Import-Module $PSScriptRoot\..\src\$ModuleManifestName
 
 Describe 'Module Manifest Tests' {
     It 'Passes Test-ModuleManifest' {
-        Test-ModuleManifest -Path $PSScriptRoot\..\$ModuleManifestName
+        Test-ModuleManifest -Path $PSScriptRoot\..\src\$ModuleManifestName
         $? | Should Be $true
     }
 }
