@@ -113,7 +113,10 @@ Properties {
 
     # The name of your module should match the basename of the PSD1 file.
     $ModuleName = (Get-Item $SourceRootDir/*.psd1 |
-                   Foreach-Object {$ModuleDetails = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
+                   Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
+
+    # The module summary from the PSD1 file.
+    $ModuleDetails = Test-ModuleManifest -Path "$SourceRootDir\$ModuleName.psd1"
 
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
