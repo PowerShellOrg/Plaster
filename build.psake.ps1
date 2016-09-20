@@ -115,10 +115,16 @@ Properties {
     $ModuleName = (Get-Item $SourceRootDir/*.psd1 |
                    Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
 
+    # The module summary from the PSD1 file.
+    $ModuleDetails = Test-ModuleManifest -Path "$SourceRootDir\$ModuleName.psd1"
+
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
     $PublishRootDir = "$PSScriptRoot\.publish"
     $PublishDir     = "$PublishRootDir\$ModuleName"
+
+    # The local installation directory for the install task. Defaults to your user PSModulePath.
+    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())" 
 
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
@@ -219,6 +225,15 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
     else {
         throw 'No valid certificate subject name supplied or stored.'
     }
+}
+
+Task Install -depends Test {
+    if (-not (Test-Path -Path $InstallPath)) {
+        Write-Verbose -Message 'Creating local install directory'
+        New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
+    }
+
+    Copy-Item -Path "$PublishDir\*" -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
 Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
