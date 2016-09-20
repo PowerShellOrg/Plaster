@@ -113,7 +113,7 @@ Properties {
 
     # The name of your module should match the basename of the PSD1 file.
     $ModuleName = (Get-Item $SourceRootDir/*.psd1 |
-                   Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
+                   Foreach-Object {$ModuleDetails = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
 
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
@@ -121,7 +121,7 @@ Properties {
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
-    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath $ModuleName 
+    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())" 
 
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
