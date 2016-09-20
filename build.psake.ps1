@@ -70,8 +70,8 @@ Properties {
 
     # The root directory of the module source and tests.  It could be the workspace
     # root or a subdir such as src, module, <my-module-name>.
-    $SourceRootDir = "$PSScriptRoot/src"
-    $TestRootDir   = "$PSScriptRoot/test"
+    $SourceRootDir = Join-Path -Path $PSScriptRoot -ChildPath "src"
+    $TestRootDir   = Join-Path -Path $PSScriptRoot -ChildPath "test"
 
     # -------------------- Publishing properties ------------------------------
 
