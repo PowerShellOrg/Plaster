@@ -60,14 +60,14 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
 
         </message>
 
-        <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
+        <newModuleManifest destination='src\${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                            author='$PLASTER_PARAM_FullName'
                            description='$PLASTER_PARAM_ModuleDesc'
                            encoding='UTF8-NoBOM'/>
         <file source='Module.psm1'
-              destination='${PLASTER_PARAM_ModuleName}.psm1'/>
+              destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='_gitignore'
               destination='.gitignore'
               condition='$PLASTER_PARAM_Options -contains "Git"'/>
