@@ -70,8 +70,8 @@ Properties {
 
     # The root directory of the module source and tests.  It could be the workspace
     # root or a subdir such as src, module, <my-module-name>.
-    $SourceRootDir = Join-Path -Path $PSScriptRoot -ChildPath "src"
-    $TestRootDir   = Join-Path -Path $PSScriptRoot -ChildPath "test"
+    $SourceRootDir = "$PSScriptRoot/src"
+    $TestRootDir   = "$PSScriptRoot/test"
 
     # -------------------- Publishing properties ------------------------------
 
@@ -121,7 +121,7 @@ Properties {
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
-    $InstallPath = "$($($env:PSModulePath).Split(';')[0])\$ModuleName"
+    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath $ModuleName 
 
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
