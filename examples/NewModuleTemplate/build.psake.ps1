@@ -245,7 +245,7 @@ Task Test -depends Build {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
         $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
 
-        if ($TestResult.FailedCount -gt 0) {
+        if (($taskList -contains 'publish') -and ($TestResult.FailedCount -gt 0)) {
             Assert $false "One or more Pester tests for the module failed. Build cannot continue!"
         }
     }
