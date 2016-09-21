@@ -66,6 +66,17 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="NameType">
+    <xs:annotation>
+      <xs:documentation>
+        Required name type that must use valid filename characters [0-9aA-aZ_-]+
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-zA-Z_-]+" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="ModuleVersionType">
     <xs:annotation>
       <xs:documentation>
@@ -80,11 +91,22 @@
   <xs:simpleType name="SchemaVersionType">
     <xs:annotation>
       <xs:documentation>
-        A schemaVersion value must be of the form major.minor
+        The schemaVersion value must be of the form major.minor
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:pattern value="[0-9]{1,4}\.[0-9]{1,4}" />
+      <xs:pattern value="\d{1,4}\.\d{1,4}" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TemplateVersionType">
+    <xs:annotation>
+      <xs:documentation>
+        A template version value must be of the form major.minor[.patch]
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{1,4}\.\d{1,4}(\.\d{1,4})?" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -226,19 +248,24 @@
           </xs:annotation>
           <xs:complexType>
             <xs:all>
+              <xs:element name="name" maxOccurs="1" minOccurs="1" type="ptd:NameType">
+                <xs:annotation>
+                  <xs:documentation>The name of the template. DO NOT LOCALIZE THIS STRING.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
               <xs:element name="id" maxOccurs="1" minOccurs="1" type="xs:string">
                 <xs:annotation>
-                  <xs:documentation>The unique identifier for the Plaster template.</xs:documentation>
+                  <xs:documentation>The unique identifier for the template.</xs:documentation>
                 </xs:annotation>
               </xs:element>
-              <xs:element name="version" maxOccurs="1" minOccurs="1" type="xs:string">
+              <xs:element name="version" maxOccurs="1" minOccurs="1" type="ptd:TemplateVersionType">
                 <xs:annotation>
-                  <xs:documentation>The version of the package, in a format like '1.2.3'.</xs:documentation>
+                  <xs:documentation>The version of the template in a format like '1.2[.3]'.</xs:documentation>
                 </xs:annotation>
               </xs:element>
-              <xs:element name="title" maxOccurs="1" minOccurs="0" type="xs:string">
+              <xs:element name="title" maxOccurs="1" minOccurs="1" type="xs:string">
                 <xs:annotation>
-                  <xs:documentation>The "display" name of the package used in editor user interfaces. If none is specified, the ID is used instead.</xs:documentation>
+                  <xs:documentation>The "display name" used in an editor user interface.</xs:documentation>
                 </xs:annotation>
               </xs:element>
               <xs:element name="description" maxOccurs="1" minOccurs="1" type="xs:string">

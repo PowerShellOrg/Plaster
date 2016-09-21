@@ -199,8 +199,8 @@ function Invoke-Plaster {
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
         $templateVersion = $manifest.plasterManifest.metadata.version
-        $templateBaseName = [System.IO.Path]::GetFileNameWithoutExtension($TemplatePath)
-        $storeFilename = "$templateBaseName-$templateVersion-$templateId.clixml"
+        $templateName = $manifest.plasterManifest.metadata.name
+        $storeFilename = "$templateName-$templateVersion-$templateId.clixml"
         $defaultValueStorePath = Join-Path $ParameterDefaultValueStoreRootPath $storeFilename
         if (Test-Path $defaultValueStorePath) {
             try {
