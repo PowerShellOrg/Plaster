@@ -2,7 +2,7 @@
 
 Describe 'New-PlasterManifest Command Tests' {
     Context 'Generates a valid manifest' {
-        It 'Works with just Path and Id' {
+        It 'Works with just Path, Name and Id' {
             CleanDir $TemplateDir
             CleanDir $OutDir
 
@@ -11,9 +11,10 @@ Describe 'New-PlasterManifest Command Tests' {
 <plasterManifest
   schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
+    <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
     <version>1.0.0</version>
-    <title></title>
+    <title>TemplateName</title>
     <description></description>
     <author></author>
     <tags></tags>
@@ -23,7 +24,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521'
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             $actualManifest = Get-Content $plasterPath -Raw
             $actualManifest | Should BeExactly $expectedManifest
@@ -38,9 +39,10 @@ Describe 'New-PlasterManifest Command Tests' {
 <plasterManifest
   schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
+    <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
     <version>1.0.0</version>
-    <title></title>
+    <title>TemplateName</title>
     <description>This is &lt;cool&gt; &amp; awesome.</description>
     <author></author>
     <tags></tags>
@@ -50,7 +52,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Description "This is <cool> & awesome."
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Description "This is <cool> & awesome."
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             $actualManifest = Get-Content $plasterPath -Raw
             $actualManifest | Should BeExactly $expectedManifest
@@ -65,9 +67,10 @@ Describe 'New-PlasterManifest Command Tests' {
 <plasterManifest
   schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
+    <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
     <version>1.0.0</version>
-    <title></title>
+    <title>TemplateName</title>
     <description></description>
     <author></author>
     <tags>Bag&amp;Tag, Foo, Bar, Baz boy</tags>
@@ -77,7 +80,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Tags "Bag&Tag", Foo, Bar, "Baz boy"
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Tags "Bag&Tag", Foo, Bar, "Baz boy"
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             $actualManifest = Get-Content $plasterPath -Raw
             $actualManifest | Should BeExactly $expectedManifest
@@ -92,9 +95,10 @@ Describe 'New-PlasterManifest Command Tests' {
 <plasterManifest
   schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
+    <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
     <version>1.0.0</version>
-    <title></title>
+    <title>TemplateName</title>
     <description></description>
     <author></author>
     <tags></tags>
@@ -125,7 +129,7 @@ Describe 'New-PlasterManifest Command Tests' {
 
             $plasterPath = "$OutDir\plasterManifest.xml"
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -AddContent
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -AddContent
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             $actualManifest = Get-Content $plasterPath -Raw
             $actualManifest | Should BeExactly $expectedManifest

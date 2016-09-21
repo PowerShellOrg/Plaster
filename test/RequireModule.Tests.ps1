@@ -11,9 +11,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -36,9 +37,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -61,9 +63,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -86,9 +89,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -113,9 +117,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -141,9 +146,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -166,9 +172,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -191,9 +198,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -216,9 +224,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -244,9 +253,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -269,9 +279,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -299,9 +310,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -327,9 +339,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -355,9 +368,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>
@@ -378,9 +392,10 @@ Describe 'RequireModule Directive Tests' {
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
+        <version>0.2.0</version>
+        <name>TemplateName</name>
         <title>Testing</title>
         <description>Manifest file for testing.</description>
-        <version>0.2.0</version>
         <tags></tags>
     </metadata>
     <content>

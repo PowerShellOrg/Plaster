@@ -4,8 +4,9 @@
         <!-- For the default store file, we need a unique identifier to ensure one template's default value store
              doesn't get used with any other template.  -->
         <id>38bd80d9-3a47-4916-9220-bed383d90876</id>
+        <name>NewPowerShellModule</name>
         <!-- For display by UI's in a menu list -->
-        <title>New Module Project</title>
+        <title>New PowerShell Module</title>
         <!-- For display by UI's in hover help -->
         <description>Plaster template for creating the files for a PowerShell module.</description>
         <version>0.2.0</version>
@@ -60,14 +61,14 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
 
         </message>
 
-        <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
+        <newModuleManifest destination='src\${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                            author='$PLASTER_PARAM_FullName'
                            description='$PLASTER_PARAM_ModuleDesc'
                            encoding='UTF8-NoBOM'/>
         <file source='Module.psm1'
-              destination='${PLASTER_PARAM_ModuleName}.psm1'/>
+              destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='_gitignore'
               destination='.gitignore'
               condition='$PLASTER_PARAM_Options -contains "Git"'/>
@@ -87,7 +88,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <templateFile source='en-US\about_Module.help.txt'
                       destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
         <templateFile source='Tests\Module.T.ps1'
-                      destination='Tests\${PLASTER_PARAM_ModuleName}.Tests.ps1'
+                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1'
                       condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
         <templateFile source='RecurseTemplateFile\**'
                       destination='Recurse'

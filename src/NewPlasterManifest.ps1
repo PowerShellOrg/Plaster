@@ -44,6 +44,13 @@ function New-PlasterManifest {
         [string]
         $Path = "$pwd\plasterManifest.xml",
 
+        # Specifies the name of the template.  A template name is required.  For localized manifests, thie field
+        # should not be localized.
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Name,
+
         # Unique identifier for all versions of this template.  The id is a GUID.  Use the same id for each version
         # of your template.  This will prevent editor environments from listing multiple, installed versions of your
         # template. When the id stays the same, the editor will list only the latest version of your template.
@@ -63,7 +70,7 @@ function New-PlasterManifest {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Title,
+        $Title = $Name,
 
         # Description of the Plaster template.  This is a longer descrition of what the the template is for. It
         # is typically used in an editor like VSCode when displaying additional information about a Plaster template.
@@ -100,6 +107,7 @@ function New-PlasterManifest {
     xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
 
     <metadata>
+        <name></name>
         <id></id>
         <version></version>
         <title></title>
@@ -119,6 +127,7 @@ function New-PlasterManifest {
         $manifest = [xml]$manifestStr
 
         # Set via .innerText to get .NET to encode special XML chars as entity references.
+        $manifest.plasterManifest.metadata["name"].innerText = "$Name"
         $manifest.plasterManifest.metadata["id"].innerText = "$Id"
         $manifest.plasterManifest.metadata["version"].innerText = "$TemplateVersion"
         $manifest.plasterManifest.metadata["title"].innerText = "$Title"

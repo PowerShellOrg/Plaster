@@ -4,8 +4,9 @@
         <!-- For the default store file, we need a unique identifier to ensure one template's default value store
              doesn't get used with any other template.  -->
         <id>38bd80d9-3a47-4916-9220-bed383d90876</id>
+        <name>NewPowerShellModule</name>
         <!-- For display by UI's in a menu list -->
-        <title>Nouveau Module projet</title>
+        <title>Nouveau PowerShell Module</title>
         <!-- For display by UI's in hover help -->
         <description>Modèle de plâtre pour créer les fichiers d’un module de PowerShell.</description>
         <version>0.2.0</version>
