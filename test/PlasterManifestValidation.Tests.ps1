@@ -215,7 +215,7 @@ Describe 'Module Error Handling Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
-        <name>TemplateName</name>
+        <name>Testing</name>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
         <version>0.2.0</version>
         <title>Testing</title>
@@ -223,7 +223,7 @@ Describe 'Module Error Handling Tests' {
         <tags></tags>
     </metadata>
     <content>
-        <modify path='..\tasks-should-not-be-here.json' encoding='UTF8'
+        <modify path='$env:LOCALAPPDATA\tasks-should-not-be-here.json' encoding='UTF8'
                 condition="$false">
             <replace>
                 <original>(?s)^(.*)</original>
