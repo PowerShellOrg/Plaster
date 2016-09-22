@@ -227,7 +227,7 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
     }
 }
 
-Task Install -depends Test {
+Task Install -depends Build {
     if (-not (Test-Path -Path $InstallPath)) {
         Write-Verbose -Message 'Creating local install directory'
         New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
@@ -245,7 +245,7 @@ Task Test -depends Build {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
         $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
 
-        if (($taskList -contains 'publish') -and ($TestResult.FailedCount -gt 0)) {
+        if ($TestResult.FailedCount -gt 0) {
             Assert $false "One or more Pester tests for the module failed. Build cannot continue!"
         }
     }
