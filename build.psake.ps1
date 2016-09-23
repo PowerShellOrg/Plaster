@@ -124,7 +124,7 @@ Properties {
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
-    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())" 
+    $InstallPath = $null
 
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
@@ -228,6 +228,11 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
 }
 
 Task Install -depends Build {
+    if ($InstallPath -eq $null) {
+        # The default installation path is the user's PSModulePath
+        $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())"
+    }
+
     if (-not (Test-Path -Path $InstallPath)) {
         Write-Verbose -Message 'Creating local install directory'
         New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
