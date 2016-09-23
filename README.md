@@ -1,6 +1,6 @@
 # Plaster
 
-[![Join the chat at https://gitter.im/PowerShell/Plaster](https://badges.gitter.im/PowerShell/Plaster.svg)](https://gitter.im/PowerShell/Plaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster) [![Join the chat at https://gitter.im/PowerShell/Plaster](https://badges.gitter.im/PowerShell/Plaster.svg)](https://gitter.im/PowerShell/Plaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Plaster is a template-based file and project generator written in PowerShell.  Its purpose is to
 streamline the creation of PowerShell module projects, Pester tests, DSC configurations,
