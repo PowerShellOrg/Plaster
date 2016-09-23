@@ -4,7 +4,9 @@ $TemplateDir         = "$PSScriptRoot\TemplateRootTemp"
 $OutDir              = "$PSScriptRoot\Out"
 $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
 
-Import-Module $ModulePath
+# -Scope Global is needed when running tests from inside of psake, otherwise
+# the module's functions cannot be found in the Plaster\ namespace
+Import-Module $ModulePath -Scope Global
 
 function CleanDir {
     param(
