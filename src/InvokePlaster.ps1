@@ -14,6 +14,7 @@ Please follow the scripting style of this file when adding new script.
 
 # Constrained runspace used to expand manifest attribute strings and evaluates conditions
 $ConstrainedRunspace = $null
+$DestinationAbsolutePath = $null
 
 <#
 .SYNOPSIS
@@ -74,6 +75,9 @@ function Invoke-Plaster {
             # Let's convert non-terminating errors in this function to terminating so we
             # catch and format the error message as a warning.
             $ErrorActionPreference = 'Stop'
+
+            # Needs to be set for the ConstrainedRunspace to have its working directory set correctly.
+            $script:DestinationAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
             $resolvedTemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
             if (!(Test-Path -LiteralPath $resolvedTemplatePath -PathType Container)) {
@@ -194,7 +198,8 @@ function Invoke-Plaster {
             Write-Host ("=" * 50)
         }
 
-        InitializePredefinedVariables $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+        $script:DestinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+        InitializePredefinedVariables $script:DestinationAbsolutePath
 
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
@@ -987,10 +992,10 @@ function Invoke-Plaster {
             }
         }
         finally {
-            # Dispose of the constrained runspace.
-            if ($script:Runspace) {
-                $script.Runspace.Dispose()
-                $script.Runspace = $null
+            # Dispose of the ConstrainedRunspace.
+            if ($script:ConstrainedRunspace) {
+                $script:ConstrainedRunspace.Dispose()
+                $script:ConstrainedRunspace = $null
             }
         }
     }
@@ -1004,12 +1009,12 @@ function Invoke-Plaster {
 ██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
 #>
 
-function InitializePredefinedVariables([string]$destPath) {
+function InitializePredefinedVariables([string]$DestPath) {
     # Always set these variables, even if the command has been run with -WhatIf
     $WhatIfPreference = $false
 
-    $destName = Split-Path -Path $destPath -Leaf
-    Set-Variable -Name PLASTER_DestinationPath -Value $destPath.TrimEnd('\','/') -Scope Script
+    $destName = Split-Path -Path $DestPath -Leaf
+    Set-Variable -Name PLASTER_DestinationPath -Value $DestPath.TrimEnd('\','/') -Scope Script
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
     Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
 
@@ -1065,6 +1070,9 @@ function NewConstrainedRunspace() {
     $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment',([Microsoft.PowerShell.Commands.EnvironmentProvider]),$null
     $iss.Providers.Add($sspe)
 
+    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
+    $iss.Providers.Add($sspe)
+
     # Uncomment for debugging runspace capabilities
     # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
     # $iss.Commands.Add($ssce)
@@ -1084,6 +1092,9 @@ function NewConstrainedRunspace() {
     $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Module',([Microsoft.PowerShell.Commands.GetModuleCommand]),$null
     $iss.Commands.Add($ssce)
 
+    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
+    $iss.Commands.Add($ssce)
+
     $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
     $plasterVars = Get-Variable -Name PLASTER_*
     foreach ($var in $plasterVars) {
@@ -1091,8 +1102,14 @@ function NewConstrainedRunspace() {
         $iss.Variables.Add($ssve)
     }
 
+    # Create new runspace with the above defined entries. Then open and set its working dir to $DestinationAbsolutePath
+    # so all condition attribute expressions can use a relative path to refer to file paths e.g.
+    # condition="Test-Path src\${PLASTER_PARAM_ModuleName}.psm1"
     $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
     $runspace.Open()
+    if ($script:DestinationAbsolutePath) {
+        $runspace.SessionStateProxy.Path.SetLocation($script:DestinationAbsolutePath) > $null
+    }
     $runspace
 }
 
