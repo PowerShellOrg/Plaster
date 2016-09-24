@@ -76,7 +76,7 @@ function Invoke-Plaster {
             # catch and format the error message as a warning.
             $ErrorActionPreference = 'Stop'
 
-            # Needs to be set for the ConstrainedRunspace to have its working directoyr set correctly.
+            # Needs to be set for the ConstrainedRunspace to have its working directory set correctly.
             $script:DestinationAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
 
             $resolvedTemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
