@@ -1102,9 +1102,9 @@ function NewConstrainedRunspace() {
         $iss.Variables.Add($ssve)
     }
 
-    # Create new runspace withe defined entries, open and set its working dir to $DestinationPath
-    # so all condition attriute expressions can use a relative path to refer to file paths e.g.
-    # Test-Path src\${PLASTER_PARAM_ModuleName}.psm1
+    # Create new runspace with the above defined entries. Then open and set its working dir to $DestinationAbsolutePath
+    # so all condition attribute expressions can use a relative path to refer to file paths e.g.
+    # condition="Test-Path src\${PLASTER_PARAM_ModuleName}.psm1"
     $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
     $runspace.Open()
     if ($script:DestinationAbsolutePath) {
