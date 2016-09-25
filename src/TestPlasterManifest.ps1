@@ -140,10 +140,11 @@ function Test-PlasterManifest {
             $manifestSchemaVersion = [System.Version]$manifest.plasterManifest.schemaVersion
 
             # Use a simplified form (no patch version) of semver for checking XML schema version compatibility.
-            if (($manifestSchemaVersion.Major -ne $LatestSupportedSchemaVersion.Major) -or
-                ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor)) {
+            if (($manifestSchemaVersion.Major -gt $LatestSupportedSchemaVersion.Major) -or
+                (($manifestSchemaVersion.Major -eq $LatestSupportedSchemaVersion.Major) -and
+                 ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor))) {
 
-                Write-Error  ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
+                Write-Error ($LocalizedData.ManifestSchemaVersionNotSupported_F1 -f $manifestSchemaVersion)
                 return
             }
 
