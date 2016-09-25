@@ -84,11 +84,8 @@ function Invoke-Plaster {
                 throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $resolvedTemplatePath)
             }
 
-            # If TemplatePath is a zipped template, extract the template to a temp dir and use that path
-            $TemplatePath = ExtractTemplateAndReturnPath $resolvedTemplatePath
-
             # Load manifest file using culture lookup
-            $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
+            $manifestPath = GetPlasterManifestPathForCulture $resolvedTemplatePath $PSCulture
             if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
                 return
             }
@@ -180,8 +177,7 @@ function Invoke-Plaster {
         # or it wasn't valid. If so, let's try to load it here. If anything, we can provide better errors here.
         if ($null -eq $manifest) {
             if ($null -eq $manifestPath) {
-                $TemplatePath = ExtractTemplateAndReturnPath $resolvedTemplatePath
-                $manifestPath = GetPlasterManifestPathForCulture $TemplatePath $PSCulture
+                $manifestPath = GetPlasterManifestPathForCulture $resolvedTemplatePath $PSCulture
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
