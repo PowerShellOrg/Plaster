@@ -1,0 +1,26 @@
+os:
+  - "WMF 5"
+
+branches:
+  only:
+    - master
+
+install:
+  - ps: |
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+      Install-Module Pester -MinimumVersion 3.4.0 -Scope CurrentUser -Force | Out-Null
+      Install-Module psake -Scope CurrentUser -Force | Out-Null
+
+build_script:
+  - ps: |
+      $testResultsFile = Join-Path $pwd -ChildPath "./TestResults.xml"
+      Invoke-psake build.psake.ps1 -taskList Test -properties @{"TestOutputFile" = $testResultsFile}
+      if ($psake.build_success -and (Test-Path $testResultsFile)) {
+        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsFile)
+      }
+      else {
+        # Terminate the script to fail the build
+        exit 1;
+      }
+
+

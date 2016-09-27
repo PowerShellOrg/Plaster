@@ -1,3 +1,7 @@
+# Debug unit tests
+# Invoke-Pester $PSScriptRoot\..\test
+# return
+
 # Use this file to debug the module.
 Import-Module $PSScriptRoot\..\src\Plaster.psd1
 
