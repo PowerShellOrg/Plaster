@@ -12,10 +12,6 @@ processed not only in the ProcessParameter function but also in the dynamicparam
 Please follow the scripting style of this file when adding new script.
 #>
 
-# Constrained runspace used to expand manifest attribute strings and evaluates conditions
-$ConstrainedRunspace = $null
-$DestinationAbsolutePath = $null
-
 <#
 .SYNOPSIS
     Invokes the specified Plaster template which will scaffold out a file or set of files.
@@ -63,8 +59,10 @@ function Invoke-Plaster {
     # Process the template's Plaster manifest file to convert parameters defined there into dynamic parameters.
     dynamicparam {
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+
         $manifest = $null
         $manifestPath = $null
+        $templateAbsolutePath = $null
 
         # Nothing to do until the TemplatePath parameter has been provided.
         if ($null -eq $TemplatePath) {
@@ -76,16 +74,18 @@ function Invoke-Plaster {
             # catch and format the error message as a warning.
             $ErrorActionPreference = 'Stop'
 
-            # Needs to be set for the ConstrainedRunspace to have its working directory set correctly.
-            $script:DestinationAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+            # The constrained runspace is not available in the dynamicparam block.  Shouldn't be needed
+            # since we are only evaluating the parameters in the manifest - no need for condition eval as we
+            # are not building up multiple parametersets.  And no need for ExpandString since we are only
+            # grabbing the parameter's value which is static.
+            $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
 
-            $resolvedTemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
-            if (!(Test-Path -LiteralPath $resolvedTemplatePath -PathType Container)) {
-                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $resolvedTemplatePath)
+            if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
+                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
             }
 
             # Load manifest file using culture lookup
-            $manifestPath = GetPlasterManifestPathForCulture $resolvedTemplatePath $PSCulture
+            $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
             if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
                 return
             }
@@ -125,7 +125,7 @@ function Invoke-Plaster {
                         $i = 0
 
                         foreach ($choiceNode in $choiceNodes){
-                            $setValues[$i++] = ExpandString $choiceNode.value
+                            $setValues[$i++] = $choiceNode.value
                         }
 
                         $validateSetAttr = New-Object System.Management.Automation.ValidateSetAttribute $setValues
@@ -151,6 +151,7 @@ function Invoke-Plaster {
 
     begin {
         $boundParameters = $PSBoundParameters
+        $constrainedRunspace = $null
         $templateCreatedFiles = @{}
         $defaultValueStore = @{}
         $fileConflictConfirmNoToAll = $false
@@ -168,16 +169,16 @@ function Invoke-Plaster {
 '@
 
         # Verify TemplatePath parameter value is valid.
-        $resolvedTemplatePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
-        if (!(Test-Path -LiteralPath $resolvedTemplatePath -PathType Container)) {
-            throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $resolvedTemplatePath)
+        $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+        if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
+            throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
         }
 
         # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest
         # or it wasn't valid. If so, let's try to load it here. If anything, we can provide better errors here.
         if ($null -eq $manifest) {
             if ($null -eq $manifestPath) {
-                $manifestPath = GetPlasterManifestPathForCulture $resolvedTemplatePath $PSCulture
+                $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
@@ -194,8 +195,9 @@ function Invoke-Plaster {
             Write-Host ("=" * 50)
         }
 
-        $script:DestinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-        InitializePredefinedVariables $script:DestinationAbsolutePath
+        # Create the pre-defined Plaster variables.
+        $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+        InitializePredefinedVariables $destinationAbsolutePath
 
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
@@ -210,6 +212,115 @@ function Invoke-Plaster {
             }
             catch {
                 Write-Warning ($LocalizedData.ErrorFailedToLoadStoreFile_F1 -f $defaultValueStorePath)
+            }
+        }
+
+        function NewConstrainedRunspace() {
+            $iss = [System.Management.Automation.Runspaces.InitialSessionState]::Create()
+            $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+            $iss.LanguageMode = [System.Management.Automation.PSLanguageMode]::ConstrainedLanguage
+            $iss.DisableFormatUpdates = $true
+
+            $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment',([Microsoft.PowerShell.Commands.EnvironmentProvider]),$null
+            $iss.Providers.Add($sspe)
+
+            $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
+            $iss.Providers.Add($sspe)
+
+            # Uncomment for debugging runspace capabilities
+            # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
+            # $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Date',([Microsoft.PowerShell.Commands.GetDateCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ChildItem',([Microsoft.PowerShell.Commands.GetChildItemCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Item',([Microsoft.PowerShell.Commands.GetItemCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ItemProperty',([Microsoft.PowerShell.Commands.GetItemPropertyCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Module',([Microsoft.PowerShell.Commands.GetModuleCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
+            $plasterVars = Get-Variable -Name PLASTER_*
+            foreach ($var in $plasterVars) {
+                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry $var.Name,$var.Value,$var.Description,$scopedItemOptions
+                $iss.Variables.Add($ssve)
+            }
+
+            # Create new runspace with the above defined entries. Then open and set its working dir to $destinationAbsolutePath
+            # so all condition attribute expressions can use a relative path to refer to file paths e.g.
+            # condition="Test-Path src\${PLASTER_PARAM_ModuleName}.psm1"
+            $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
+            $runspace.Open()
+            if ($destinationAbsolutePath) {
+                $runspace.SessionStateProxy.Path.SetLocation($destinationAbsolutePath) > $null
+            }
+            $runspace
+        }
+
+        function ExpandString($Str) {
+            if ($null -eq $Str) {
+                return [string]::Empty
+            }
+            elseif ([string]::IsNullOrWhiteSpace($Str)) {
+                return $Str
+            }
+
+            try {
+                $powershell = [PowerShell]::Create()
+
+                if ($null -eq $constrainedRunspace) {
+                    $constrainedRunspace = NewConstrainedRunspace
+                }
+                $powershell.Runspace = $constrainedRunspace
+
+                $powershell.AddScript("`"$Str`"") > $null
+                $res = $powershell.Invoke()
+                $res[0]
+
+                if ($powershell.Streams.Error.Count -gt 0) {
+                    $err = $powershell.Streams.Error[0]
+                    throw ($LocalizedData.SubstitutionExpressionError_F2 -f $Str,$err)
+                }
+            }
+            finally {
+                if ($powershell) {
+                    $powershell.Dispose()
+                }
+            }
+        }
+
+        function EvaluateCondition([string]$Expression) {
+            try {
+                $powershell = [PowerShell]::Create()
+
+                if ($null -eq $constrainedRunspace) {
+                    $constrainedRunspace = NewConstrainedRunspace
+                }
+                $powershell.Runspace = $constrainedRunspace
+
+                $powershell.AddScript($Expression) > $null
+                $res = $powershell.Invoke()
+                [bool]$res[0]
+
+                if ($powershell.Streams.Error.Count -gt 0) {
+                    $err = $powershell.Streams.Error[0]
+                    throw ($LocalizedData.InvalidConditionExpression_F2 -f $Str,$err)
+                }
+            }
+            finally {
+                if ($powershell) {
+                    $powershell.Dispose()
+                }
             }
         }
 
@@ -541,8 +652,8 @@ function Invoke-Plaster {
         }
 
         function ExpandFileSourceSpec([string]$srcRelPath, [string]$dstRelPath) {
-            $srcPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $TemplatePath $srcRelPath))
-            $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
+            $srcPath = Join-Path $templateAbsolutePath $srcRelPath
+            $dstPath = Join-Path $destinationAbsolutePath $dstRelPath
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
                 # No wildcard spec in srcRelPath so return info on single file.
@@ -989,9 +1100,9 @@ function Invoke-Plaster {
         }
         finally {
             # Dispose of the ConstrainedRunspace.
-            if ($script:ConstrainedRunspace) {
-                $script:ConstrainedRunspace.Dispose()
-                $script:ConstrainedRunspace = $null
+            if ($constrainedRunspace) {
+                $constrainedRunspace.Dispose()
+                $constrainedRunspace = $null
             }
         }
     }
@@ -1055,115 +1166,6 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
     }
 
     $null
-}
-
-function NewConstrainedRunspace() {
-    $iss = [System.Management.Automation.Runspaces.InitialSessionState]::Create()
-    $iss.ApartmentState = [System.Threading.ApartmentState]::STA
-    $iss.LanguageMode = [System.Management.Automation.PSLanguageMode]::ConstrainedLanguage
-    $iss.DisableFormatUpdates = $true
-
-    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment',([Microsoft.PowerShell.Commands.EnvironmentProvider]),$null
-    $iss.Providers.Add($sspe)
-
-    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
-    $iss.Providers.Add($sspe)
-
-    # Uncomment for debugging runspace capabilities
-    # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
-    # $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Date',([Microsoft.PowerShell.Commands.GetDateCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ChildItem',([Microsoft.PowerShell.Commands.GetChildItemCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Item',([Microsoft.PowerShell.Commands.GetItemCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-ItemProperty',([Microsoft.PowerShell.Commands.GetItemPropertyCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Module',([Microsoft.PowerShell.Commands.GetModuleCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
-    $iss.Commands.Add($ssce)
-
-    $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
-    $plasterVars = Get-Variable -Name PLASTER_*
-    foreach ($var in $plasterVars) {
-        $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry $var.Name,$var.Value,$var.Description,$scopedItemOptions
-        $iss.Variables.Add($ssve)
-    }
-
-    # Create new runspace with the above defined entries. Then open and set its working dir to $DestinationAbsolutePath
-    # so all condition attribute expressions can use a relative path to refer to file paths e.g.
-    # condition="Test-Path src\${PLASTER_PARAM_ModuleName}.psm1"
-    $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
-    $runspace.Open()
-    if ($script:DestinationAbsolutePath) {
-        $runspace.SessionStateProxy.Path.SetLocation($script:DestinationAbsolutePath) > $null
-    }
-    $runspace
-}
-
-function ExpandString($Str) {
-    if ($null -eq $Str) {
-        return [string]::Empty
-    }
-    elseif ([string]::IsNullOrWhiteSpace($Str)) {
-        return $Str
-    }
-
-    try {
-        $powershell = [PowerShell]::Create()
-
-        if ($null -eq $script:ConstrainedRunspace) {
-            $script:ConstrainedRunspace = NewConstrainedRunspace
-        }
-        $powershell.Runspace = $script:ConstrainedRunspace
-
-        $powershell.AddScript("`"$Str`"") > $null
-        $res = $powershell.Invoke()
-        $res[0]
-
-        if ($powershell.Streams.Error.Count -gt 0) {
-            $err = $powershell.Streams.Error[0]
-            throw ($LocalizedData.SubstitutionExpressionError_F2 -f $Str,$err)
-        }
-    }
-    finally {
-        if ($powershell) {
-            $powershell.Dispose()
-        }
-    }
-}
-
-function EvaluateCondition([string]$Expression) {
-    try {
-        $powershell = [PowerShell]::Create()
-
-        if ($null -eq $script:ConstrainedRunspace) {
-            $script:ConstrainedRunspace = NewConstrainedRunspace
-        }
-        $powershell.Runspace = $script:ConstrainedRunspace
-
-        $powershell.AddScript($Expression) > $null
-        $res = $powershell.Invoke()
-        [bool]$res[0]
-
-        if ($powershell.Streams.Error.Count -gt 0) {
-            $err = $powershell.Streams.Error[0]
-            throw ($LocalizedData.InvalidConditionExpression_F2 -f $Str,$err)
-        }
-    }
-    finally {
-        if ($powershell) {
-            $powershell.Dispose()
-        }
-    }
 }
 
 function ConvertToDestinationRelativePath($Path) {
