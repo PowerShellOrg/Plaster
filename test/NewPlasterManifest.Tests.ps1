@@ -1,5 +1,12 @@
 . $PSScriptRoot\Shared.ps1
 
+function CompareManifestContent($expectedManifest, $actualManifestPath) {
+    # Compare the manifests while accounting for possible newline incompatiblity
+    $expectedManifest = $expectedManifest -replace "`r`n", "`n"
+    $actualManifest = (Get-Content $plasterPath -Raw) -replace "`r`n", "`n"
+    $actualManifest | Should BeExactly $expectedManifest
+}
+
 Describe 'New-PlasterManifest Command Tests' {
     Context 'Generates a valid manifest' {
         It 'Works with just Path, Name and Id' {
@@ -26,8 +33,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
-            $actualManifest = Get-Content $plasterPath -Raw
-            $actualManifest | Should BeExactly $expectedManifest
+            CompareManifestContent $expectedManifest $plasterPath
         }
 
         It 'Properly encode XML special chars and entity refs' {
@@ -54,8 +60,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Description "This is <cool> & awesome."
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
-            $actualManifest = Get-Content $plasterPath -Raw
-            $actualManifest | Should BeExactly $expectedManifest
+            CompareManifestContent $expectedManifest $plasterPath
         }
 
         It 'Captures tags correctly' {
@@ -82,8 +87,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Tags "Bag&Tag", Foo, Bar, "Baz boy"
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
-            $actualManifest = Get-Content $plasterPath -Raw
-            $actualManifest | Should BeExactly $expectedManifest
+            CompareManifestContent $expectedManifest $plasterPath
         }
 
         It 'AddContent parameter works' {
@@ -131,8 +135,7 @@ Describe 'New-PlasterManifest Command Tests' {
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -AddContent
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
-            $actualManifest = Get-Content $plasterPath -Raw
-            $actualManifest | Should BeExactly $expectedManifest
+            CompareManifestContent $expectedManifest $plasterPath
         }
     }
 }

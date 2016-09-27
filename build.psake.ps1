@@ -124,12 +124,21 @@ Properties {
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
-    $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())" 
+    $InstallPath = $null
 
     # The following items will not be copied to the $PublishDir. Typically you
     # wouldn't put any file under the src dir unless the file was going to ship with
     # the module. However, if there are such files, add them to the exclude list below.
     $Exclude = @()
+
+    # Specifies an output file path to send to Invoke-Pester's -OutputFile parameter.
+    # This is typically used to write out test results so that they can be sent to a CI
+    # system like AppVeyor.
+    $TestOutputFile = $null
+
+    # Specifies the test output format to use when the TestOutputFile property is given
+    # a path.  This parameter is passed through to Invoke-Pester's -OutputFormat parameter.
+    $TestOutputFormat = "NUnitXml"
 }
 
 ###############################################################################
@@ -228,6 +237,11 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
 }
 
 Task Install -depends Build {
+    if ($InstallPath -eq $null) {
+        # The default installation path is the user's PSModulePath
+        $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())"
+    }
+
     if (-not (Test-Path -Path $InstallPath)) {
         Write-Verbose -Message 'Creating local install directory'
         New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
@@ -241,13 +255,18 @@ Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
 
 Task Test -depends Build {
     Import-Module Pester
+
     try {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
-        $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
 
-        if ($TestResult.FailedCount -gt 0) {
-            Assert $false "One or more Pester tests for the module failed. Build cannot continue!"
+        if ($TestOutputFile -ne $null) {
+            $TestResult = Invoke-Pester -OutputFile $TestOutputFile -OutputFormat $TestOutputFormat -PassThru -Verbose:$VerbosePreference
         }
+        else {
+            $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
+        }
+
+        Assert ($TestResult.FailedCount -eq 0) "One or more Pester tests failed, build cannot continue."
     }
     finally {
         Microsoft.PowerShell.Management\Pop-Location

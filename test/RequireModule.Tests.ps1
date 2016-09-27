@@ -107,7 +107,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'It finds module based on requiredVersion' {
-            $version = (Get-Module Microsoft.PowerShell.Management).Version.ToString()
+            $version = (Get-Module -ListAvailable Microsoft.PowerShell.Management).Version.ToString()
 
             CleanDir $TemplateDir
             CleanDir $OutDir

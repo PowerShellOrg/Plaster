@@ -62,24 +62,6 @@ $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultEncoding')]
 $DefaultEncoding = 'Default'
 
-# Shared, private helper functions
-function ExtractTemplateAndReturnPath([string]$TemplatePath) {
-    $item = Get-Item -LiteralPath $TemplatePath
-
-    if ($item.Attributes -band [System.IO.FileAttributes]::Directory) {
-        $item.FullName
-    }
-    else {
-        do {
-            $tempPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
-        } while (Test-Path -LiteralPath $tempPath)
-
-        [void](New-Item $tempPath -ItemType Directory)
-        [void](Microsoft.PowerShell.Archive\Expand-Archive -LiteralPath $TemplatePath -DestinationPath $tempPath)
-        $tempPath
-    }
-}
-
 # Dot source the module command scripts
 . $PSScriptRoot\NewPlasterManifest.ps1
 . $PSScriptRoot\TestPlasterManifest.ps1
