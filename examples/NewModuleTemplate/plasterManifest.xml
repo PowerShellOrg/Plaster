@@ -25,6 +25,9 @@
             <choice label='P&amp;Sake build script'
                     help="Adds a PSake build script that generates the module directory for publishing to the PSGallery."
                     value="PSake"/>
+            <choice label='PlatyPS &amp;documentation support'
+                    help="Adds documentation support using PlatyPS."
+                    value="PlatyPS"/>
             <choice label='&amp;Git'
                     help="Adds a .gitignore file."
                     value="Git"/>
@@ -75,6 +78,9 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <file source='build*.ps1'
               destination=''
               condition='$PLASTER_PARAM_Options -contains "PSake"'/>
+        <file source=''
+              destination='docs\'
+              condition='$PLASTER_PARAM_Options -contains "PlatyPS"'/>
         <!-- Recursively copy all *files* into the corresponding directory structure under dest dir RecurseFile -->
         <file source='RecurseFile\**'
               destination='Recurse'/>
@@ -156,6 +162,9 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "PSake"'
             message="Without psake, you will not be able to run the provided build script to build and/or publish your module."/>
 
+        <requireModule name="PlatyPS" condition='$PLASTER_PARAM_Options -contains "PlatyPS"'
+            message="Without PlatyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
+
         <message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
         <message nonewline='true' condition="$PLASTER_PARAM_Options -contains 'Git'">with Git version control </message>
         <message>has been created.</message>
@@ -169,6 +178,13 @@ You can publish your project to the PSGallery by pressing Ctrl+P, then type 'tas
         <message condition="$PLASTER_PARAM_Options -contains 'Pester'">
 A Pester test has been created to validate the module's manifest file.  Add additional test to the Tests directory.
 You can run the Pester tests in your project by executing the 'test' task by pressing Ctrl+P, then type 'task test'.
+
+        </message>
+
+        <message condition="$PLASTER_PARAM_Options -contains 'PlatyPS'">
+You can generate help and additional documentation using PlatyPS by running the 'docs' task by pressing Ctrl+P,
+then type 'task docs'.  Add additional documentation written in PlatyPS markdown to the docs directory. You can
+update the docs by running the 'docs' task again.
 
         </message>
     </content>
