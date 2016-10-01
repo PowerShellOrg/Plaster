@@ -41,8 +41,15 @@ function Test-PlasterManifest {
 
     begin {
         $schemaPath = "$PSScriptRoot\Schema\PlasterManifest-v1.xsd"
-        $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
-        $xmlSchemaSet.Add($targetNamespace, $schemaPath) > $null
+
+        # Schema validation is not available on .NET Core - at the moment.
+        if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
+            $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
+            $xmlSchemaSet.Add($targetNamespace, $schemaPath) > $null
+        }
+        else {
+            $PSCmdLet.WriteWarning($LocalizedData.TestPlasterNoXmlSchemaValidationWarning)
+        }
     }
 
     process {
@@ -52,7 +59,7 @@ function Test-PlasterManifest {
             $ex = New-Object System.Management.Automation.ItemNotFoundException ($LocalizedData.ErrorPathDoesNotExist_F1 -f $Path)
             $category = [System.Management.Automation.ErrorCategory]::ObjectNotFound
             $errRecord = New-Object System.Management.Automation.ErrorRecord $ex,'PathNotFound',$category,$Path
-            $psCmdlet.WriteError($errRecord)
+            $PSCmdLet.WriteError($errRecord)
             return
         }
 
@@ -94,22 +101,29 @@ function Test-PlasterManifest {
 
         # Configure an XmlReader and XmlReaderSettings to perform schema validation on xml file.
         $xmlReaderSettings = New-Object System.Xml.XmlReaderSettings
-        $xmlReaderSettings.ValidationFlags = [System.Xml.Schema.XmlSchemaValidationFlags]::ReportValidationWarnings
-        $xmlReaderSettings.ValidationType = [System.Xml.ValidationType]::Schema
-        $xmlReaderSettings.Schemas = $xmlSchemaSet
 
-        # Event handler scriptblock for the ValidationEventHandler event.
-        $validationEventHandler = {
-            param($sender, $eventArgs)
-
-            if ($eventArgs.Severity -eq [System.Xml.Schema.XmlSeverityType]::Error)
-            {
-                Write-Verbose ($LocalizedData.ManifestSchemaValidationError_F1 -f $eventArgs.Message)
-                $manifestIsValid.Value = $false
-            }
+        # Schema validation is not available on .NET Core - at the moment.
+        if ($xmlSchemaSet) {
+            $xmlReaderSettings.ValidationFlags = [System.Xml.Schema.XmlSchemaValidationFlags]::ReportValidationWarnings
+            $xmlReaderSettings.ValidationType = [System.Xml.ValidationType]::Schema
+            $xmlReaderSettings.Schemas = $xmlSchemaSet
         }
 
-        $xmlReaderSettings.add_ValidationEventHandler($validationEventHandler)
+        # Schema validation is not available on .NET Core - at the moment.
+        if ($xmlSchemaSet) {
+            # Event handler scriptblock for the ValidationEventHandler event.
+            $validationEventHandler = {
+                param($sender, $eventArgs)
+
+                if ($eventArgs.Severity -eq [System.Xml.Schema.XmlSeverityType]::Error)
+                {
+                    Write-Verbose ($LocalizedData.ManifestSchemaValidationError_F1 -f $eventArgs.Message)
+                    $manifestIsValid.Value = $false
+                }
+            }
+
+            $xmlReaderSettings.add_ValidationEventHandler($validationEventHandler)
+        }
 
         [System.Xml.XmlReader]$xmlReader = $null
         try {
@@ -121,7 +135,10 @@ function Test-PlasterManifest {
             $manifestIsValid.Value = $false
         }
         finally {
-            $xmlReaderSettings.remove_ValidationEventHandler($validationEventHandler)
+            # Schema validation is not available on .NET Core - at the moment.
+            if ($xmlSchemaSet) {
+                $xmlReaderSettings.remove_ValidationEventHandler($validationEventHandler)
+            }
             if ($xmlReader) { $xmlReader.Dispose() }
         }
 
