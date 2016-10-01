@@ -23,3 +23,4 @@ $PlasterParams = @{
 }
 
 Invoke-Plaster @PlasterParams -Force
+#Invoke-Plaster -TemplatePath $PSScriptRoot\NewModuleTemplate -DestinationPath Out
