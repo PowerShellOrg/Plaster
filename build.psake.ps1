@@ -72,6 +72,10 @@ Properties {
     # root or a subdir such as src, module, <my-module-name>.
     $SourceRootDir = "$PSScriptRoot/src"
     $TestRootDir   = "$PSScriptRoot/test"
+    $DocsRootDir   = "$PSScriptRoot/docs"
+
+    # Default Locale used for documentation generatioon.
+    $DefaultLocale = 'en-US'
 
     # -------------------- Publishing properties ------------------------------
 
@@ -271,6 +275,21 @@ Task Test -depends Build {
     finally {
         Microsoft.PowerShell.Management\Pop-Location
     }
+}
+
+Task GenerateDocs -depends Build {
+    Import-Module "$PublishDir\$ModuleName.psd1" -Global
+    
+    if (Get-ChildItem $DocsRootDir -Include '*.md') {
+        Update-MarkdownHelp $DocsRootDir
+    }
+
+    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir -WithModulePage -ErrorAction SilentlyContinue | Out-Null
+    Remove-Module $ModuleName
+}
+
+Task BuildDocs -depends GenerateDocs {
+    New-ExternalHelp -Path $DocsRootDir -OutputPath "$PublishDir\$DefaultLocale" -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
 Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
