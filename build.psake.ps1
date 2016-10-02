@@ -284,8 +284,8 @@ Task GenerateDocs -depends Build {
 
     Import-Module "$PublishDir\$ModuleName.psd1" -Global
     
-    if (Get-ChildItem $DocsRootDir -Include '*.md' -Recurse) {
-        Update-MarkdownHelp $DocsRootDir
+    (Get-ChildItem -Path $DocsRootDir -Directory).FullName | ForEach-Object {
+        Update-MarkdownHelp -Path $_ | Out-Null
     }
 
     New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder "$DocsRootDir\$DefaultLocale" -WithModulePage -ErrorAction SilentlyContinue | Out-Null
