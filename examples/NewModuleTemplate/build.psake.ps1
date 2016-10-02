@@ -74,8 +74,8 @@ Properties {
     $TestRootDir   = "$PSScriptRoot/test"
     $DocsRootDir   = "$PSScriptRoot/docs"
 
-    # Default Locale used for documentation generatioon.
-    $DefaultLocale = 'en-US'
+    # Default Locale used for documentation generatioon, defaults to en-US.
+    $DefaultLocale = $null
 
     # -------------------- Publishing properties ------------------------------
 
@@ -278,18 +278,24 @@ Task Test -depends Build {
 }
 
 Task GenerateDocs -depends Build {
-    Import-Module "$PublishDir\$ModuleName.psd1" -Global
-    
-    if (Get-ChildItem $DocsRootDir -Include '*.md') {
-        Update-MarkdownHelp $DocsRootDir
+    if ($DefaultLocale -eq $null) {
+        $DefaultLocale = 'en-US'
     }
 
-    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir -WithModulePage -ErrorAction SilentlyContinue | Out-Null
+    Import-Module "$PublishDir\$ModuleName.psd1" -Global
+    
+    (Get-ChildItem -Path $DocsRootDir -Directory).FullName | ForEach-Object {
+        Update-MarkdownHelp -Path $_ | Out-Null
+    }
+
+    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder "$DocsRootDir\$DefaultLocale" -WithModulePage -ErrorAction SilentlyContinue | Out-Null
     Remove-Module $ModuleName
 }
 
 Task BuildDocs -depends GenerateDocs {
-    New-ExternalHelp -Path $DocsRootDir -OutputPath "$PublishDir\$DefaultLocale" -Force -ErrorAction SilentlyContinue | Out-Null
+    foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
+        New-ExternalHelp -Path "$DocsRootDir\$locale" -OutputPath "$PublishDir\$locale" -Force -ErrorAction SilentlyContinue | Out-Null 
+    }
 }
 
 Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
