@@ -288,13 +288,13 @@ Task GenerateDocs -depends Build {
         Update-MarkdownHelp -Path $_ | Out-Null
     }
 
-    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder "$DocsRootDir\$DefaultLocale" -WithModulePage -ErrorAction SilentlyContinue | Out-Null
+    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale -WithModulePage -ErrorAction SilentlyContinue | Out-Null
     Remove-Module $ModuleName
 }
 
 Task BuildDocs -depends GenerateDocs {
     foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path "$DocsRootDir\$locale" -OutputPath "$PublishDir\$locale" -Force -ErrorAction SilentlyContinue | Out-Null 
+        New-ExternalHelp -Path "$DocsRootDir\$locale" -OutputPath $PublishDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null 
     }
 }
 
