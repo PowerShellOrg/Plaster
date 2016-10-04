@@ -270,6 +270,7 @@ Task Test -depends Build {
     }
     finally {
         Microsoft.PowerShell.Management\Pop-Location
+        Remove-Module $ModuleName
     }
 }
 
