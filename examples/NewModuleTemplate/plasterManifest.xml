@@ -93,8 +93,14 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                       condition="$PLASTER_PARAM_License -eq 'MIT'"/>
         <templateFile source='en-US\about_Module.help.txt'
                       destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
+        <templateFile source='Tests\Help.Tests.ps1'
+                      destination='test\ModuleHelp.Tests.ps1'
+                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
         <templateFile source='Tests\Module.T.ps1'
                       destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1'
+                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
+        <templateFile source='Tests\Shared.ps1'
+                      destination='test\Shared.ps1'
                       condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
         <templateFile source='RecurseTemplateFile\**'
                       destination='Recurse'
