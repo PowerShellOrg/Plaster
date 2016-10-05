@@ -100,6 +100,7 @@ function Get-ParametersDefaultFirst {
 }
 
 . $PSScriptRoot\Shared.ps1
+$ModuleBase = Split-Path -Parent $PSScriptRoot
 
 if ((Split-Path $ModuleBase -Leaf) -eq 'src') {
 	$ModuleBase = Split-Path $ModuleBase -Parent
