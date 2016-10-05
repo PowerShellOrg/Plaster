@@ -1,0 +1,2 @@
+# Don't checkin the output dir
+.publish/

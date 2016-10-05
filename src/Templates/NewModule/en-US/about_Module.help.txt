@@ -1,0 +1,15 @@
+TOPIC
+    <%=$PLASTER_PARAM_ModuleName%> <%=$PLASTER_PARAM_Version%>
+
+SHORT DESCRIPTION
+    You should considering providing an introduction and overview of your
+    module here.
+
+LONG DESCRIPTION
+    Discuss what the "primary" commands are in your module especially if
+    there are many commands.  Discuss how to get started using this module
+    providing examples where appropriate.
+
+YOUR HEADER HERE
+    About topics in PowerShell are free-form text.  Add headers to your
+    about topic as necessary.
