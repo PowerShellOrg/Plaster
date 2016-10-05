@@ -23,7 +23,7 @@ file.
 
 - [David Wilson](https://github.com/daviwil) - [@daviwil](http://twitter.com/daviwil)
 - [Keith Hill](https://github.com/rkeithhill) - [@r_keith_hill](http://twitter.com/r_keith_hill)
-- [Dave Green](https://github.com/davegreen)
+- [Dave Green](https://github.com/davegreen) - [@neongreenie](http://twitter.com/neongreenie)
 
 ## License
 
