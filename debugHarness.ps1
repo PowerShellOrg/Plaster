@@ -3,14 +3,13 @@
 # return
 
 # Use this file to debug the module.
-Import-Module $PSScriptRoot\..\src\Plaster.psd1
+Import-Module $PSScriptRoot\src\Plaster.psd1
 
-$OutDir = "$PSScriptRoot\Out"
+$OutDir = "$PSScriptRoot\examples\Out"
 Remove-Item $OutDir -Recurse -ErrorAction SilentlyContinue
-New-Item $OutDir -ItemType Directory -ErrorAction SilentlyContinue > $null
 
 $PlasterParams = @{
-    TemplatePath = "$PSScriptRoot\..\src\Templates\NewModule"
+    TemplatePath = "$PSScriptRoot\src\Templates\NewModule"
     DestinationPath = $OutDir
     ModuleName = 'FooUtils'
     ModuleDesc = 'Utilities for Foo.'
@@ -22,4 +21,3 @@ $PlasterParams = @{
 }
 
 Invoke-Plaster @PlasterParams -Force
-#Invoke-Plaster -TemplatePath $PSScriptRoot\NewModuleTemplate -DestinationPath Out
