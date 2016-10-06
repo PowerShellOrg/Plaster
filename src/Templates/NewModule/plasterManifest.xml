@@ -2,8 +2,8 @@
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <id>dcd95744-8abc-4ecb-a439-bf2cd37821bb</id>
-        <name>NewPowerShellModule</name>
-        <title>New PowerShell Module</title>
+        <name>NewModule</name>
+        <title>New Module</title>
         <description>Scaffolds the files required for a PowerShell module.</description>
         <version>1.0.0</version>
         <tags>Module, ModuleManifest, Build</tags>
@@ -28,9 +28,25 @@
                    prompt='Enter your full name'
                    store='text' />
 
+        <parameter name='License'
+                   type='choice'
+                   prompt='Select a license for your module:'
+                   default='2'
+                   store='text'>
+            <choice label='&amp;Apache'
+                    help="Adds an Apache license file."
+                    value="Apache"/>
+            <choice label='&amp;MIT'
+                    help="Adds an MIT license file."
+                    value="MIT"/>
+            <choice label='&amp;None'
+                    help="No license specified."
+                    value="None"/>
+        </parameter>
+
         <parameter name='Options'
                    type='multichoice'
-                   prompt='Select one or more of the desired tooling options'
+                   prompt='Select one or more of the following tooling options:'
                    default='0,1,3'
                    store='text' >
             <choice label='&amp;Pester test support'
@@ -65,27 +81,11 @@
                     help="No editor specified."
                     value="None"/>
         </parameter>
-
-        <parameter name='License'
-                   type='choice'
-                   prompt='Select a license for your module'
-                   default='2'
-                   store='text'>
-            <choice label='&amp;Apache'
-                    help="Adds an Apache license file."
-                    value="Apache"/>
-            <choice label='&amp;MIT'
-                    help="Adds an MIT license file."
-                    value="MIT"/>
-            <choice label='&amp;None'
-                    help="No license specified."
-                    value="None"/>
-        </parameter>
     </parameters>
 
     <content>
         <message>
-Scaffold a PowerShell Module with the files required to run Pester tests, build with PSake and publish to the PSGallery.
+Scaffold a PowerShell Module with the files required to run Pester tests, build with psake and publish to the PSGallery.
 
         </message>
 
@@ -95,32 +95,34 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                            author='$PLASTER_PARAM_FullName'
                            description='$PLASTER_PARAM_ModuleDesc'
                            encoding='UTF8-NoBOM'/>
-        <file source='Module.psm1'
-              destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
         <file source='_gitignore'
               destination='.gitignore'
               condition='$PLASTER_PARAM_Options -contains "Git"'/>
         <file source='build*.ps1'
               destination=''
               condition='$PLASTER_PARAM_Options -contains "psake"'/>
-        <file source=''
-              destination='docs\'
-              condition='$PLASTER_PARAM_Options -contains "platyPS"'/>
+        <file source='ReleaseNotes.md'
+              destination=''/>
+        <file source='src\Module.psm1'
+              destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
 
-        <templateFile source='ApacheLicense.txt'
+        <templateFile source='en-US\about_Module.help.txt'
+                      destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
+        <templateFile source='test\Module.T.ps1'
+                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1'
+                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
+        <templateFile source='test\Shared.ps1'
+                      destination='test\Shared.ps1'
+                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
+        <templateFile source='license\Apache.txt'
                       destination='LICENSE.txt'
                       condition="$PLASTER_PARAM_License -eq 'Apache'"
                       encoding="UTF8-NoBOM"/>
-        <templateFile source='MITLicense.txt'
+        <templateFile source='license\MIT.txt'
                       destination='LICENSE.txt'
                       condition="$PLASTER_PARAM_License -eq 'MIT'"/>
-        <templateFile source='en-US\about_Module.help.txt'
-                      destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
-        <templateFile source='Tests\Module.T.ps1'
-                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1'
-                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
 
-        <file source='Editors\VSCode\tasks.json'
+        <file source='editor\VSCode\tasks.json'
               destination='.vscode\tasks.json'
               condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
         <modify path='.vscode\tasks.json' encoding='UTF8'
@@ -161,7 +163,20 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         },$1]]></substitute>
             </replace>
 
-            <replace condition="$PLASTER_PARAM_Options -contains 'PSake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Build&quot;'">
+            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Clean&quot;'">
+                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
+                <substitute><![CDATA[$1{
+            "taskName": "Clean",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Clean;",
+                "Invoke-Command { Write-Host 'Completed Clean task in task runner.' }"
+            ]
+        },$1]]></substitute>
+            </replace>
+
+            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Build&quot;'">
                 <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
                 <substitute><![CDATA[$1{
             "taskName": "Build",
@@ -169,8 +184,34 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
             "isBuildCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Build;",
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Build;",
                 "Invoke-Command { Write-Host 'Completed Build task in task runner.' }"
+            ]
+        },$1]]></substitute>
+            </replace>
+
+            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Install&quot;'">
+                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
+                <substitute><![CDATA[$1{
+            "taskName": "Install",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Install;",
+                "Invoke-Command { Write-Host 'Completed Install task in task runner.' }"
+            ]
+        },$1]]></substitute>
+            </replace>
+
+            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Publish&quot;'">
+                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
+                <substitute><![CDATA[$1{
+            "taskName": "Publish",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Publish;",
+                "Invoke-Command { Write-Host 'Completed Publish task in task runner.' }"
             ]
         },$1]]></substitute>
             </replace>
@@ -180,7 +221,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
             minimumVersion="3.4.0"
             message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 
-        <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "PSake"'
+        <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "psake"'
             message="Without psake, you will not be able to run the provided build script to build and/or publish your module."/>
 
         <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'

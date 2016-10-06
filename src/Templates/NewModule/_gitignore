@@ -1,2 +1,2 @@
-# Don't checkin the output dir
-.publish/
+# Don't checkin the Release output dir.
+Release/
