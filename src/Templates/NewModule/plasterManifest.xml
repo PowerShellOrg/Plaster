@@ -114,6 +114,9 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <templateFile source='test\Shared.ps1'
                       destination='test\Shared.ps1'
                       condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
+        <templateFile source='test\Help.Tests.ps1'
+                      destination='test\Help.Tests.ps1'
+                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
         <templateFile source='license\Apache.txt'
                       destination='LICENSE.txt'
                       condition="$PLASTER_PARAM_License -eq 'Apache'"
