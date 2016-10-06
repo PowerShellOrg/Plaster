@@ -657,6 +657,11 @@ function Invoke-Plaster {
 
             if ($srcRelPath.IndexOfAny([char[]]('*','?')) -lt 0) {
                 # No wildcard spec in srcRelPath so return info on single file.
+                # Also, if dstRelPath is empty, then use source rel path.
+                if (!$dstRelPath) {
+                    $dstPath = Join-Path $destinationAbsolutePath $srcRelPath
+                }
+
                 return NewFileSystemCopyInfo $srcPath $dstPath
             }
 
