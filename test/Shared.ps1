@@ -1,12 +1,14 @@
 $ModuleManifestName  = 'Plaster.psd1'
-$ModulePath          = "$PSScriptRoot\..\src\$ModuleManifestName"
+$ModuleManifestPath  = "$PSScriptRoot\..\src\$ModuleManifestName"
 $TemplateDir         = "$PSScriptRoot\TemplateRootTemp"
 $OutDir              = "$PSScriptRoot\Out"
 $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
 
-# -Scope Global is needed when running tests from inside of psake, otherwise
-# the module's functions cannot be found in the Plaster\ namespace
-Import-Module $ModulePath -Scope Global
+if (!$SuppressImportModule) {
+    # -Scope Global is needed when running tests from inside of psake, otherwise
+    # the module's functions cannot be found in the Plaster\ namespace
+    Import-Module $ModuleManifestPath -Scope Global
+}
 
 function CleanDir {
     param(

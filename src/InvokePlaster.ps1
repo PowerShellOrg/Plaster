@@ -195,8 +195,13 @@ function Invoke-Plaster {
             Write-Host ("=" * 50)
         }
 
-        # Create the pre-defined Plaster variables.
+        # If the destination path doesn't exist, create it.
         $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+        if (!(Test-Path -LiteralPath $destinationAbsolutePath)) {
+            New-Item $destinationAbsolutePath -ItemType Directory > $null
+        }
+
+        # Create the pre-defined Plaster variables.
         InitializePredefinedVariables $destinationAbsolutePath
 
         # Check for any existing default value store file and load default values if file exists.
