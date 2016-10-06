@@ -66,6 +66,15 @@
             ]
         },
         {
+            "taskName": "Build Docs",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList BuildDocs;",
+                "Invoke-Command { Write-Host 'Completed BuildDocs task in task runner.' }"
+            ]
+        },
+        {
             "taskName": "Install",
             "suppressTaskName": true,
             "showOutput": "always",
