@@ -202,7 +202,7 @@ function Invoke-Plaster {
         }
 
         # Create the pre-defined Plaster variables.
-        InitializePredefinedVariables $destinationAbsolutePath
+        InitializePredefinedVariables $templateAbsolutePath $destinationAbsolutePath
 
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
@@ -236,6 +236,9 @@ function Invoke-Plaster {
             # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
             # $iss.Commands.Add($ssce)
 
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Content',([Microsoft.PowerShell.Commands.GetContentCommand]),$null
+            $iss.Commands.Add($ssce)
+
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Date',([Microsoft.PowerShell.Commands.GetDateCommand]),$null
             $iss.Commands.Add($ssce)
 
@@ -249,6 +252,9 @@ function Invoke-Plaster {
             $iss.Commands.Add($ssce)
 
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Module',([Microsoft.PowerShell.Commands.GetModuleCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Variable',([Microsoft.PowerShell.Commands.GetVariableCommand]),$null
             $iss.Commands.Add($ssce)
 
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
@@ -542,13 +548,11 @@ function Invoke-Plaster {
             $trimmedText = $text -replace '^[ \t]*\n','' -replace '\n[ \t]*$',''
 
             $condition  = $Node.condition
-            if ($condition) {
-                if (!(EvaluateCondition $condition)) {
-                    $debugText = $trimmedText -replace '\r|\n',' '
-                    $maxLength = [Math]::Min(40, $debugText.Length)
-                    $PSCmdlet.WriteDebug("Skipping message '$($debugText.Substring(0, $maxLength))', condition evaluated to false.")
-                    return
-                }
+            if ($condition -and !(EvaluateCondition $condition)) {
+                $debugText = $trimmedText -replace '\r|\n',' '
+                $maxLength = [Math]::Min(40, $debugText.Length)
+                $PSCmdlet.WriteDebug("Skipping message '$($debugText.Substring(0, $maxLength))', condition evaluated to false.")
+                return
             }
 
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
@@ -572,11 +576,9 @@ function Invoke-Plaster {
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             $condition  = $Node.condition
-            if ($condition) {
-                if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping module manifest generation for '$dstPath', condition evaluated to false.")
-                    return
-                }
+            if ($condition -and !(EvaluateCondition $condition)) {
+                $PSCmdlet.WriteDebug("Skipping module manifest generation for '$dstPath', condition evaluated to false.")
+                return
             }
 
             $encoding = ExpandString $Node.encoding
@@ -798,11 +800,9 @@ function Invoke-Plaster {
             }
 
             $condition  = $Node.condition
-            if ($condition) {
-                if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
-                    return
-                }
+            if ($condition -and !(EvaluateCondition $condition)) {
+                $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
+                return
             }
 
             # Check if node is the specialized, <templateFile> node.
@@ -899,11 +899,9 @@ function Invoke-Plaster {
             VerifyPathIsUnderDestinationPath $filePath
 
             $condition = $Node.condition
-            if ($condition) {
-                if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) of '$filePath', condition evaluated to false.")
-                    return
-                }
+            if ($condition -and !(EvaluateCondition $condition)) {
+                $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) of '$filePath', condition evaluated to false.")
+                return
             }
 
             $fileContent = [string]::Empty
@@ -933,11 +931,9 @@ function Invoke-Plaster {
                     switch ($childNode.LocalName) {
                         'replace' {
                             $condition  = $childNode.condition
-                            if ($condition) {
-                                if (!(EvaluateCondition $condition)) {
-                                    $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) $($childNode.LocalName) of '$filePath', condition evaluated to false.")
-                                    continue
-                                }
+                            if ($condition -and !(EvaluateCondition $condition)) {
+                                $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) $($childNode.LocalName) of '$filePath', condition evaluated to false.")
+                                continue
                             }
 
                             if ($childNode.original -is [string]) {
@@ -1006,11 +1002,9 @@ function Invoke-Plaster {
             $name = ExpandString $Node.name
 
             $condition  = $Node.condition
-            if ($condition) {
-                if (!(EvaluateCondition $condition)) {
-                    $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
-                    return
-                }
+            if ($condition -and !(EvaluateCondition $condition)) {
+                $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
+                return
             }
 
             $message = ExpandString $Node.message
@@ -1126,9 +1120,11 @@ function Invoke-Plaster {
 ██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
 #>
 
-function InitializePredefinedVariables([string]$DestPath) {
+function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath) {
     # Always set these variables, even if the command has been run with -WhatIf
     $WhatIfPreference = $false
+
+    Set-Variable -Name PLASTER_TemplatePath -Value $TemplatePath.TrimEnd('\','/') -Scope Script
 
     $destName = Split-Path -Path $DestPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $DestPath.TrimEnd('\','/') -Scope Script

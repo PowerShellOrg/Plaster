@@ -1,5 +1,5 @@
 # Debug unit tests
-# Invoke-Pester $PSScriptRoot\..\test
+# Invoke-Pester $PSScriptRoot\test
 # return
 
 # Use this file to debug the module.
