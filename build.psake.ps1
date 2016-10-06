@@ -1,26 +1,13 @@
 ##############################################################################
-# PREVIEW VERSION OF PSAKE SCRIPT FOR MODULE BUILD & PUBLISH TO THE PSGALLERY
-##############################################################################
-#
-# We are hoping to add support for publishing modules to the PowerShell gallery
-# and private repositories in a future release of this extension.  This is an
-# early look at the approach we are considering which is to supply a
-# PSake-based script that will:
-#
-# 1. Create a directory from which to publish your module.
-# 2. Copy the appropriate module files to that directory excluding items like
-#    the .vscode directory, Pester tests, etc. These are configurable in Build.ps1.
-# 3. Verify all existing Pester tests pass.
-# 4. Publish the module to the desired repository (defaulting to the PSGallery).
-#
-# Requirements: PSake.  If you don't have this module installed use the following
+# Requirements: psake.  If you don't have this module installed use the following
 # command to install it:
 #
-# PS C:\> Install-Module PSake -Scope CurrentUser
+# PS C:\> Install-Module psake -Scope CurrentUser
 #
 ##############################################################################
-# This is a PSake script that supports the following tasks:
-# clean, build, test and publish.  The default task is build.
+# This is a psake script that supports the following tasks:
+# clean, build, sign, docgen, install, test and publish.
+# The default task is build.
 #
 # The publish task uses the Publish-Module command to publish
 # to either the PowerShell Gallery (the default) or you can change
@@ -59,7 +46,6 @@
 #
 # PS C:\> invoke-psake build.psake.ps1 -taskList storeApiKey -properties @{NuGetApiKey='test123'}
 #
-
 
 ###############################################################################
 # Customize these properties for your module.
@@ -124,7 +110,7 @@ Properties {
 
     # The directory used to publish the module from.  If you are using Git, the
     # $PublishRootDir should be ignored if it is under the workspace directory.
-    $PublishRootDir = "$PSScriptRoot\.publish"
+    $PublishRootDir = "$PSScriptRoot\Release"
     $PublishDir     = "$PublishRootDir\$ModuleName"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
@@ -240,21 +226,60 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
     }
 }
 
-Task Install -depends Build {
-    if ($InstallPath -eq $null) {
-        # The default installation path is the user's PSModulePath
-        $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())"
-    }
-
-    if (-not (Test-Path -Path $InstallPath)) {
-        Write-Verbose -Message 'Creating local install directory'
-        New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference | Out-Null
-    }
-
-    Copy-Item -Path "$PublishDir\*" -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
+Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
 }
 
-Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
+Task GenerateDocs -depends Build {
+    if ($null -eq $DefaultLocale) {
+        $DefaultLocale = 'en-US'
+    }
+
+    $moduleInfo = Import-Module $PublishDir\$ModuleName.psd1 -Global -Force -PassThru
+    if ($moduleInfo.ExportedCommands.Count -eq 0) {
+        "No commands have been exported. Skipping GenerateDocs task."
+        return
+    }
+
+    if (!(Test-Path -LiteralPath $DocsRootDir)) {
+        New-Item $DocsRootDir -ItemType Directory > $null
+    }
+
+    if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
+        Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
+            Update-MarkdownHelp -Path $_.FullName > $null
+        }
+    }
+
+    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
+                     -WithModulePage -ErrorAction SilentlyContinue > $null
+
+    Remove-Module $ModuleName
+}
+
+Task BuildDocs -depends GenerateDocs {
+    if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
+        "No markdown help files to process. Skipping BuildDocs task."
+        return
+    }
+
+    foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
+        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $PublishDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+}
+
+Task Install -depends BuildDocs {
+    if ($null -eq $InstallPath) {
+        # The default installation path is the user's PSModulePath
+        $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
+                                 -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())"
+    }
+
+    if (!(Test-Path -Path $InstallPath)) {
+        Write-Verbose 'Creating local install directory'
+        New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference > $null
+    }
+
+    Copy-Item -Path $PublishDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
 Task Test -depends Build {
@@ -275,27 +300,6 @@ Task Test -depends Build {
     finally {
         Microsoft.PowerShell.Management\Pop-Location
         Remove-Module $ModuleName
-    }
-}
-
-Task GenerateDocs -depends Build {
-    if ($DefaultLocale -eq $null) {
-        $DefaultLocale = 'en-US'
-    }
-
-    Import-Module "$PublishDir\$ModuleName.psd1" -Global
-    
-    (Get-ChildItem -Path $DocsRootDir -Directory).FullName | ForEach-Object {
-        Update-MarkdownHelp -Path $_ | Out-Null
-    }
-
-    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale -WithModulePage -ErrorAction SilentlyContinue | Out-Null
-    Remove-Module $ModuleName
-}
-
-Task BuildDocs -depends GenerateDocs {
-    foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path "$DocsRootDir\$locale" -OutputPath $PublishDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null 
     }
 }
 
@@ -343,8 +347,7 @@ Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
     }
 
     "Calling Publish-Module..."
-    # TODO: Remove the -WhatIf before finalizing this
-    Publish-Module @publishParams -WhatIf
+    Publish-Module @publishParams
 }
 
 
