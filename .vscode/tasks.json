@@ -66,12 +66,12 @@
             ]
         },
         {
-            "taskName": "Build Docs",
+            "taskName": "BuildHelp",
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList BuildDocs;",
-                "Invoke-Command { Write-Host 'Completed BuildDocs task in task runner.' }"
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList BuildHelp;",
+                "Invoke-Command { Write-Host 'Completed BuildHelp task in task runner.' }"
             ]
         },
         {
