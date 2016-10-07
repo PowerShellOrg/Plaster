@@ -30,7 +30,7 @@
 
         <parameter name='License'
                    type='choice'
-                   prompt='Select a license for your module:'
+                   prompt='Select a license (see http://choosealicense.com for help choosing):'
                    default='2'
                    store='text'>
             <choice label='&amp;Apache'
@@ -40,7 +40,7 @@
                     help="Adds an MIT license file."
                     value="MIT"/>
             <choice label='&amp;None'
-                    help="No license specified."
+                    help="No license."
                     value="None"/>
         </parameter>
 

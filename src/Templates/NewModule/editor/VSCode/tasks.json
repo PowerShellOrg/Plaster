@@ -43,6 +43,15 @@
             ]
         },
         {
+            "taskName": "BuildHelp",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList BuildHelp;",
+                "Invoke-Command { Write-Host 'Completed BuildHelp task in task runner.' }"
+            ]
+        },
+        {
             "taskName": "Install",
             "suppressTaskName": true,
             "showOutput": "always",
