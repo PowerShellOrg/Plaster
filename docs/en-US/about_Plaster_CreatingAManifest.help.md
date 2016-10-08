@@ -77,7 +77,9 @@ Data for these parameters can be taken either as parameters to `Invoke-Plaster`,
 ### Parameter Type: Text
 In interactive mode, the `text` parameter type results in a prompt for a string of text:
 ```xml
-<parameter name='ModuleName' type='text' prompt='Enter the name of the module'/>
+<parameter name='ModuleName'
+           type='text'
+           prompt='Enter the name of the module'/>
 ```
 
 This parameter definition results in the following prompt:
@@ -87,7 +89,10 @@ Enter the name of the module: FooUtils
 
 Additionally, a default value can be specified, as shown in the next example:
 ```xml
-<parameter name='Version' type='text' default='1.0.0' prompt='Enter the version number for the module'/>
+<parameter name='Version'
+           type='text'
+           default='0.1.0'
+           prompt='Enter the version number for the module'/>
 ```
 
 This results in the following output, with the default value in parentheses:
@@ -159,7 +164,20 @@ Choice[0]:
 ```
 
 ### Parameter Type: Other
-TODO: Explain how the user-email parameter type works.
+The `user-fullname` and `user-email` parameter types are the same as the `text` type, except that they get their default values from from the user's .gitconfig file (if the user has one, and no default is set in the manifest).
+
+Here is an example of the XML for this parameter.
+```xml
+<parameter name='FullName'
+           type='user-fullname'
+           prompt='Enter your full name'
+           store='text' />
+```
+
+This results in the following prompt, with the default value of 'Your Name' coming from your .gitconfig file:
+```
+Enter your full name (Your Name):
+```
 
 ## Content
 TODO: Talk about the content block.
