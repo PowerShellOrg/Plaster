@@ -74,7 +74,7 @@ Task Clean -requiredVariables ReleaseDir {
     }
 }
 
-Task Build -depends BuildImpl, Sign, PostBuild {
+Task Build -depends BuildImpl, Analyze, Sign, PostBuild {
 }
 
 Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, OutDir {
@@ -134,7 +134,7 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     }
 }
 
-Task Analyze -depends Build -requiredVariables CodeAnalysisStop, OutDir {
+Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
     if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
         $ScriptAnalysisAction = 'Skip'
     }
@@ -229,7 +229,7 @@ Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
     Copy-Item -Path $OutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
-Task Test -depends Build -requiredVariables TestRootDir, ModuleName {
+Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
     Import-Module Pester
 
     try {
