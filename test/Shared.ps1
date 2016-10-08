@@ -15,6 +15,7 @@ if (!$SuppressImportModule) {
 }
 
 function CleanDir {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function')]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]

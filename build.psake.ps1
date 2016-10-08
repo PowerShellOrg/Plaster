@@ -390,6 +390,7 @@ function PromptUserForCredentialAndStorePassword {
 }
 
 function AddSetting {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function')]
     param(
         [Parameter(Mandatory)]
         [string]$Key,
