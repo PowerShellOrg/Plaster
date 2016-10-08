@@ -1,11 +1,7 @@
 $ModuleManifestName  = 'Plaster.psd1'
 $ModuleManifestPath  = "$PSScriptRoot\..\src\$ModuleManifestName"
 $TemplateDir         = "$PSScriptRoot\TemplateRootTemp"
-
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='OutDir')]
 $OutDir              = "$PSScriptRoot\Out"
-
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='PlasterManifestPath')]
 $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
 
 if (!$SuppressImportModule) {
@@ -15,7 +11,6 @@ if (!$SuppressImportModule) {
 }
 
 function CleanDir {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function')]
     param(
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
