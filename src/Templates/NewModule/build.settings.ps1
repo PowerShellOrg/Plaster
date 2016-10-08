@@ -55,7 +55,21 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertSubjectName')]
     $CertSubjectName = $null
 
+    # -------------------- Script Analysis properties ------------------------------
 
+    # The script analysis task step will run, unless your host is in the array defined below.
+    # This allows you to control whether code analysis is executed, for hosts where script
+    # analysis is included in the product.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysisHost')]
+    $SkipCodeAnalysisHost = @(
+        'Visual Studio Code Host',
+        'My Custom Host with scriptanalyzer support'
+    )
+
+    # Alternatively, you can set the following variable to control script analysis.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysis')]
+    $SkipCodeAnalysis = $null
+    
     # -------------------- Publishing properties ------------------------------
 
     # Your NuGet API key for the PSGallery.  Leave it as $null and the first time you publish,

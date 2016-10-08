@@ -134,6 +134,21 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     }
 }
 
+Task Analyze -depends Build {
+    if ((Get-Host).Name -in $SkipCodeAnalysisHost) {
+        $SkipCodeAnalysis = $true
+    }
+
+    if ($SkipCodeAnalysis) {
+        "Script analysis is not enabled.  Skipping Analyze task."
+        return
+    }
+
+    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Recurse -Verbose:$VerbosePreference
+    $analysisResult | Format-Table
+    Assert -conditionToCheck ($analysisResult.Count -eq 0) -failureMessage 'One or more Script Analyzer errors/warnings were found. Build cannot continue!'
+}
+
 Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDir, ModuleName, OutDir {
     if ($null -eq $DefaultLocale) {
         $DefaultLocale = 'en-US'
