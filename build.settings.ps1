@@ -61,7 +61,7 @@ Properties {
     # This allows you to control whether code analysis is executed, for hosts where script
     # analysis is included in the product.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysisHost')]
-    $SkipCodeAnalysisHost = @(
+    $SkipScriptAnalysisHost = @(
         'Visual Studio Code Host',
         'My Custom Host with scriptanalyzer support'
     )
@@ -71,8 +71,8 @@ Properties {
     # 'Warning', 'Error', 'All', 'None' or 'Skip'. Invalid input will stop on all rules.
     # 'Skip' will skip over the code analysis step all together.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
-    $CodeAnalysisStop = 'Error'
-    
+    $ScriptAnalysisAction = 'Error'
+
     # -------------------- Publishing properties ------------------------------
 
     # Your NuGet API key for the PSGallery.  Leave it as $null and the first time you publish,

@@ -135,18 +135,18 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
 }
 
 Task Analyze -depends Build -requiredVariables CodeAnalysisStop, OutDir {
-    if ((Get-Host).Name -in $SkipCodeAnalysisHost) {
-        $CodeAnalysisStop = 'Skip'
+    if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
+        $ScriptAnalysisAction = 'Skip'
     }
 
-    if ($CodeAnalysisStop -eq 'Skip') {
+    if ($ScriptAnalysisAction -eq 'Skip') {
         "Script analysis is not enabled.  Skipping Analyze task."
         return
     }
 
     $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Recurse -Verbose:$VerbosePreference
     $analysisResult | Format-Table
-    switch ($CodeAnalysisStop) {
+    switch ($ScriptAnalysisAction) {
         'Error' {
             Assert -conditionToCheck (
                 ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
