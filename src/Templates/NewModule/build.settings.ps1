@@ -66,13 +66,11 @@ Properties {
         'My Custom Host with scriptanalyzer support'
     )
 
-    # Alternatively, you can set the following variable to control script analysis.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysis')]
-    $SkipCodeAnalysis = $null
-
     # To control the failure of the build with specific script analyzer rule severities,
     # the CodeAnalysisStop variable can be used. The supported values for this variable are
-    # 'Warning', 'Error', 'All' or 'None'. Invalid input will stop on all rules.
+    # 'Warning', 'Error', 'All', 'None' or 'Skip'. Invalid input will stop on all rules.
+    # 'Skip' will skip over the code analysis step all together.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
     $CodeAnalysisStop = 'Error'
     
     # -------------------- Publishing properties ------------------------------

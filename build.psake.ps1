@@ -136,10 +136,10 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
 
 Task Analyze -depends Build -requiredVariables CodeAnalysisStop, OutDir {
     if ((Get-Host).Name -in $SkipCodeAnalysisHost) {
-        $SkipCodeAnalysis = $true
+        $CodeAnalysisStop = 'Skip'
     }
 
-    if ($SkipCodeAnalysis) {
+    if ($CodeAnalysisStop -eq 'Skip') {
         "Script analysis is not enabled.  Skipping Analyze task."
         return
     }
@@ -156,10 +156,10 @@ Task Analyze -depends Build -requiredVariables CodeAnalysisStop, OutDir {
             Assert -conditionToCheck (
                 ($analysisResult | Where-Object {
                     $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
-                }).Count -eq 0) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+                }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
         }
         'None' {
-            break;
+            return
         }
         default {
             Assert -conditionToCheck (
