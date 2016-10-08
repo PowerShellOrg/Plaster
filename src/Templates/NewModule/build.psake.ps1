@@ -134,7 +134,7 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     }
 }
 
-Task Analyze -depends Build {
+Task Analyze -depends Build -requiredVariables CodeAnalysisStop, OutDir {
     if ((Get-Host).Name -in $SkipCodeAnalysisHost) {
         $SkipCodeAnalysis = $true
     }
@@ -146,7 +146,27 @@ Task Analyze -depends Build {
 
     $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Recurse -Verbose:$VerbosePreference
     $analysisResult | Format-Table
-    Assert -conditionToCheck ($analysisResult.Count -eq 0) -failureMessage 'One or more Script Analyzer errors/warnings were found. Build cannot continue!'
+    switch ($CodeAnalysisStop) {
+        'Error' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+        }
+        'Warning' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object {
+                    $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
+                }).Count -eq 0) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+        }
+        'None' {
+            break;
+        }
+        default {
+            Assert -conditionToCheck (
+                $analysisResult.Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer issues were found. Build cannot continue!'
+        }
+    }
 }
 
 Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDir, ModuleName, OutDir {
