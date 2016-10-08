@@ -1,8 +1,4 @@
-# This builds this module by invoking the build.psake.ps1 script
+#Requires -Modules psake
 
-if ($null -eq (Get-Module -Name PSake -ListAvailable)) {
-    throw "You need to install PSake before continuing. Install with 'Install-Module PSake -Scope CurrentUser'."
-}
-
-Import-Module Psake
+# Builds the module by invoking psake on the build.psake.ps1 script.
 Invoke-PSake $PSScriptRoot\build.psake.ps1 -taskList Build

@@ -1,179 +1,87 @@
+#Requires -Modules psake
+
 ##############################################################################
-# Requirements: psake.  If you don't have this module installed use the following
-# command to install it:
-#
-# PS C:\> Install-Module psake -Scope CurrentUser
-#
+# DO NOT MODIFY THIS FILE!  Modify build.settings.ps1 instead.
 ##############################################################################
-# This is a psake script that supports the following tasks:
-# clean, build, sign, docgen, install, test and publish.
-# The default task is build.
+
+##############################################################################
+# This is the PowerShell Module psake build script. It defines the following tasks:
 #
-# The publish task uses the Publish-Module command to publish
+# Clean, Build, Sign, BuildHelp, Install, Test and Publish.
+#
+# The default task is Build.  This task copies the appropriate files from the
+# $SrcRootDir to the $OutDir.  Later, other tasks such as Sign and BuildHelp
+# will further modify the contents of $OutDir and add new files.
+#
+# The Sign task will only sign scripts if the $SignScripts variable is set to
+# $true.  A code-signing certificate is required for this task to complete.
+#
+# The BuildHelp task invokes platyPS to generate markdown files from
+# comment-based help for your exported commands.  platyPS then generates
+# a help file for your module from the markdown files.
+#
+# The Install task simplies copies the $OutDir to your profile's Modules folder.
+#
+# The Test task invokes Pester on the $TestRootDir.
+#
+# The Publish task uses the Publish-Module command to publish
 # to either the PowerShell Gallery (the default) or you can change
-# the $Repository property to the name of an alternate repository.
+# the $PublishRepository property to the name of an alternate repository.
+# Note: the Publish task requires that the Test task execute without failures.
 #
-# The test task invokes Pester to run any Pester tests in your
-# workspace folder. Name your test scripts <TestName>.Tests.ps1
-# and Pester will find and run the tests contained in the files.
+# You can exeute a specific task, such as the Test task by running the
+# following command:
 #
-# You can run this build script directly using the invoke-psake
-# command which will execute the build task.  This task "builds"
-# a temporary folder from which the module can be published.
+# PS C:\> invoke-psake build.psake.ps1 -taskList Test
 #
-# PS C:\> invoke-psake build.psake.ps1
+# You can execute the Publish task with the following command.
+# The first time you execute the Publish task, you will be prompted to enter
+# your PowerShell Gallery NuGetApiKey.  After entering the key, it is encrypted
+# and stored so you will not have to enter it again.
 #
-# You can run your Pester tests (if any) by running the following command.
-#
-# PS C:\> invoke-psake build.psake.ps1 -taskList test
-#
-# You can execute the publish task with the following command. Note that
-# the publish task will run the test task first. The Pester tests must pass
-# before the publish task will run.  The first time you run the publish
-# command, you will be prompted to enter your PowerShell Gallery NuGetApiKey.
-# After entering the key, it is encrypted and stored so you will not have to
-# enter it again.
-#
-# PS C:\> invoke-psake build.psake.ps1 -taskList publish
+# PS C:\> invoke-psake build.psake.ps1 -taskList Publish
 #
 # You can verify the stored and encrypted NuGetApiKey by running the following
-# command. This will display your NuGetApiKey in plain text!
+# command which will display a portion of your NuGetApiKey in plain text.
 #
-# PS C:\> invoke-psake build.psake.ps1 -taskList showApiKey
+# PS C:\> invoke-psake build.psake.ps1 -taskList ShowApiKey
 #
 # You can store a new NuGetApiKey with this command. You can leave off
 # the -properties parameter and you'll be prompted for the key.
 #
-# PS C:\> invoke-psake build.psake.ps1 -taskList storeApiKey -properties @{NuGetApiKey='test123'}
+# PS C:\> invoke-psake build.psake.ps1 -taskList StoreApiKey -properties @{NuGetApiKey='test123'}
 #
 
 ###############################################################################
-# Customize these properties for your module.
+# Dot source the user's customized properties and extension tasks.
 ###############################################################################
-
-Properties {
-    # ----------------------- Basic properties --------------------------------
-
-    # The root directory of the module source and tests.  It could be the workspace
-    # root or a subdir such as src, module, <my-module-name>.
-    $SourceRootDir = "$PSScriptRoot/src"
-    $TestRootDir   = "$PSScriptRoot/test"
-    $DocsRootDir   = "$PSScriptRoot/docs"
-
-    # Default Locale used for documentation generatioon, defaults to en-US.
-    $DefaultLocale = $null
-
-    # -------------------- Publishing properties ------------------------------
-
-    # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
-    # The contents of this file are used during publishing for the ReleaseNotes parameter.
-    $ReleaseNotesPath = "$PSScriptRoot/ReleaseNotes.md"
-
-    # Set to $true if you want to sign your scripts. You will need to have a code-signing certificate.
-    # You can specify the certificate's subject name below. If not specified, you will be prompted to
-    # provide either a subject name or path to a PFX file.  After this one time prompt, the value will
-    # saved for future use and you will no longer be prompted.
-    $SignScripts = $false
-
-    # Specify the Subject Name of the certificate used to sign your scripts.  Leave it as $null and the
-    # first time you build, you will be prompted to enter your API key. This variable is used only if
-    # $SignScripts is set to $true.  This does require the code-signing certificate to be installed
-    # to your certificate store.  If you have a code-signing certificate in a PFX file, install the
-    # certificate to your certificate store with the command below. You may be prompted for the
-    # certificate's password.
-    #
-    # Import-PfxCertificate -FilePath .\myCodeSigingCert.pfx -CertStoreLocation Cert:\CurrentUser\My
-    $CertSubjectName = $null
-
-    # Your NuGet API key for the PSGallery.  Leave it as $null and the first time
-    # you publish, you will be prompted to enter your API key.  The build will
-    # store the key encrypted in the settings file, so that on subsequent
-    # publishes you will no longer be prompted for the API key.
-    $NuGetApiKey = $null
-
-    # Name of the repository you wish to publish to. Default repo is the PowerShellGallery.
-    $PublishRepository = $null
-
-    # ----------------------- Misc properties ---------------------------------
-
-    # In addition, PFX certificates are supported in an interactive scenario only,
-    # as a way to import a certificate into the user personal store for later use.
-    # This can be provided using the CertPfxPath parameter. PFX passwords will not be stored.
-    $SettingsPath = "$env:LOCALAPPDATA\Plaster\NewModuleTemplate\SecuredBuildSettings.clixml"
-
-    # The name of your module should match the basename of the PSD1 file.
-    $ModuleName = (Get-Item $SourceRootDir/*.psd1 |
-                   Foreach-Object {$null = Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue; if ($?) { $_ }})[0].BaseName
-
-    # The module summary from the PSD1 file.
-    $ModuleDetails = Test-ModuleManifest -Path "$SourceRootDir\$ModuleName.psd1"
-
-    # The directory used to publish the module from.  If you are using Git, the
-    # $PublishRootDir should be ignored if it is under the workspace directory.
-    $PublishRootDir = "$PSScriptRoot\Release"
-    $PublishDir     = "$PublishRootDir\$ModuleName"
-
-    # The local installation directory for the install task. Defaults to your user PSModulePath.
-    $InstallPath = $null
-
-    # The following items will not be copied to the $PublishDir. Typically you
-    # wouldn't put any file under the src dir unless the file was going to ship with
-    # the module. However, if there are such files, add them to the exclude list below.
-    $Exclude = @()
-
-    # Specifies an output file path to send to Invoke-Pester's -OutputFile parameter.
-    # This is typically used to write out test results so that they can be sent to a CI
-    # system like AppVeyor.
-    $TestOutputFile = $null
-
-    # Specifies the test output format to use when the TestOutputFile property is given
-    # a path.  This parameter is passed through to Invoke-Pester's -OutputFormat parameter.
-    $TestOutputFormat = "NUnitXml"
-}
+. $PSScriptRoot\build.settings.ps1
 
 ###############################################################################
-# Customize these tasks for performing operations before and/or after publish.
-###############################################################################
-
-# Executes before src is copied to publish dir
-Task PreCopySource {
-}
-
-# Executes after src is copied to publish dir
-Task PostCopySource {
-}
-
-# Executes before publishing occurs.
-Task PrePublish {
-}
-
-# Executes after publishing occurs.
-Task PostPublish {
-}
-
-
-###############################################################################
-# Core task implementations
+# Core task implementations. Avoid modifying these tasks.
 ###############################################################################
 Task default -depends Build
 
-Task Init -requiredVariables PublishDir {
-    if (!(Test-Path $PublishDir) -and $PublishDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
-        New-Item $PublishDir -ItemType Directory > $null
+Task Init -requiredVariables OutDir {
+    if (!(Test-Path $OutDir) -and $OutDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
+        New-Item $OutDir -ItemType Directory > $null
     }
 }
 
-Task Clean -requiredVariables PublishRootDir {
-    if ((Test-Path $PublishRootDir) -and $PublishRootDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
-        Get-ChildItem $PublishRootDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
+Task Clean -requiredVariables ReleaseDir {
+    if ((Test-Path $ReleaseDir) -and $ReleaseDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
+        Get-ChildItem $ReleaseDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
     }
 }
 
-Task CopySource -depends Init, Clean -requiredVariables SourceRootDir, PublishDir {
-    Copy-Item -Path $SourceRootDir -Destination $PublishDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
+Task Build -depends BuildImpl, Sign, PostBuild {
 }
 
-Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
+Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, OutDir {
+    Copy-Item -Path $SrcRootDir -Destination $OutDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
+}
+
+Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     if (!$SignScripts) {
         "Script signing is not enabled.  Skipping Sign task."
         return
@@ -196,7 +104,7 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
 
     # Find a code-signing certificate that matches the specified subject name.
     $cert = Get-ChildItem -Path Cert:\ -CodeSigningCert -Recurse |
-                Where-Object { $_.SubjectName.Name.StartsWith($CertSubjectName) -and $_.NotAfter -gt (Get-Date) } |
+                Where-Object { $_.SubjectName.Name.StartsWith($CertSubjectName) -and ($_.NotAfter -ge (Get-Date)) } |
                 Sort-Object -Property NotAfter -Descending | Select-Object -First 1
 
     if ($cert) {
@@ -209,9 +117,9 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
         }
 
         $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Thumbprint -eq $cert.Thumbprint }
-        "Using certificate $certificate to sign scripts."
+        "Using code-signing certificate: $certificate"
 
-        $files = @(Get-ChildItem -Path $PublishDir\* -Recurse -Include '*.ps1', '*.psm1')
+        $files = @(Get-ChildItem -Path $OutDir\* -Recurse -Include *.ps1,*.psm1)
         foreach ($file in $files) {
             $result = Set-AuthenticodeSignature -FilePath $file.FullName -Certificate $certificate -Verbose:$VerbosePreference
             if ($result.Status -ne 'Valid') {
@@ -226,15 +134,12 @@ Task Sign -depends CopySource -requiredVariables SettingsPath, SignScripts {
     }
 }
 
-Task Build -depends PreCopySource, CopySource, PostCopySource, Sign {
-}
-
-Task GenerateDocs -depends Build {
+Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDir, ModuleName, OutDir {
     if ($null -eq $DefaultLocale) {
         $DefaultLocale = 'en-US'
     }
 
-    $moduleInfo = Import-Module $PublishDir\$ModuleName.psd1 -Global -Force -PassThru
+    $moduleInfo = Import-Module $OutDir\$ModuleName.psd1 -Global -Force -PassThru
     if ($moduleInfo.ExportedCommands.Count -eq 0) {
         "No commands have been exported. Skipping GenerateDocs task."
         return
@@ -256,22 +161,29 @@ Task GenerateDocs -depends Build {
     Remove-Module $ModuleName
 }
 
-Task BuildDocs -depends GenerateDocs {
+Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
+}
+
+Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
     if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
         "No markdown help files to process. Skipping BuildDocs task."
         return
     }
 
     foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $PublishDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null
+        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null
     }
 }
 
-Task Install -depends BuildDocs {
+Task Install -depends InstallImpl, PostInstall {
+}
+
+Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
     if ($null -eq $InstallPath) {
-        # The default installation path is the user's PSModulePath
+        # The default installation path is the current user's module path.
+        $moduleInfo = Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1
         $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
-                                 -ChildPath "Modules\$ModuleName\$($ModuleDetails.Version.ToString())"
+                                 -ChildPath "Modules\$ModuleName\$($moduleInfo.Version.ToString())"
     }
 
     if (!(Test-Path -Path $InstallPath)) {
@@ -279,16 +191,16 @@ Task Install -depends BuildDocs {
         New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference > $null
     }
 
-    Copy-Item -Path $PublishDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
+    Copy-Item -Path $OutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
-Task Test -depends Build {
+Task Test -depends Build -requiredVariables TestRootDir, ModuleName {
     Import-Module Pester
 
     try {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
 
-        if ($TestOutputFile -ne $null) {
+        if ($TestOutputFile) {
             $TestResult = Invoke-Pester -OutputFile $TestOutputFile -OutputFormat $TestOutputFormat -PassThru -Verbose:$VerbosePreference
         }
         else {
@@ -299,16 +211,16 @@ Task Test -depends Build {
     }
     finally {
         Microsoft.PowerShell.Management\Pop-Location
-        Remove-Module $ModuleName
+        Remove-Module $ModuleName -ErrorAction SilentlyContinue
     }
 }
 
 Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
 }
 
-Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
+Task PublishImpl -requiredVariables SettingsPath, OutDir {
     $publishParams = @{
-        Path        = $PublishDir
+        Path        = $OutDir
         NuGetApiKey = $NuGetApiKey
     }
 
@@ -332,7 +244,7 @@ Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
     }
 
     $publishParams = @{
-        Path        = $PublishDir
+        Path        = $OutDir
         NuGetApiKey = $NuGetApiKey
     }
 
@@ -349,7 +261,6 @@ Task PublishImpl -depends Test -requiredVariables SettingsPath, PublishDir {
     "Calling Publish-Module..."
     Publish-Module @publishParams
 }
-
 
 ###############################################################################
 # Secondary/utility tasks - typically used to manage stored build settings.
@@ -433,7 +344,6 @@ Task ShowCertSubjectName -requiredVariables SettingsPath {
         'A valid certificate has not been found'
     }
 }
-
 
 ###############################################################################
 # Helper functions
