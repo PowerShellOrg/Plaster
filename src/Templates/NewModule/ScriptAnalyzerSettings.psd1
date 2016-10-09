@@ -17,5 +17,5 @@
     # Use ExcludeRules when you want to run most of the default set of rules except
     # for a few rules you wish to "exclude".  Note: if a rule is in both IncludeRules
     # and ExcludeRules, the rule will be excluded.
-    ExcludeRules = @('PSAvoidUsingWriteHost', 'PSMissingModuleManifestField')
+    ExcludeRules = @('PSAvoidUsingWriteHost')
 }

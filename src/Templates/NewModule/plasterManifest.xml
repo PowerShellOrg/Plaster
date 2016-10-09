@@ -105,7 +105,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
               destination=''/>
         <file source='src\Module.psm1'
               destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
-        <file source='src\ScriptAnalyzerSettings.psd1'
+        <file source='ScriptAnalyzerSettings.psd1'
               destination=''/>
 
         <templateFile source='en-US\about_Module.help.txt'
