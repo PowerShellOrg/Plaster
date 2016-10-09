@@ -1,4 +1,4 @@
-﻿<#
+<#
 NOTE TO DEVELOPERS:
 All text displayed to the user except for Write-Debug (or $PSCmdlet.WriteDebug()) text must be added to the
 string tables in:
@@ -712,7 +712,7 @@ function Invoke-Plaster {
             # Copy over empty directories - if any.
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
-            $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams | 
+            $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams |
                 Where-Object {$_.GetFileSystemInfos().Length -eq 0})
             foreach ($dir in $dirs) {
                 $dirSrcPath = $dir.FullName
@@ -1116,13 +1116,9 @@ function Invoke-Plaster {
     }
 }
 
-<#
-██   ██ ███████ ██      ██████  ███████ ██████  ███████
-██   ██ ██      ██      ██   ██ ██      ██   ██ ██
-███████ █████   ██      ██████  █████   ██████  ███████
-██   ██ ██      ██      ██      ██      ██   ██      ██
-██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
-#>
+###############################################################################
+# Helper functions
+###############################################################################
 
 function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath) {
     # Always set these variables, even if the command has been run with -WhatIf
