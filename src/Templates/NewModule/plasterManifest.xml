@@ -229,6 +229,9 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'
             message="Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
 
+        <requireModule name="PSScriptAnalyzer" condition='$PLASTER_PARAM_Options -contains "PSScriptAnalyzer"'
+            message="Without Script Analyzer, you will not be able to perform script analysis."/>
+
         <message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
         <message nonewline='true' condition="$PLASTER_PARAM_Options -contains 'Git'">with Git version control </message>
         <message>has been created.</message>
