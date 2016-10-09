@@ -74,7 +74,7 @@ Task Clean -requiredVariables ReleaseDir {
     }
 }
 
-Task Build -depends BuildImpl, Sign, PostBuild {
+Task Build -depends BuildImpl, Analyze, Sign, PostBuild {
 }
 
 Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, OutDir {
@@ -131,6 +131,41 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     }
     else {
         throw 'No valid certificate subject name supplied or stored.'
+    }
+}
+
+Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
+    if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
+        $ScriptAnalysisAction = 'Skip'
+    }
+
+    if ($ScriptAnalysisAction -eq 'Skip') {
+        "Script analysis is not enabled.  Skipping Analyze task."
+        return
+    }
+
+    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Recurse -Verbose:$VerbosePreference
+    $analysisResult | Format-Table
+    switch ($ScriptAnalysisAction) {
+        'Error' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+        }
+        'Warning' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object {
+                    $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
+                }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
+        }
+        'None' {
+            return
+        }
+        default {
+            Assert -conditionToCheck (
+                $analysisResult.Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer issues were found. Build cannot continue!'
+        }
     }
 }
 
@@ -194,7 +229,7 @@ Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
     Copy-Item -Path $OutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
 }
 
-Task Test -depends Build -requiredVariables TestRootDir, ModuleName {
+Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
     Import-Module Pester
 
     try {
@@ -375,6 +410,7 @@ function PromptUserForCredentialAndStorePassword {
 }
 
 function AddSetting {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function')]
     param(
         [Parameter(Mandatory)]
         [string]$Key,
