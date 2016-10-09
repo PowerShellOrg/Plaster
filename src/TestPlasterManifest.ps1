@@ -26,6 +26,7 @@
 #>
 function Test-PlasterManifest {
     [CmdletBinding()]
+    [OutputType([System.Xml.XmlDocument])]
     param(
         # Specifies a path to a plasterManifest.xml file.
         [Parameter(Position=0,

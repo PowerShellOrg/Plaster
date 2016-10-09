@@ -24,10 +24,13 @@ Please follow the scripting style of this file when adding new script.
     General notes
 #>
 function Invoke-Plaster {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidUsingWriteHost', '', Scope='Function')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessModifyFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessNewModuleManifest')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function', Target='ProcessParameter')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='ProcessFile')]
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -709,7 +712,8 @@ function Invoke-Plaster {
             # Copy over empty directories - if any.
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
-            $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams | Where {$_.GetFileSystemInfos().Length -eq 0})
+            $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams |
+                Where-Object {$_.GetFileSystemInfos().Length -eq 0})
             foreach ($dir in $dirs) {
                 $dirSrcPath = $dir.FullName
                 $relPath = $dirSrcPath.Substring($srcRelRootPathLength)
@@ -1112,13 +1116,9 @@ function Invoke-Plaster {
     }
 }
 
-<#
-██   ██ ███████ ██      ██████  ███████ ██████  ███████
-██   ██ ██      ██      ██   ██ ██      ██   ██ ██
-███████ █████   ██      ██████  █████   ██████  ███████
-██   ██ ██      ██      ██      ██      ██   ██      ██
-██   ██ ███████ ███████ ██      ███████ ██   ██ ███████
-#>
+###############################################################################
+# Helper functions
+###############################################################################
 
 function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath) {
     # Always set these variables, even if the command has been run with -WhatIf
@@ -1212,7 +1212,7 @@ function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$en
             'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
         }
 
-        if ($content -eq $null) {
+        if ($null -eq $content) {
             $content = [string]::Empty
         }
 
