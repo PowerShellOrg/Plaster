@@ -81,6 +81,41 @@ Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, Out
     Copy-Item -Path $SrcRootDir -Destination $OutDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
 }
 
+Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
+    if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
+        $ScriptAnalysisAction = 'Skip'
+    }
+
+    if ($ScriptAnalysisAction -eq 'Skip') {
+        "Script analysis is not enabled.  Skipping Analyze task."
+        return
+    }
+
+    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Settings $ScriptAnalysisSettingsPath -Recurse -Verbose:$VerbosePreference
+    $analysisResult | Format-Table
+    switch ($ScriptAnalysisAction) {
+        'Error' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+        }
+        'Warning' {
+            Assert -conditionToCheck (
+                ($analysisResult | Where-Object {
+                    $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
+                }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
+        }
+        'None' {
+            return
+        }
+        default {
+            Assert -conditionToCheck (
+                $analysisResult.Count -eq 0
+                ) -failureMessage 'One or more Script Analyzer issues were found. Build cannot continue!'
+        }
+    }
+}
+
 Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     if (!$SignScripts) {
         "Script signing is not enabled.  Skipping Sign task."
@@ -131,41 +166,6 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
     }
     else {
         throw 'No valid certificate subject name supplied or stored.'
-    }
-}
-
-Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
-    if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
-        $ScriptAnalysisAction = 'Skip'
-    }
-
-    if ($ScriptAnalysisAction -eq 'Skip') {
-        "Script analysis is not enabled.  Skipping Analyze task."
-        return
-    }
-
-    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Recurse -Verbose:$VerbosePreference
-    $analysisResult | Format-Table
-    switch ($ScriptAnalysisAction) {
-        'Error' {
-            Assert -conditionToCheck (
-                ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
-                ) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
-        }
-        'Warning' {
-            Assert -conditionToCheck (
-                ($analysisResult | Where-Object {
-                    $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
-                }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
-        }
-        'None' {
-            return
-        }
-        default {
-            Assert -conditionToCheck (
-                $analysisResult.Count -eq 0
-                ) -failureMessage 'One or more Script Analyzer issues were found. Build cannot continue!'
-        }
     }
 }
 
