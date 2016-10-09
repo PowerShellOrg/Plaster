@@ -1,22 +1,22 @@
 # Creating a Plaster Manifest
-## about_Plaster_CreatingAManifest     
+## about_Plaster_CreatingAManifest
 
 # SHORT DESCRIPTION
-This about topic will explain the schema of a Plaster Manifest. 
+This about topic will explain the schema of a Plaster Manifest.
 
 For nearly all uses the `New-PlasterManifest` command is correct approach to start with, as this will ensure you generate a valid base manifest.
 
 # LONG DESCRIPTION
-This about topic will explain the schema of a Plaster Manifest. 
+This about topic will explain the schema of a Plaster Manifest.
 
 For nearly all uses the `New-PlasterManifest` command is correct approach to start with, as this will ensure you generate a valid base manifest.
 
 This topic serves to document the existing manifest schema, currently version `0.4`, using the example Plaster manifest `NewModuleTemplate`.
 
-## The manifest base 
-The overall structure of the manifest (shown below) consists of three main sections, `metadata`, `parameters` and `content`. 
+## The manifest base
+The overall structure of the manifest (shown below) consists of three main sections, `metadata`, `parameters` and `content`.
 
-The `metadata` section contains data about the manifest itself, including `title` and `version` of the manifest. 
+The `metadata` section contains data about the manifest itself, including `title` and `version` of the manifest.
 
 The `parameters` section contains information about the data that needs to be gathered from the user, either as text, or as prompted choices.
 
@@ -24,7 +24,7 @@ The final section, `content`, contains the information on how to name and struct
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest 
+<plasterManifest
   schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata></metadata>
   <parameters></parameters>
@@ -37,13 +37,13 @@ The metadata section contains information about the Plaster manifest itself and 
 
 - `name`        - Manifest name. This value is mandatory.
 - `id`          - The ID is the unique identifier used for the storing users
-parameter data and makes sure that the store doesn't get used with another 
+parameter data and makes sure that the store doesn't get used with another
 template. This field is automatically generated if not given a value.
 - `version`     - Version of the manifest. Defaults to 1.0.0.
 - `title`       - Manifest name used in menu lists. Defaults to `name`.
-- `description` - (Optional) Manifest description summary.
+- `description` - Manifest description summary.
+- `tags`        - Tags used to describe the purpose of the template.
 - `author`      - (Optional) Authors name or details.
-- `tags`        - (Optional) Tags used to describe the purpose of the template.
 
 An example of the settings explained above can be shown by running `New-PlasterManifest` this would give you something similar to the the following:
 ```xml
@@ -70,9 +70,9 @@ Parameters are pieces of information that Plaster will ask for to build the temp
 Data for these parameters can be taken either as parameters to `Invoke-Plaster`, or will be prompted for by Plaster. Specifying the attributes for parameters is done using the following data:
 
 - `name`    - The name of the parameter. This is used as the identity to refer to and store the parameter value.
-- `type`    - the type of parameter, currently supported values are `text`, `choice`, `multichoice`, `user-fullname` and `user-email`. 
-- `default` - The default value of the parameter, displayed in the UI inside parentheses. This is an optional attribute to assist users of your template. Default values for the `user-fullname` and `user-email` parameter types are retrieved from the user's .gitconfig if no stored value is available. 
-- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. The supported types are the same as the available parameter types. 
+- `type`    - the type of parameter, currently supported values are `text`, `choice`, `multichoice`, `user-fullname` and `user-email`.
+- `default` - The default value of the parameter, displayed in the UI inside parentheses. This is an optional attribute to assist users of your template. Default values for the `user-fullname` and `user-email` parameter types are retrieved from the user's .gitconfig if no stored value is available.
+- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. The supported types are the same as the available parameter types.
 
 ### Parameter Type: Text
 In interactive mode, the `text` parameter type results in a prompt for a string of text:
@@ -180,7 +180,144 @@ Enter your full name (Your Name):
 ```
 
 ## Content
-TODO: Talk about the content block.
+There are a selection of elements in the `content` block that can be used to specify all of the content that should be included with your template and how it should be created and transformed into the end product that the template provides.
+
+The available element types are:
+- `file`              - Specify one or more files to copy under the destination folder.
+- `templateFile`      - Specify one or more template files to copy and expand under the destination folder.
+- `message`           - Display a message to the user.
+- `modify`            - Modify an existing file under the destination folder (Used with the `file`/`templateFile` elements).
+- `newModuleManifest` - Create a new module manifest file using the New-ModuleManifest command.
+- `requireModule`     - Checks to see if the specified module is installed. If not, the user is notified of the need to install the module.
+
+### Content element: Common
+Currently, there is only one common attribute shared between all current content elements.
+- `condition` - Used to determine whether a directive is executed. If the condition evaluates to true, it will execute.
+
+Some elements use the encoding attribute, while not a common attribute, has a common set of possible values:
+- `Default`
+- `Ascii`
+- `BigEndianUnicode`
+- `BigEndianUTF32`
+- `Oem`
+- `Unicode`
+- `UTF32`
+- `UTF7`
+- `UTF8`
+- `UTF8-NoBOM`
+
+Element attribute values support the use of Plaster parameters, which are parameter values that can be expanded into file names, or other pieces of information the template deals with. These map to available parameters, licenses and other data that is provided in the template.
+
+TODO: Talk about the Plaster parameters.
+
+### Content element: File
+One or more files can be selected (using wildcards) with each file element. Attribute values support the inclusion of Plaster parameters to control (as an example) the location or the name of the resulting file.
+
+Available attributes for this content element:
+- `source`      - Specifies the relative path to the file in the template's root folder.
+- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `condition`
+
+A basic example of this content element would be:
+```xml
+<file source='ReleaseNotes.md'
+              destination=''/>
+```
+
+Two more complex examples are:
+```xml
+<file source='Tests\*.tests.ps1'
+      destination='test\'
+      condition='$PLASTER_PARAM_Options -contains "Pester"'/>
+```
+
+```xml
+<templateFile source='en-US\about_Module.help.txt'
+              destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
+```
+
+### Content element: TemplateFile
+Specify one or more template files to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
+
+Available attributes for this content element:
+- `source`      - Specifies the relative path to the file in the template's root folder.
+- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `encoding`    - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `condition`
+
+### Content element: Message
+The message type is a pretty straightforward element with two potential attributes (both optional).
+
+Available attributes for this content element:
+- `nonewline` - If true, suppresses output of a newline at the end of the message.
+- `condition`
+
+Here is an example of the message element:
+```xml
+<message>
+A message to the user
+
+and other interesting information.
+</message>
+```
+
+This example shows Plaster parameter expansion working in the message element:
+```xml
+<message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
+```
+
+TODO: Finish content element modify.
+### Content element: Modify
+The modify element is perhaps the most involved element in the manifest. This element allows you to replace file contents. This allows you to copy files using the `file` element, then substitute content to meet your needs.
+
+Available attributes for this content element:
+- `replace`   -
+    - `original`   -
+    - `substitute` -
+    - `condition`  -
+- `path`      -
+- `encoding`  - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `condition`
+
+### Content element: NewModuleManifest
+This element allows you to create a module manifest using the data that has been input to Plaster through Plaster parameters.
+
+Available attributes for this content element:
+- `destination`   - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `author`        - Specifies the value of the Author property.
+- `companyName`   - Specifies the value of the CompanyName property.
+- `description`   - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
+- `moduleVersion` - Specifies the value of the ModuleVersion property.
+- `rootModule`    - Specifies the value of the RootModule property.
+- `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `condition`
+
+Here is an example of the `newModuleManifest` element:
+```xml
+<newModuleManifest destination='src\${PLASTER_PARAM_ModuleName}.psd1'
+                   moduleVersion='$PLASTER_PARAM_Version'
+                   rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+                   author='$PLASTER_PARAM_FullName'
+                   description='$PLASTER_PARAM_ModuleDesc'
+                   encoding='UTF8-NoBOM'/>
+```
+
+### Content element: RequireModule
+The requireModule element specifies modules that are required under certain conditions resulting from the choices input by the user.
+
+Available attributes for this content element:
+- `name`            - Specifies the name of the required module.
+- `minimumVersion`  - The required module's minimum version.
+- `maximumVersion`  - The required module's maximum version.
+- `requiredVersion` - Specifies a specific version of the module. This attribute cannot be used with either the `minimumVersion` or `maximumVersion` attributes. Use this attribute rarely as any update to the module that changes its version will result in this check failing.
+- `message`         - Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine. This message should be used to tell the user what functionality will not work without the specified module.
+- `condition`
+
+```xml
+<requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"'
+               minimumVersion="3.4.0"
+               message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
+```
 
 # EXAMPLES
 You can create a base plaster manifest by running the New-PlasterManifest command.
