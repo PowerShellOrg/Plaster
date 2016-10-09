@@ -16,6 +16,8 @@
 
     # Use ExcludeRules when you want to run most of the default set of rules except
     # for a few rules you wish to "exclude".  Note: if a rule is in both IncludeRules
-    # and ExcludeRules, the rule will be excluded.
-    #ExcludeRules = @('PSAvoidUsingWriteHost')
+    # and ExcludeRules, the rule will be excluded. We don't need the following rule,
+    # which incorrectly triggers on this file, because we have a Pester test that verifies
+    # the module manifest is valid.
+    ExcludeRules = @('PSMissingModuleManifestField')
 }
