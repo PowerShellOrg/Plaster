@@ -32,6 +32,27 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='Exclude')]
     $Exclude = @()
 
+    # -------------------- Script Analysis properties ------------------------------
+
+    # The script analysis task step will run, unless your host is in the array defined below.
+    # This allows you to control whether code analysis is executed, for hosts where script
+    # analysis is included in the product.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysisHost')]
+    $SkipScriptAnalysisHost = @(
+        'Visual Studio Code Host',
+        'My Custom Host with scriptanalyzer support'
+    )
+
+    # To control the failure of the build with specific script analyzer rule severities,
+    # the CodeAnalysisStop variable can be used. The supported values for this variable are
+    # 'Warning', 'Error', 'All', 'None' or 'Skip'. Invalid input will stop on all rules.
+    # 'Skip' will skip over the code analysis step all together.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
+    $ScriptAnalysisAction = 'Error'
+
+    # Path to PowerShell Script Analyzer settings file.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisSettingsPath')]
+    $ScriptAnalysisSettingsPath = "$SrcRootDir\ScriptAnalyzerSettings.psd1"
 
     # ------------------- Script signing properties ---------------------------
 
@@ -55,24 +76,6 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertSubjectName')]
     $CertSubjectName = $null
 
-    # -------------------- Script Analysis properties ------------------------------
-
-    # The script analysis task step will run, unless your host is in the array defined below.
-    # This allows you to control whether code analysis is executed, for hosts where script
-    # analysis is included in the product.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysisHost')]
-    $SkipScriptAnalysisHost = @(
-        'Visual Studio Code Host',
-        'My Custom Host with scriptanalyzer support'
-    )
-
-    # To control the failure of the build with specific script analyzer rule severities,
-    # the CodeAnalysisStop variable can be used. The supported values for this variable are
-    # 'Warning', 'Error', 'All', 'None' or 'Skip'. Invalid input will stop on all rules.
-    # 'Skip' will skip over the code analysis step all together.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
-    $ScriptAnalysisAction = 'Error'
-
     # -------------------- Publishing properties ------------------------------
 
     # Your NuGet API key for the PSGallery.  Leave it as $null and the first time you publish,
@@ -88,7 +91,7 @@ Properties {
     # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
     # The contents of this file are used during publishing for the ReleaseNotes parameter.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ReleaseNotesPath')]
-    $ReleaseNotesPath = "$PSScriptRoot/ReleaseNotes.md"
+    $ReleaseNotesPath = "$PSScriptRoot\ReleaseNotes.md"
 
 
     # ----------------------- Misc properties ---------------------------------

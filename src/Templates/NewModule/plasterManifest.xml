@@ -105,6 +105,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
               destination=''/>
         <file source='src\Module.psm1'
               destination='src\${PLASTER_PARAM_ModuleName}.psm1'/>
+        <file source='src\ScriptAnalyzerSettings.psd1'
+              destination=''/>
 
         <templateFile source='en-US\about_Module.help.txt'
                       destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
@@ -122,8 +124,8 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                       destination='LICENSE.txt'
                       condition="$PLASTER_PARAM_License -eq 'MIT'"/>
 
-        <file source='editor\VSCode\tasks.json'
-              destination='.vscode\tasks.json'
+        <file source='editor\VSCode\*.json'
+              destination='.vscode'
               condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
         <modify path='.vscode\tasks.json' encoding='UTF8'
                 condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
