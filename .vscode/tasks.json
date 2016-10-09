@@ -75,6 +75,15 @@
             ]
         },
         {
+            "taskName": "Analyze",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Analyze;",
+                "Invoke-Command { Write-Host 'Completed Analyze task in task runner.' }"
+            ]
+        },
+        {
             "taskName": "Install",
             "suppressTaskName": true,
             "showOutput": "always",
