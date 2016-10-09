@@ -86,7 +86,7 @@ Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir 
         $ScriptAnalysisAction = 'Skip'
     }
 
-    if ((Get-Module -ListAvailable).Name -notcontains 'PSScriptAnalyzer') {
+    if (!(Get-Module PSScriptAnalyzer -ListAvailable)) {
         "Script Analyzer nodule is not installed.  Skipping Analyze task."
         return
     }
