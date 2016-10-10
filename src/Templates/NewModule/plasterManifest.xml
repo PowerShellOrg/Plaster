@@ -47,7 +47,7 @@
         <parameter name='Options'
                    type='multichoice'
                    prompt='Select one or more of the following tooling options:'
-                   default='0,1,3'
+                   default='0,1,3,4'
                    store='text' >
             <choice label='&amp;Pester test support'
                     help="Adds Tests directory and a starter Pester Tests file."
@@ -58,6 +58,9 @@
             <choice label='platyPS &amp;documentation support'
                     help="Adds documentation support using platyPS."
                     value="platyPS"/>
+            <choice label='Script &amp;Analyzer support'
+                    help="Adds script analysis support using PSScriptAnalyzer."
+                    value="PSScriptAnalyzer"/>
             <choice label='&amp;Git'
                     help="Adds a .gitignore file."
                     value="Git"/>
@@ -228,6 +231,9 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
 
         <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'
             message="Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
+
+        <requireModule name="PSScriptAnalyzer" condition='$PLASTER_PARAM_Options -contains "PSScriptAnalyzer"'
+            message="Without PSScriptAnalyzer, you will not be able to perform script analysis, or use the provided options to control script analysis."/>
 
         <message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
         <message nonewline='true' condition="$PLASTER_PARAM_Options -contains 'Git'">with Git version control </message>

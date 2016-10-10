@@ -36,10 +36,10 @@ Properties {
 
     # To control the failure of the build with specific script analyzer rule severities,
     # the CodeAnalysisStop variable can be used. The supported values for this variable are
-    # 'Warning', 'Error', 'All', 'None' or 'Skip'. Invalid input will stop on all rules.
-    # 'Skip' will skip over the code analysis step all together.
+    # 'Warning', 'Error', 'All', 'None' or 'ReportOnly'. Invalid input will stop on all rules.
+    # 'None' will skip over the code analysis step all together.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
-    $ScriptAnalysisAction = 'Error'
+    $ScriptAnalysisAction = 'None'
 
     # Path to PowerShell Script Analyzer settings file.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisSettingsPath')]

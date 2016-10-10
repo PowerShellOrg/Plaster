@@ -83,10 +83,15 @@ Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, Out
 
 Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
     if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
-        $ScriptAnalysisAction = 'Skip'
+        $ScriptAnalysisAction = 'None'
     }
 
-    if ($ScriptAnalysisAction -eq 'Skip') {
+    if (!(Get-Module PSScriptAnalyzer -ListAvailable)) {
+        "PSScriptAnalyzer module is not installed.  Skipping Analyze task."
+        return
+    }
+
+    if ($ScriptAnalysisAction -eq 'None') {
         "Script analysis is not enabled.  Skipping Analyze task."
         return
     }
@@ -105,7 +110,7 @@ Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir 
                     $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
                 }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
         }
-        'None' {
+        'ReportOnly' {
             return
         }
         default {
