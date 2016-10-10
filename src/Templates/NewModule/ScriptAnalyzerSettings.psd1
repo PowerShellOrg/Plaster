@@ -23,6 +23,11 @@
     # For instance, the PSAvoidUsingCmdletAliases rule takes a whitelist for aliases you
     # want to allow.
     #Rules = @{
+    #    Do not flag 'cd' alias.
     #    PSAvoidUsingCmdletAliases = @{Whitelist = @('cd')}
+
+    #   Check if your script uses cmdlets that are compatible on PowerShell Core,
+    #   version 6.0.0-alpha, on Linux.
+    #   PSUseCompatibleCmdlets = @{Compatibility = @("core-6.0.0-alpha-linux")}
     #}
 }
