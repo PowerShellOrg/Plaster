@@ -18,7 +18,7 @@ Properties {
                       Select-Object -First 1 | Foreach-Object BaseName
 
     # The $OutDir must match the ModuleName in order to support publishing the module.
-    $ReleaseDir = "$PSScriptRoot/Release"
+   $ReleaseDir = "$PSScriptRoot/Release"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='OutDir')]
     $OutDir     = "$ReleaseDir/$ModuleName"
 
@@ -39,7 +39,7 @@ Properties {
     # 'Warning', 'Error', 'All', 'None' or 'ReportOnly'. Invalid input will stop on all rules.
     # 'None' will skip over the code analysis step all together.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
-    $ScriptAnalysisAction = 'None'
+    $ScriptAnalysisAction = 'Error'
 
     # Path to PowerShell Script Analyzer settings file.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisSettingsPath')]
