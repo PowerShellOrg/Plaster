@@ -38,7 +38,7 @@ Properties {
     # the CodeAnalysisStop variable can be used. The supported values for this variable are
     # 'Warning', 'Error', 'All', 'None' or 'ReportOnly'. Invalid input will stop on all rules.
     # 'None' will skip over the code analysis step all together.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CodeAnalysisStop')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisAction')]
     $ScriptAnalysisAction = 'Error'
 
     # Path to PowerShell Script Analyzer settings file.
@@ -48,7 +48,7 @@ Properties {
     # The script analysis task step will run, unless your host is in the array defined below.
     # This allows you to control whether code analysis is executed, for hosts where script
     # analysis is included in the product.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipCodeAnalysisHost')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipScriptAnalysisHost')]
     $SkipScriptAnalysisHost = @(
         'Visual Studio Code Host',
         'My Custom Host with scriptanalyzer support'
