@@ -18,7 +18,7 @@ Properties {
                       Select-Object -First 1 | Foreach-Object BaseName
 
     # The $OutDir must match the ModuleName in order to support publishing the module.
-   $ReleaseDir = "$PSScriptRoot/Release"
+    $ReleaseDir = "$PSScriptRoot/Release"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='OutDir')]
     $OutDir     = "$ReleaseDir/$ModuleName"
 
