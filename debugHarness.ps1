@@ -15,7 +15,7 @@ $PlasterParams = @{
     ModuleDesc = 'Utilities for Foo.'
     FullName = 'John Q. Doe'
     Version = '1.2.0'
-    Options = 'Git','psake','Pester','platyPS'
+    Options = 'Git','psake','Pester','PSScriptAnalyzer','platyPS'
     Editor = 'VSCode'
     License = 'MIT'
 }

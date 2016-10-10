@@ -82,7 +82,7 @@ Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, Out
 }
 
 Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
-    if ((Get-Host).Name -in $SkipScriptAnalysisHost) {
+    if ($Host.Name -in $SkipScriptAnalysisHost) {
         $ScriptAnalysisAction = 'None'
     }
 
