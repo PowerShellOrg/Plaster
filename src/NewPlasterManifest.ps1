@@ -100,6 +100,7 @@ function New-PlasterManifest {
     )
 
     begin {
+        $resolvedPath = $PSCmdLet.GetUnresolvedProviderPathFromPSPath($Path)
         $manifestStr = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
@@ -165,8 +166,8 @@ function New-PlasterManifest {
         $xmlWriterSettings.NewLineOnAttributes = $true
 
         try {
-            if ($PSCmdlet.ShouldProcess($Path, $LocalizedData.ShouldCreateNewPlasterManifest)) {
-                $xmlWriter = [System.Xml.XmlWriter]::Create($Path, $xmlWriterSettings)
+            if ($PSCmdlet.ShouldProcess($resolvedPath, $LocalizedData.ShouldCreateNewPlasterManifest)) {
+                $xmlWriter = [System.Xml.XmlWriter]::Create($resolvedPath, $xmlWriterSettings)
                 $manifest.Save($xmlWriter)
             }
         }

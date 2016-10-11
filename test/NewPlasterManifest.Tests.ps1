@@ -10,7 +10,6 @@ function CompareManifestContent($expectedManifest, $actualManifestPath) {
 Describe 'New-PlasterManifest Command Tests' {
     Context 'Generates a valid manifest' {
         It 'Works with just Path, Name and Id' {
-            CleanDir $TemplateDir
             CleanDir $OutDir
 
             $expectedManifest = @"
@@ -36,8 +35,7 @@ Describe 'New-PlasterManifest Command Tests' {
             CompareManifestContent $expectedManifest $plasterPath
         }
 
-        It 'Properly encode XML special chars and entity refs' {
-            CleanDir $TemplateDir
+        It 'Properly encodes XML special chars and entity refs' {
             CleanDir $OutDir
 
             $expectedManifest = @"
@@ -64,7 +62,6 @@ Describe 'New-PlasterManifest Command Tests' {
         }
 
         It 'Captures tags correctly' {
-            CleanDir $TemplateDir
             CleanDir $OutDir
 
             $expectedManifest = @"
@@ -91,7 +88,6 @@ Describe 'New-PlasterManifest Command Tests' {
         }
 
         It 'AddContent parameter works' {
-            CleanDir $TemplateDir
             CleanDir $OutDir
 
             $expectedManifest = @"
@@ -136,6 +132,18 @@ Describe 'New-PlasterManifest Command Tests' {
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -AddContent
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
+        }
+    }
+
+    Context 'Parameter tests' {
+        It 'Path resolves ~' {
+            $plasterPath = "~\plasterManifest.xml"
+            Remove-Item $plasterPath -ErrorAction SilentlyContinue
+            if (Test-Path $plasterPath) {
+                throw "$plasterManifest should have been removed for this test to work correctly."
+            }
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName
+            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
         }
     }
 }
