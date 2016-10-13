@@ -76,6 +76,9 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertSubjectName')]
     $CertSubjectName = $null
 
+    # Certificate store path
+    $CertPath = "Cert:\"
+
     # -------------------- Publishing properties ------------------------------
 
     # Your NuGet API key for the PSGallery.  Leave it as $null and the first time you publish,
@@ -92,7 +95,6 @@ Properties {
     # The contents of this file are used during publishing for the ReleaseNotes parameter.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ReleaseNotesPath')]
     $ReleaseNotesPath = "$PSScriptRoot\ReleaseNotes.md"
-
 
     # ----------------------- Misc properties ---------------------------------
 

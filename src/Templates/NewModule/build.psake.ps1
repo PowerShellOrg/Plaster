@@ -127,6 +127,12 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
         return
     }
 
+    $validCodeSigningCerts = Get-ChildItem -Path $CertPath -CodeSigningCert -Recurse | Where-Object NotAfter -ge (Get-Date)
+    if (!$validCodeSigningCerts) {
+        throw "There are no non-expired code-signing certificates in $CertPath. You can either install " +
+              "a code-signing certificate into the certificate store or disable script analysis in build.settings.ps1."
+    }
+
     $certSubjectNameKey = "CertSubjectName"
     $storeCertSubjectName = $true
 
@@ -135,28 +141,27 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
         $storeCertSubjectName = $false
     }
     elseif (!$CertSubjectName) {
-        $CertSubjectName = 'CN='
-        $CertSubjectName += Read-Host -Prompt 'Enter the certificate subject name for script signing. Use exact casing, CN= prefix will be added'
-    }
-    elseif ($CertSubjectName -notmatch "^CN=") {
-        $CertSubjectName = "CN=$CertSubjectName"
+        "A code-signing certificate has not been specified."
+        "The following non-expired, code-signing certificates are available in your certificate store:"
+        $validCodeSigningCerts | Format-List Subject,Issuer,Thumbprint,NotBefore,NotAfter
+
+        $CertSubjectName = Read-Host -Prompt 'Enter the subject name (case-sensitive) of the certificate to use for script signing'
     }
 
     # Find a code-signing certificate that matches the specified subject name.
-    $cert = Get-ChildItem -Path Cert:\ -CodeSigningCert -Recurse |
-                Where-Object { $_.SubjectName.Name.StartsWith($CertSubjectName) -and ($_.NotAfter -ge (Get-Date)) } |
-                Sort-Object -Property NotAfter -Descending | Select-Object -First 1
+    $certificate = $validCodeSigningCerts |
+                       Where-Object { $_.SubjectName.Name -cmatch [regex]::Escape($CertSubjectName) } |
+                       Sort-Object NotAfter -Descending | Select-Object -First 1
 
-    if ($cert) {
+    if ($certificate) {
         if ($storeCertSubjectName) {
-            SetSetting -Key $certSubjectNameKey -Value $cert.SubjectName.Name -Path $SettingsPath
+            SetSetting -Key $certSubjectNameKey -Value $certificate.SubjectName.Name -Path $SettingsPath
             "The new certificate subject name has been stored in ${SettingsPath}."
         }
         else {
             "Using stored certificate subject name $CertSubjectName from ${SettingsPath}."
         }
 
-        $certificate = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Thumbprint -eq $cert.Thumbprint }
         "Using code-signing certificate: $certificate"
 
         $files = @(Get-ChildItem -Path $OutDir\* -Recurse -Include *.ps1,*.psm1)
@@ -170,6 +175,15 @@ Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
         }
     }
     else {
+        $expiredCert = Get-ChildItem -Path $CertPath -CodeSigningCert -Recurse |
+                           Where-Object { ($_.SubjectName.Name -cmatch [regex]::Escape($CertSubjectName)) -and
+                                          ($_.NotAfter -lt (Get-Date)) }
+                           Sort-Object NotAfter -Descending | Select-Object -First 1
+
+        if ($expiredCert) {
+            throw "The code-signing certificate `"$($expiredCert.SubjectName.Name)`" EXPIRED on $($expiredCert.NotAfter)."
+        }
+
         throw 'No valid certificate subject name supplied or stored.'
     }
 }
