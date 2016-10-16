@@ -76,7 +76,8 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertSubjectName')]
     $CertSubjectName = $null
 
-    # Certificate store path
+    # Certificate store path.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertPath')]
     $CertPath = "Cert:\"
 
     # -------------------- Publishing properties ------------------------------
