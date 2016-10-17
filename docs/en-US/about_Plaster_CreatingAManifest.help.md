@@ -266,18 +266,31 @@ This example shows Plaster parameter expansion working in the message element:
 <message nonewline='true'>`n`nYour new PowerShell module project $PLASTER_PARAM_ModuleName </message>
 ```
 
-TODO: Finish content element modify.
 ### Content element: Modify
-The modify element is perhaps the most involved element in the manifest. This element allows you to replace file contents. This allows you to copy files using the `file` element, then substitute content to meet your needs.
+The modify element allows you to replace file contents, allowing you to copy files using the `file` element, then substituting content to meet your needs.
 
-Available attributes for this content element:
-- `replace`   -
-    - `original`   -
-    - `substitute` -
-    - `condition`  -
-- `path`      -
+Available attributes for this content element are:
+- `replace`   - Specify a replacement operation of the file content.
+    - `original`   - The original text, or regular expression match to replace.
+    - `substitute` - The replacement text to substitute in place of the original text.
+    - `condition`
+- `path`      - Specifies the relative path, under the destination folder, of the file to be modified.
 - `encoding`  - Specifies the encoding of the file, see `Content Element: Common` for possible values.
 - `condition`
+
+Here is a simple example of the modify element, using a regular expressions:
+
+```xml
+<modify path='.vscode\tasks.json' encoding='UTF8'
+        condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
+    <replace condition="$PLASTER_FileContent -notmatch '// Author:'">
+        <original>(?s)^(.*)</original>
+        <substitute expand='true'>// Author: $PLASTER_PARAM_FullName`r`n`$1</substitute>
+    </replace>
+</modify>
+```
+
+#### NOTE: Multiple original, substitute and condition attributes can be used in a single modify element.
 
 ### Content element: NewModuleManifest
 This element allows you to create a module manifest using the data that has been input to Plaster through Plaster parameters.
@@ -321,6 +334,8 @@ Available attributes for this content element:
 
 # EXAMPLES
 You can create a base plaster manifest by running the New-PlasterManifest command.
+
+See the included NewModule `plasterManifest.xml` for more in-depth examples.
 
 # NOTE
 You can find additional information about Plaster at the [GitHub page](https://github.com/PowerShell/Plaster)
