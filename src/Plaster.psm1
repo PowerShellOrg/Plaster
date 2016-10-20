@@ -58,10 +58,21 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaste
 $LatestSupportedSchemaVersion = [System.Version]'0.4'
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TargetNamespace')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
-$ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultEncoding')]
 $DefaultEncoding = 'Default'
+
+if ($IsWindows) {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
+}
+elseif ($IsLinux) {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = if ($XDG_DATA_HOME) { "$XDG_DATA_HOME/plaster"  } else { "$Home/.local/share/plaster" }
+}
+else {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = "$Home/.plaster"
+}
 
 # Dot source the module command scripts
 . $PSScriptRoot\NewPlasterManifest.ps1
