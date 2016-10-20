@@ -86,7 +86,7 @@ function Invoke-Plaster {
                 return
             }
 
-            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -178,7 +178,7 @@ function Invoke-Plaster {
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
-                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
                 $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
             }
             else {
@@ -218,7 +218,9 @@ function Invoke-Plaster {
 
         function NewConstrainedRunspace() {
             $iss = [System.Management.Automation.Runspaces.InitialSessionState]::Create()
-            $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+            if (!$IsCoreCLR) {
+                $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+            }
             $iss.LanguageMode = [System.Management.Automation.PSLanguageMode]::ConstrainedLanguage
             $iss.DisableFormatUpdates = $true
 
@@ -638,8 +640,8 @@ function Invoke-Plaster {
         # Begin ProcessFile helper methods
         #
         function AreFilesIdentical($Path1, $Path2) {
-            $file1 = Get-Item -LiteralPath $Path1
-            $file2 = Get-Item -LiteralPath $Path2
+            $file1 = Get-Item -LiteralPath $Path1 -Force
+            $file2 = Get-Item -LiteralPath $Path2 -Force
 
             if ($file1.Length -ne $file2.Length) {
                 return $false

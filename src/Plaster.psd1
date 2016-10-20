@@ -1,8 +1,6 @@
-﻿# DO NOT COPY THIS MANIFEST VERBATIM.  THIS IS JUST A SAMPLE.
-# GENERATE YOUR MANIFEST USING THE New-ManifestModule COMMAND TO
-# GUARANTEE YOU GET A UNIQUE GUID FOR YOUR MODULE.
-@{
-    # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
+﻿@{
+    # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a
+    # PSData hashtable with additional module metadata used by PowerShell.
     PrivateData = @{
         PSData = @{
             # Tags applied to this module. These help with module discovery in online galleries.
