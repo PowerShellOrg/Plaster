@@ -14,11 +14,14 @@ FileConflict=Plaster file conflict
 ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
 ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
 ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
+ManifestSchemaInvalidChoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify a zero-based integer index that corresponds to the default choice.
+ManifestSchemaInvalidMultichoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
+ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
 ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
 ManifestSchemaVersionNotSupported_F1=The template's manifest schema version ({0}) requires a newer version of Plaster. Update the Plaster module and try again.
-ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
 ManifestErrorReading_F1=Error reading Plaster manifest: {0}
-ManifestNotValid_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
+ManifestNotValid_F1=The Plaster manifest '{0}' is not valid.
+ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
 ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
 ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the Plaster manifest filename and then try again.
 NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}

@@ -143,13 +143,34 @@ function Test-PlasterManifest {
             if ($xmlReader) { $xmlReader.Dispose() }
         }
 
+        # Validate default values for choice/multichoice parameters containing 1 or more ints
+        $xpath = "//tns:parameter[@type='choice'] | //tns:parameter[@type='multichoice']"
+        $choiceParameters = Select-Xml -Xml $manifest -XPath $xpath  -Namespace @{tns=$TargetNamespace}
+        foreach ($choiceParameterXmlInfo in $choiceParameters) {
+            $choiceParameter = $choiceParameterXmlInfo.Node
+            if (!$choiceParameter.default) { continue }
+
+            if ($choiceParameter.type -eq 'choice') {
+                if ($null -eq ($choiceParameter.default -as [int])) {
+                    $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidChoiceDefault_F2 -f $choiceParameter.default,$choiceParameter.name))
+                    $manifestIsValid.Value = $false
+                }
+            }
+            else {
+                if ($null -eq (($choiceParameter.default -split ',') -as [int[]])) {
+                    $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidMultichoiceDefault_F2 -f $choiceParameter.default,$choiceParameter.name))
+                    $manifestIsValid.Value = $false
+                }
+            }
+        }
+
         # Validate that the requireModule attribute requiredVersion is mutually exclusive from both
         # the version and maximumVersion attributes.
-        $requireModules= Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $targetNamespace}
+        $requireModules = Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $targetNamespace}
         foreach ($requireModuleInfo in $requireModules) {
             $requireModuleNode = $requireModuleInfo.Node
             if ($requireModuleNode.requiredVersion -and ($requireModuleNode.minimumVersion -or $requireModuleNode.maximumVersion)) {
-                $PSCmdLet.WriteVerbose($LocalizedData.ManifestSchemaInvalidRequireModuleAttrs_F1 -f $requireModuleNode.name)
+                $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidRequireModuleAttrs_F1 -f $requireModuleNode.name))
                 $manifestIsValid.Value = $false
             }
         }
@@ -169,7 +190,12 @@ function Test-PlasterManifest {
             $manifest
         }
         else {
-            Write-Error ($LocalizedData.ManifestNotValid_F1 -f $Path)
+            if ($PSBoundParameters['Verbose']) {
+                Write-Error ($LocalizedData.ManifestNotValid_F1 -f $Path)
+            }
+            else {
+                Write-Error ($LocalizedData.ManifestNotValidVerbose_F1 -f $Path)
+            }
         }
     }
 }
