@@ -66,6 +66,7 @@ if ($IsWindows) {
     $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 }
 elseif ($IsLinux) {
+    # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
     $ParameterDefaultValueStoreRootPath = if ($XDG_DATA_HOME) { "$XDG_DATA_HOME/plaster"  } else { "$Home/.local/share/plaster" }
 }

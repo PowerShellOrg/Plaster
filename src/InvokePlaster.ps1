@@ -614,7 +614,8 @@ function Invoke-Plaster {
                 $tempFile = $null
 
                 try {
-                    $tempFile = [System.IO.Path]::GetTempPath() + "moduleManifest-" + [Guid]::NewGuid() + ".psd1"
+                    $tempFileBaseName = "moduleManifest-" + [Guid]::NewGuid()
+                    $tempFile = [System.IO.Path]::GetTempPath() + "${tempFileBaseName}.psd1"
                     $PSCmdlet.WriteDebug("Created temp file for new module manifest - $tempFile")
                     $newModuleManifestParams['Path'] = $tempFile
 
@@ -623,6 +624,11 @@ function Invoke-Plaster {
 
                     # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16.
                     $content = Get-Content -LiteralPath $tempFile -Raw
+
+                    # Replace the temp filename in the generated manifest file's comment header with the actual filename.
+                    $dstBaseName = [System.IO.Path]::GetFileNameWithoutExtension($dstPath)
+                    $content = $content -replace "(?<=\s*#.*?)$tempFileBaseName", $dstBaseName
+
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
                     CopyFileWithConflictDetection $tempFile $dstPath
