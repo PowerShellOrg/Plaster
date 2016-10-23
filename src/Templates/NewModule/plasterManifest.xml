@@ -122,6 +122,10 @@
                       source='license\MIT.txt'
                       destination='LICENSE.txt' />
 
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -notcontains 'psake') -and ($PLASTER_PARAM_Options -contains 'Pester')"
+              source='editor\VSCode\tasks_pester.json'
+              destination='.vscode\tasks.json' />
+
         <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -contains 'psake') -and ($PLASTER_PARAM_Options -notcontains 'Pester')"
               source='editor\VSCode\tasks_psake.json'
               destination='.vscode\tasks.json' />
@@ -148,19 +152,19 @@ Your new PowerShell module project '$PLASTER_PARAM_ModuleName' has been created.
 
         </message>
 
-        <message condition="$PLASTER_PARAM_Options -contains 'psake'">
-You can build your project by executing the 'build' task.  Press Ctrl+P, then type 'task build'.
-You can publish your project to the PSGallery by pressing Ctrl+P, then type 'task publish'.
-
-        </message>
-
         <message condition="$PLASTER_PARAM_Options -contains 'Pester'">
 A Pester test has been created to validate the module's manifest file.  Add additional tests to the test directory.
 You can run the Pester tests in your project by executing the 'test' task.  Press Ctrl+P, then type 'task test'.
 
         </message>
 
-        <message condition="$PLASTER_PARAM_Options -contains 'platyPS'">
+        <message condition="$PLASTER_PARAM_Options -contains 'psake'">
+You can build your project by executing the 'build' task.  Press Ctrl+P, then type 'task build'.
+You can publish your project to the PSGallery by pressing Ctrl+P, then type 'task publish'.
+
+        </message>
+
+        <message condition="($PLASTER_PARAM_Options -contains 'psake') -and ($PLASTER_PARAM_Options -contains 'platyPS')">
 You can generate help and additional documentation using platyPS by running the 'build help' task.  Press Ctrl+P,
 then type 'task build help'.  Add additional documentation written in platyPS markdown to the docs directory. You can
 update the help by running the 'build help' task again.
