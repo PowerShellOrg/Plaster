@@ -31,66 +31,60 @@
         <parameter name='License'
                    type='choice'
                    prompt='Select a license (see http://choosealicense.com for help choosing):'
-                   default='2'
+                   default='0'
                    store='text'>
+            <choice label='&amp;None'
+                    help="No license."
+                    value="None"/>
             <choice label='&amp;Apache'
                     help="Adds an Apache license file."
                     value="Apache"/>
             <choice label='&amp;MIT'
                     help="Adds an MIT license file."
                     value="MIT"/>
-            <choice label='&amp;None'
-                    help="No license."
-                    value="None"/>
         </parameter>
 
         <parameter name='Options'
                    type='multichoice'
                    prompt='Select one or more of the following tooling options:'
-                   default='0,1,2,3'
+                   default='1,2,3,4'
                    store='text' >
-            <choice label='&amp;Git .gitignore file'
+            <choice label='&amp;None'
+                    help="No tooling options specified."
+                    value="None"/>
+            <choice label='Add &amp;Git .gitignore file'
                     help="Adds a .gitignore file."
                     value="Git"/>
-            <choice label='p&amp;sake build script'
+            <choice label='Add p&amp;sake build script'
                     help="Adds psake build script that generates the module directory for publishing to the PowerShell Gallery."
                     value="psake"/>
-            <choice label='&amp;Pester test support'
+            <choice label='Add &amp;Pester test support'
                     help="Adds test directory and Pester test for the module manifest file."
                     value="Pester"/>
-            <choice label='PSScript&amp;Analyzer'
+            <choice label='Add PSScript&amp;Analyzer support'
                     help="Adds script analysis support using PSScriptAnalyzer."
                     value="PSScriptAnalyzer"/>
-            <choice label='plat&amp;yPS help generator'
+            <choice label='Add plat&amp;yPS help generation support'
                     help="Adds help build support using platyPS."
                     value="platyPS"/>
-            <choice label='&amp;None'
-                    help="No options specified."
-                    value="None"/>
         </parameter>
 
         <parameter name='Editor'
                    type='choice'
-                   prompt='Which script editor do you use?'
-                   default='2'
+                   prompt='Select one of the supported script editors for better editor integration (or None):'
+                   default='0'
                    store='text' >
-            <choice label='&amp;ISE'
-                    help="Your editor is PowerShell ISE."
-                    value="ISE"/>
-            <choice label='Visual Studio &amp;Code'
-                    help="Your editor is Visual Studio Code."
-                    value="VSCode"/>
             <choice label='&amp;None'
                     help="No editor specified."
                     value="None"/>
+            <choice label='Visual Studio &amp;Code'
+                    help="Your editor is Visual Studio Code."
+                    value="VSCode"/>
         </parameter>
     </parameters>
 
     <content>
-        <message>
-Scaffold a PowerShell Module with the files required to run Pester tests, build with psake and publish to the PSGallery.
-
-        </message>
+        <message>&#10;&#10;Scaffolding your PowerShell Module...&#10;&#10;&#10;</message>
 
         <newModuleManifest destination='src\${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
@@ -98,12 +92,13 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
                            author='$PLASTER_PARAM_FullName'
                            description='$PLASTER_PARAM_ModuleDesc'
                            encoding='UTF8-NoBOM'/>
-        <file source='_gitignore'
-              destination='.gitignore'
-              condition='$PLASTER_PARAM_Options -contains "Git"'/>
-        <file source='build*.ps1'
-              destination=''
-              condition='$PLASTER_PARAM_Options -contains "psake"'/>
+
+        <file condition='$PLASTER_PARAM_Options -contains "Git"'
+              source='_gitignore'
+              destination='.gitignore' />
+        <file condition='$PLASTER_PARAM_Options -contains "psake"'
+              source='build*.ps1'
+              destination='' />
         <file source='ReleaseNotes.md'
               destination=''/>
         <file source='src\Module.psm1'
@@ -113,117 +108,29 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
 
         <templateFile source='en-US\about_Module.help.txt'
                       destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
-        <templateFile source='test\Module.T.ps1'
-                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1'
-                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
-        <templateFile source='test\Shared.ps1'
-                      destination='test\Shared.ps1'
-                      condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
-        <templateFile source='license\Apache.txt'
+        <templateFile condition="$PLASTER_PARAM_Options -contains 'Pester'"
+                      source='test\Module.T.ps1'
+                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1' />
+        <templateFile condition="$PLASTER_PARAM_Options -contains 'Pester'"
+                      source='test\Shared.ps1'
+                      destination='test\Shared.ps1' />
+        <templateFile condition="$PLASTER_PARAM_License -eq 'Apache'"
+                      source='license\Apache.txt'
                       destination='LICENSE.txt'
-                      condition="$PLASTER_PARAM_License -eq 'Apache'"
                       encoding="UTF8-NoBOM"/>
-        <templateFile source='license\MIT.txt'
-                      destination='LICENSE.txt'
-                      condition="$PLASTER_PARAM_License -eq 'MIT'"/>
+        <templateFile condition="$PLASTER_PARAM_License -eq 'MIT'"
+                      source='license\MIT.txt'
+                      destination='LICENSE.txt' />
 
-        <file source='editor\VSCode\*.json'
-              destination='.vscode'
-              condition="$PLASTER_PARAM_Editor -eq 'VSCode'"/>
-        <modify path='.vscode\tasks.json' encoding='UTF8'
-                condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
-            <replace condition="$PLASTER_FileContent -notmatch '// Author:'">
-                <original>(?s)^(.*)</original>
-                <substitute expand='true'>// Author: $PLASTER_PARAM_FullName`r`n`$1</substitute>
-            </replace>
-            <replace condition="$PLASTER_PARAM_Options -contains 'Pester' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Test&quot;'">
-                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
-                <substitute><![CDATA[$1{
-            "taskName": "Test",
-            "suppressTaskName": true,
-            "isTestCommand": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
-                "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
-            ],
-            "problemMatcher": [
-                {
-                    "owner": "powershell",
-                    "fileLocation": ["absolute"],
-                    "severity": "error",
-                    "pattern": [
-                        {
-                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
-                            "message": 1
-                        },
-                        {
-                            "regexp": "^\\s+at\\s+[^,]+,\\s*(.*?):\\s+line\\s+(\\d+)$",
-                            "file": 1,
-                            "line": 2
-                        }
-                    ]
-                }
-            ]
-        },$1]]></substitute>
-            </replace>
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -contains 'psake') -and ($PLASTER_PARAM_Options -notcontains 'Pester')"
+              source='editor\VSCode\tasks_psake.json'
+              destination='.vscode\tasks.json' />
 
-            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Clean&quot;'">
-                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
-                <substitute><![CDATA[$1{
-            "taskName": "Clean",
-            "suppressTaskName": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Clean;",
-                "Invoke-Command { Write-Host 'Completed Clean task in task runner.' }"
-            ]
-        },$1]]></substitute>
-            </replace>
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -contains 'psake') -and ($PLASTER_PARAM_Options -contains 'Pester')"
+              source='editor\VSCode\tasks_psake_pester.json'
+              destination='.vscode\tasks.json' />
 
-            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Build&quot;'">
-                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
-                <substitute><![CDATA[$1{
-            "taskName": "Build",
-            "suppressTaskName": true,
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Build;",
-                "Invoke-Command { Write-Host 'Completed Build task in task runner.' }"
-            ]
-        },$1]]></substitute>
-            </replace>
-
-            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Install&quot;'">
-                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
-                <substitute><![CDATA[$1{
-            "taskName": "Install",
-            "suppressTaskName": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Install;",
-                "Invoke-Command { Write-Host 'Completed Install task in task runner.' }"
-            ]
-        },$1]]></substitute>
-            </replace>
-
-            <replace condition="$PLASTER_PARAM_Options -contains 'psake' -and $PLASTER_FileContent -notmatch 'taskName&quot;:\s*&quot;Publish&quot;'">
-                <original><![CDATA[(?si)(?<="tasks":\s*\[)(\s*)(?=\{)]]></original>
-                <substitute><![CDATA[$1{
-            "taskName": "Publish",
-            "suppressTaskName": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Publish;",
-                "Invoke-Command { Write-Host 'Completed Publish task in task runner.' }"
-            ]
-        },$1]]></substitute>
-            </replace>
-        </modify>
-
-        <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"'
-            minimumVersion="3.4.0"
+        <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"' minimumVersion="3.4.0"
             message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 
         <requireModule name="psake" condition='$PLASTER_PARAM_Options -contains "psake"'
@@ -235,7 +142,7 @@ Scaffold a PowerShell Module with the files required to run Pester tests, build 
         <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'
             message="Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
 
-        <message >
+        <message>
 
 Your new PowerShell module project '$PLASTER_PARAM_ModuleName' has been created.
 
