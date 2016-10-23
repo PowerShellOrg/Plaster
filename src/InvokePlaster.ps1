@@ -1131,6 +1131,7 @@ function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath)
     $destName = Split-Path -Path $DestPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $DestPath.TrimEnd('\','/') -Scope Script
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
+    Set-Variable -Name PLASTER_DirSepChar      -Value ([System.IO.Path]::DirectorySeparatorChar) -Scope Script
     Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
 
     Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script

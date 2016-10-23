@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+    <metadata>
+        <id>d1e2e756-d4cb-4aea-83c7-c03f2f8fed31</id>
+        <name>NewDscResourceScriptFile</name>
+        <title>New DSC Resource Script File</title>
+        <description>Scaffolds a script file with three required DSC resouce functions.</description>
+        <version>1.0.0</version>
+        <tags>DSC, Resource, DSCResource</tags>
+    </metadata>
+
+    <parameters>
+        <parameter name='TargetResourceName'
+                   type='text'
+                   prompt='Enter the target resource name (will be used as the noun for the get/set/test functions)'/>
+
+        <parameter name='Ensure'
+                   type='choice'
+                   prompt='Add an Enure parameter to the resource functions?'
+                   default='0'>
+            <choice label='&amp;No'
+                    help="Select this option to not add an Ensure parameter."
+                    value="No"/>
+            <choice label='&amp;Yes'
+                    help="Select this option to add an Ensure parameter."
+                    value="Yes"/>
+        </parameter>
+    </parameters>
+
+    <content>
+        <message>&#10;&#10;Scaffolding your PowerShell DSC Resource Script...&#10;&#10;&#10;</message>
+
+        <templateFile source='resource.ps1'
+                      destination='${PLASTER_PARAM_TargetResourceName}.ps1'/>
+
+        <modify condition="$PLASTER_PARAM_Ensure -eq 'Yes'"
+                path="${PLASTER_PARAM_TargetResourceName}.ps1"
+                encoding="UTF8">
+            <replace>
+                <original><![CDATA[(?si)(?<=param\s*\()(.)]]></original>
+                <substitute><![CDATA[
+        # Ensure the presence/absence of the resource.
+        [ValidateSet("Present","Absent")]
+        [string]
+        $Ensure = "Present"]]></substitute>
+            </replace>
+        </modify>
+
+        <message>
+
+Your new PowerShell DSC Resource script file '${PLASTER_DestinationPath}${PLASTER_DirSepChar}${PLASTER_PARAM_TargetResourceName}.ps1' has been created.
+
+        </message>
+    </content>
+</plasterManifest>
