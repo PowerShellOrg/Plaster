@@ -246,6 +246,7 @@ Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
     }
 
     Copy-Item -Path $OutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
+    "Module installed into $InstallPath"
 }
 
 Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {

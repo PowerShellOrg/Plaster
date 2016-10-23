@@ -29,13 +29,13 @@ function Invoke-Plaster {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         # Specifies the path to either the Template directory or a ZIP file containing the template.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
 
         # Specifies the path to directory in which the template will use as a root directory when generating files.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $DestinationPath,
