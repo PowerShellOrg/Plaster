@@ -14,11 +14,14 @@ data LocalizedData {
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
     ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
+    ManifestSchemaInvalidChoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify a zero-based integer index that corresponds to the default choice.
+    ManifestSchemaInvalidMultichoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
+    ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
     ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
     ManifestSchemaVersionNotSupported_F1=The template's manifest schema version ({0}) requires a newer version of Plaster. Update the Plaster module and try again.
-    ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
     ManifestErrorReading_F1=Error reading Plaster manifest: {0}
-    ManifestNotValid_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
+    ManifestNotValid_F1=The Plaster manifest '{0}' is not valid.
+    ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
     ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
     ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the Plaster manifest filename and then try again.
     NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}
@@ -58,10 +61,22 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaste
 $LatestSupportedSchemaVersion = [System.Version]'0.4'
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TargetNamespace')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
-$ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultEncoding')]
 $DefaultEncoding = 'Default'
+
+if ($IsWindows) {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
+}
+elseif ($IsLinux) {
+    # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = if ($XDG_DATA_HOME) { "$XDG_DATA_HOME/plaster"  } else { "$Home/.local/share/plaster" }
+}
+else {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    $ParameterDefaultValueStoreRootPath = "$Home/.plaster"
+}
 
 # Dot source the module command scripts
 . $PSScriptRoot\NewPlasterManifest.ps1

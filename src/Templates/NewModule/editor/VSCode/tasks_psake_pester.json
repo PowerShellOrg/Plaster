@@ -1,15 +1,26 @@
 // Available variables which can be used inside of strings.
 // ${workspaceRoot}: the root folder of the team
 // ${file}: the current opened file
+// ${relativeFile}: the current opened file relative to workspaceRoot
 // ${fileBasename}: the current opened file's basename
 // ${fileDirname}: the current opened file's dirname
 // ${fileExtname}: the current opened file's extension
 // ${cwd}: the current working directory of the spawned process
 {
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
 	"version": "0.1.0",
 
 	// Start PowerShell
-	"command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe",
+    "windows": {
+        "command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe"
+    },
+    "linux": {
+        "command": "/usr/bin/powershell"
+    },
+    "osx": {
+        "command": "/usr/local/bin/powershell"
+    },
 
 	// The command is a shell script
 	"isShellCommand": true,
@@ -28,7 +39,7 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Clean;",
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList Clean'; Invoke-psake build.psake.ps1 -taskList Clean;",
                 "Invoke-Command { Write-Host 'Completed Clean task in task runner.' }"
             ]
         },
@@ -38,7 +49,7 @@
             "isBuildCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Build;",
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList Build'; Invoke-psake build.psake.ps1 -taskList Build;",
                 "Invoke-Command { Write-Host 'Completed Build task in task runner.' }"
             ]
         },
@@ -47,7 +58,7 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList BuildHelp;",
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList BuildHelp'; Invoke-psake build.psake.ps1 -taskList BuildHelp;",
                 "Invoke-Command { Write-Host 'Completed BuildHelp task in task runner.' }"
             ]
         },
@@ -56,7 +67,7 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Analyze;",
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList Analyze'; Invoke-psake build.psake.ps1 -taskList Analyze;",
                 "Invoke-Command { Write-Host 'Completed Analyze task in task runner.' }"
             ]
         },
@@ -65,8 +76,17 @@
             "suppressTaskName": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Install;",
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList Install'; Invoke-psake build.psake.ps1 -taskList Install;",
                 "Invoke-Command { Write-Host 'Completed Install task in task runner.' }"
+            ]
+        },
+        {
+            "taskName": "Publish",
+            "suppressTaskName": true,
+            "showOutput": "always",
+            "args": [
+                "Write-Host 'Invoking psake on build.psake.ps1 -taskList Publish'; Invoke-psake build.psake.ps1 -taskList Publish;",
+                "Invoke-Command { Write-Host 'Completed Publish task in task runner.' }"
             ]
         },
         {
@@ -75,7 +95,7 @@
             "isTestCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Write-Host 'Invoking Pester'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
                 "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
             ],
             "problemMatcher": [
@@ -96,15 +116,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "taskName": "Publish",
-            "suppressTaskName": true,
-            "showOutput": "always",
-            "args": [
-                "Write-Host 'Invoking psake...'; Invoke-psake build.psake.ps1 -taskList Publish;",
-                "Invoke-Command { Write-Host 'Completed Publish task in task runner.' }"
-            ]
         }
-    ]
+	]
 }

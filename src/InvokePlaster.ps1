@@ -29,13 +29,13 @@ function Invoke-Plaster {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         # Specifies the path to either the Template directory or a ZIP file containing the template.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
 
         # Specifies the path to directory in which the template will use as a root directory when generating files.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $DestinationPath,
@@ -86,7 +86,7 @@ function Invoke-Plaster {
                 return
             }
 
-            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -178,7 +178,7 @@ function Invoke-Plaster {
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
-                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
                 $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
             }
             else {
@@ -218,7 +218,9 @@ function Invoke-Plaster {
 
         function NewConstrainedRunspace() {
             $iss = [System.Management.Automation.Runspaces.InitialSessionState]::Create()
-            $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+            if (!$IsCoreCLR) {
+                $iss.ApartmentState = [System.Threading.ApartmentState]::STA
+            }
             $iss.LanguageMode = [System.Management.Automation.PSLanguageMode]::ConstrainedLanguage
             $iss.DisableFormatUpdates = $true
 
@@ -612,7 +614,8 @@ function Invoke-Plaster {
                 $tempFile = $null
 
                 try {
-                    $tempFile = [System.IO.Path]::GetTempPath() + "moduleManifest-" + [Guid]::NewGuid() + ".psd1"
+                    $tempFileBaseName = "moduleManifest-" + [Guid]::NewGuid()
+                    $tempFile = [System.IO.Path]::GetTempPath() + "${tempFileBaseName}.psd1"
                     $PSCmdlet.WriteDebug("Created temp file for new module manifest - $tempFile")
                     $newModuleManifestParams['Path'] = $tempFile
 
@@ -621,6 +624,11 @@ function Invoke-Plaster {
 
                     # Typically the manifest is re-written with a new encoding (UTF8-NoBOM) because Git hates UTF-16.
                     $content = Get-Content -LiteralPath $tempFile -Raw
+
+                    # Replace the temp filename in the generated manifest file's comment header with the actual filename.
+                    $dstBaseName = [System.IO.Path]::GetFileNameWithoutExtension($dstPath)
+                    $content = $content -replace "(?<=\s*#.*?)$tempFileBaseName", $dstBaseName
+
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
                     CopyFileWithConflictDetection $tempFile $dstPath
@@ -638,8 +646,8 @@ function Invoke-Plaster {
         # Begin ProcessFile helper methods
         #
         function AreFilesIdentical($Path1, $Path2) {
-            $file1 = Get-Item -LiteralPath $Path1
-            $file2 = Get-Item -LiteralPath $Path2
+            $file1 = Get-Item -LiteralPath $Path1 -Force
+            $file2 = Get-Item -LiteralPath $Path2 -Force
 
             if ($file1.Length -ne $file2.Length) {
                 return $false
@@ -1123,6 +1131,7 @@ function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath)
     $destName = Split-Path -Path $DestPath -Leaf
     Set-Variable -Name PLASTER_DestinationPath -Value $DestPath.TrimEnd('\','/') -Scope Script
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
+    Set-Variable -Name PLASTER_DirSepChar      -Value ([System.IO.Path]::DirectorySeparatorChar) -Scope Script
     Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
 
     Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script

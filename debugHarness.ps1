@@ -1,5 +1,6 @@
 # Debug unit tests
 # Invoke-Pester $PSScriptRoot\test
+# Test-PlasterManifest "$PSScriptRoot\src\Templates\NewModule\plasterManifest.xml" -Verbose
 # return
 
 # Use this file to debug the module.
