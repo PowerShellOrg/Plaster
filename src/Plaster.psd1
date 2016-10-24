@@ -52,6 +52,7 @@
     FunctionsToExport = @(
         'Invoke-Plaster'
         'New-PlasterManifest'
+        'Get-PlasterTemplate',
         'Test-PlasterManifest'
         )
 
