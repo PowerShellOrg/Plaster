@@ -19,7 +19,9 @@ function Set-<%=$PLASTER_PARAM_TargetResourceName%> {
     )
 
     # Set the target resource instance based on parameters passed into function.
+    if ($PSCmdlet.ShouldProcess("<%=$PLASTER_PARAM_TargetResourceName%>", "Set Resource")) {
 
+    }
 }
 
 # The Test-<%=$PLASTER_PARAM_TargetResourceName%> function tests the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified

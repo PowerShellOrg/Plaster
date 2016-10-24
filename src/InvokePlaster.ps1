@@ -334,6 +334,115 @@ function Invoke-Plaster {
             }
         }
 
+        function ConvertToDestinationRelativePath($Path) {
+            $fullDestPath = $DestinationPath
+            if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
+                $fullDestPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+            }
+
+            $fullPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($Path)
+            if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
+                throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $fullPath, $fullDestPath)
+            }
+
+            $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
+        }
+
+        function VerifyPathIsUnderDestinationPath([ValidateNotNullOrEmpty()][string]$FullPath) {
+            if (![System.IO.Path]::IsPathRooted($FullPath)) {
+                $PSCmdlet.WriteDebug("The FullPath parameter '$FullPath' must be an absolute path.")
+            }
+
+            $fullDestPath = $DestinationPath
+            if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
+                $fullDestPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+            }
+
+            if (!$FullPath.StartsWith($fullDestPath, [StringComparison]::OrdinalIgnoreCase)) {
+                throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $FullPath, $fullDestPath)
+            }
+        }
+
+        function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$encoding) {
+            if ($encoding -match '-nobom') {
+                $encoding,$dummy = $encoding -split '-'
+
+                $noBomEncoding = $null
+                switch ($encoding) {
+                    'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
+                }
+
+                if ($null -eq $content) {
+                    $content = [string]::Empty
+                }
+
+                [System.IO.File]::WriteAllLines($path, $content, $noBomEncoding)
+            }
+            else {
+                Set-Content -LiteralPath $path -Value $content -Encoding $encoding
+            }
+        }
+
+        function ColorForOperation($operation) {
+            switch ($operation) {
+                $LocalizedData.OpConflict      { 'Red' }
+                $LocalizedData.OpCreate        { 'Green' }
+                $LocalizedData.OpForce         { 'Yellow' }
+                $LocalizedData.OpIdentical     { 'Cyan' }
+                $LocalizedData.OpModify        { 'Magenta' }
+                $LocalizedData.OpUpdate        { 'Green' }
+                $LocalizedData.OpMissing       { 'Red' }
+                $LocalizedData.OpVerify        { 'Green' }
+                default { $Host.UI.RawUI.ForegroundColor }
+            }
+        }
+
+        function GetMaxOperationLabelLength {
+            ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
+             $LocalizedData.OpConflict, $LocalizedData.OpForce,
+             $LocalizedData.OpMissing,  $LocalizedData.OpModify,
+             $LocalizedData.OpUpdate,   $LocalizedData.OpVerify |
+                 Measure-Object -Property Length -Maximum).Maximum
+        }
+
+        function WriteOperationStatus($operation, $message) {
+            $maxLen = GetMaxOperationLabelLength
+            Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
+            Write-Host $message
+        }
+
+        function WriteOperationAdditionalStatus([string[]]$Message) {
+            $maxLen = GetMaxOperationLabelLength
+            foreach ($msg in $Message) {
+                $lines = $msg -split "`n"
+                foreach ($line in $lines) {
+                    Write-Host ("{0,$maxLen} {1}" -f "",$line)
+                }
+            }
+        }
+
+        function GetGitConfigValue($name) {
+            # Very simplistic git config lookup
+            # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
+
+            # The $Home dir may not be reachable e.g. if on network share and/or script not running as admin.
+            # See issue https://github.com/PowerShell/Plaster/issues/92
+            if (!(Test-Path -LiteralPath $Home)) {
+                return
+            }
+
+            $gitConfigPath = Join-Path $Home '.gitconfig'
+            $PSCmdlet.WriteDebug("Looking for '$name' value in Git config: $gitConfigPath")
+
+            if (Test-Path -LiteralPath $gitConfigPath) {
+                $matches = Select-String -LiteralPath $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
+                if (@($matches).Count -gt 0)
+                {
+                    $matches.Matches.Groups[1].Value
+                }
+            }
+        }
+
         function PromptForInput($prompt, $default) {
             do {
                 $value = Read-Host -Prompt $prompt
@@ -1151,7 +1260,7 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
         $TemplatePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
     }
 
-    # Check for culture-locale first
+    # Check for culture-locale first.
     $plasterManifestBasename = "plasterManifest"
     $plasterManifestFilename = "${plasterManifestBasename}_$($culture.Name).xml"
     $plasterManifestPath = Join-Path $TemplatePath $plasterManifestFilename
@@ -1159,7 +1268,7 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
         return $plasterManifestPath
     }
 
-    # Check for culture next
+    # Check for culture next.
     if ($culture.Parent.Name) {
         $plasterManifestFilename = "${plasterManifestBasename}_$($culture.Parent.Name).xml"
         $plasterManifestPath = Join-Path $TemplatePath $plasterManifestFilename
@@ -1168,120 +1277,11 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
         }
     }
 
-    # Fallback to invariant culture manifest
+    # Fallback to invariant culture manifest.
     $plasterManifestPath = Join-Path $TemplatePath "${plasterManifestBasename}.xml"
     if (Test-Path $plasterManifestPath) {
         return $plasterManifestPath
     }
 
     $null
-}
-
-function ConvertToDestinationRelativePath($Path) {
-    $fullDestPath = $DestinationPath
-    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
-        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-    }
-
-    $fullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-    if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
-        throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $fullPath, $fullDestPath)
-    }
-
-    $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
-}
-
-function VerifyPathIsUnderDestinationPath([ValidateNotNullOrEmpty()][string]$FullPath) {
-    if (![System.IO.Path]::IsPathRooted($FullPath)) {
-        Write-Debug "The FullPath parameter '$FullPath' must be an absolute path."
-    }
-
-    $fullDestPath = $DestinationPath
-    if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
-        $fullDestPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-    }
-
-    if (!$FullPath.StartsWith($fullDestPath, [StringComparison]::OrdinalIgnoreCase)) {
-        throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $FullPath, $fullDestPath)
-    }
-}
-
-function WriteContentWithEncoding([string]$path, [string[]]$content, [string]$encoding) {
-    if ($encoding -match '-nobom') {
-        $encoding,$dummy = $encoding -split '-'
-
-        $noBomEncoding = $null
-        switch ($encoding) {
-            'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
-        }
-
-        if ($null -eq $content) {
-            $content = [string]::Empty
-        }
-
-        [System.IO.File]::WriteAllLines($path, $content, $noBomEncoding)
-    }
-    else {
-        Set-Content -LiteralPath $path -Value $content -Encoding $encoding
-    }
-}
-
-function ColorForOperation($operation) {
-    switch ($operation) {
-        $LocalizedData.OpConflict      { 'Red' }
-        $LocalizedData.OpCreate        { 'Green' }
-        $LocalizedData.OpForce         { 'Yellow' }
-        $LocalizedData.OpIdentical     { 'Cyan' }
-        $LocalizedData.OpModify        { 'Magenta' }
-        $LocalizedData.OpUpdate        { 'Green' }
-        $LocalizedData.OpMissing       { 'Red' }
-        $LocalizedData.OpVerify        { 'Green' }
-        default { $Host.UI.RawUI.ForegroundColor }
-    }
-}
-
-function GetMaxOperationLabelLength {
-    ($LocalizedData.OpCreate,   $LocalizedData.OpIdentical,
-               $LocalizedData.OpConflict, $LocalizedData.OpForce,
-               $LocalizedData.OpMissing,  $LocalizedData.OpModify,
-               $LocalizedData.OpUpdate,   $LocalizedData.OpVerify |
-                  Measure-Object -Property Length -Maximum).Maximum
-}
-
-function WriteOperationStatus($operation, $message) {
-    $maxLen = GetMaxOperationLabelLength
-    Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (ColorForOperation $operation) -NoNewline
-    Write-Host $message
-}
-
-function WriteOperationAdditionalStatus([string[]]$Message) {
-    $maxLen = GetMaxOperationLabelLength
-    foreach ($msg in $Message) {
-        $lines = $msg -split "`n"
-        foreach ($line in $lines) {
-            Write-Host ("{0,$maxLen} {1}" -f "",$line)
-        }
-    }
-}
-
-function GetGitConfigValue($name) {
-    # Very simplistic git config lookup
-    # Won't work with namespace, just use final element, e.g. 'name' instead of 'user.name'
-
-    # The $Home dir may not be reachable e.g. if on network share and/or script not running as admin.
-    # See issue https://github.com/PowerShell/Plaster/issues/92
-    if (!(Test-Path -LiteralPath $Home)) {
-        return
-    }
-
-    $gitConfigPath = Join-Path $Home '.gitconfig'
-    Write-Debug "Looking for '$name' value in Git config: $gitConfigPath"
-
-    if (Test-Path -LiteralPath $gitConfigPath) {
-        $matches = Select-String -LiteralPath $gitConfigPath -Pattern "\s+$name\s+=\s+(.+)$"
-        if (@($matches).Count -gt 0)
-        {
-            $matches.Matches.Groups[1].Value
-        }
-    }
 }

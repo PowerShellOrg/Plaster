@@ -6,10 +6,10 @@ Properties {
     # ----------------------- Basic properties --------------------------------
 
     # The root directories for the module's docs, src and test.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DocsRootDir')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $DocsRootDir = "$PSScriptRoot/docs"
     $SrcRootDir  = "$PSScriptRoot/src"
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TestRootDir')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $TestRootDir = "$PSScriptRoot/test"
 
     # The name of your module should match the basename of the PSD1 file.
@@ -19,17 +19,17 @@ Properties {
 
     # The $OutDir must match the ModuleName in order to support publishing the module.
     $ReleaseDir = "$PSScriptRoot/Release"
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='OutDir')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $OutDir     = "$ReleaseDir/$ModuleName"
 
     # Default Locale used for documentation generatioon, defaults to en-US.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultLocale')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $DefaultLocale = $null
 
     # Items in the $Exclude array will not be copied to the $OutDir e.g. $Exclude = @('.gitattributes')
     # Typically you wouldn't put any file under the src dir unless the file was going to ship with
     # the module. However, if there are such files, add their $SrcRootDir relative paths to the exclude list.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='Exclude')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $Exclude = @()
 
     # -------------------- Script analysis properties ------------------------------
@@ -38,17 +38,17 @@ Properties {
     # the CodeAnalysisStop variable can be used. The supported values for this variable are
     # 'Warning', 'Error', 'All', 'None' or 'ReportOnly'. Invalid input will stop on all rules.
     # 'None' will skip over the code analysis step all together.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisAction')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ScriptAnalysisAction = 'None'
 
     # Path to PowerShell Script Analyzer settings file.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ScriptAnalysisSettingsPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ScriptAnalysisSettingsPath = "$PSScriptRoot\ScriptAnalyzerSettings.psd1"
 
     # The script analysis task step will run, unless your host is in the array defined below.
     # This allows you to control whether code analysis is executed, for hosts where script
     # analysis is included in the product.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SkipScriptAnalysisHost')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $SkipScriptAnalysisHost = @(
         'Visual Studio Code Host',
         'My Custom Host with scriptanalyzer support'
@@ -60,7 +60,7 @@ Properties {
     # You can specify the certificate's subject name below. If not specified, you will be prompted to
     # provide either a subject name or path to a PFX file.  After this one time prompt, the value will
     # saved for future use and you will no longer be prompted.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SignScripts')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $SignScripts = $false
 
     # Specify the Subject Name of the certificate used to sign your scripts.  Leave it as $null and the
@@ -73,11 +73,11 @@ Properties {
     #
     # Import-PfxCertificate -FilePath .\myCodeSigingCert.pfx -CertStoreLocation Cert:\CurrentUser\My
     #
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertSubjectName')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $CertSubjectName = $null
 
     # Certificate store path.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='CertPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $CertPath = "Cert:\"
 
     # -------------------- Publishing properties ------------------------------
@@ -85,16 +85,16 @@ Properties {
     # Your NuGet API key for the PSGallery.  Leave it as $null and the first time you publish,
     # you will be prompted to enter your API key.  The build will store the key encrypted in the
     # settings file, so that on subsequent publishes you will no longer be prompted for the API key.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='NuGetApiKey')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $NuGetApiKey = $null
 
     # Name of the repository you wish to publish to. If $null is specified the default repo (PowerShellGallery) is used.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='PublishRepository')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $PublishRepository = $null
 
     # Path to the release notes file.  Set to $null if the release notes reside in the manifest file.
     # The contents of this file are used during publishing for the ReleaseNotes parameter.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ReleaseNotesPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ReleaseNotesPath = "$PSScriptRoot\ReleaseNotes.md"
 
     # ----------------------- Misc properties ---------------------------------
@@ -102,22 +102,22 @@ Properties {
     # In addition, PFX certificates are supported in an interactive scenario only,
     # as a way to import a certificate into the user personal store for later use.
     # This can be provided using the CertPfxPath parameter. PFX passwords will not be stored.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='SettingsPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $SettingsPath = "$env:LOCALAPPDATA\Plaster\NewModuleTemplate\SecuredBuildSettings.clixml"
 
     # The local installation directory for the install task. Defaults to your user PSModulePath.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='InstallPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $InstallPath = $null
 
     # Specifies an output file path to send to Invoke-Pester's -OutputFile parameter.
     # This is typically used to write out test results so that they can be sent to a CI
     # system like AppVeyor.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TestOutputFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $TestOutputFile = $null
 
     # Specifies the test output format to use when the TestOutputFile property is given
     # a path.  This parameter is passed through to Invoke-Pester's -OutputFormat parameter.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TestOutputFormat')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $TestOutputFormat = "NUnitXml"
 }
 

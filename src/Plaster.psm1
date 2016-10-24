@@ -57,28 +57,28 @@ data LocalizedData {
 Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
 
 # Module variables
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='LatestSupportedSchemaVersion')]
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $LatestSupportedSchemaVersion = [System.Version]'0.4'
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='TargetNamespace')]
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
-[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='DefaultEncoding')]
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $DefaultEncoding = 'Default'
 
 if ($IsWindows) {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 }
 elseif ($IsLinux) {
     # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ParameterDefaultValueStoreRootPath = if ($XDG_DATA_HOME) { "$XDG_DATA_HOME/plaster"  } else { "$Home/.local/share/plaster" }
 }
 else {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '', Scope='*', Target='ParameterDefaultValueStoreRootPath')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ParameterDefaultValueStoreRootPath = "$Home/.plaster"
 }
 
-# Dot source the module command scripts
+# Dot source the individual module command scripts.
 . $PSScriptRoot\NewPlasterManifest.ps1
 . $PSScriptRoot\TestPlasterManifest.ps1
 . $PSScriptRoot\InvokePlaster.ps1
