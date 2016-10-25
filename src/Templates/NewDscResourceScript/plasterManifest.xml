@@ -4,7 +4,7 @@
         <id>d1e2e756-d4cb-4aea-83c7-c03f2f8fed31</id>
         <name>NewDscResourceScriptFile</name>
         <title>New DSC Resource Script File</title>
-        <description>Scaffolds a script file with three required DSC resouce functions.</description>
+        <description>Scaffolds a script file with the three required DSC resource functions.</description>
         <version>1.0.0</version>
         <tags>DSC, Resource, DSCResource</tags>
     </metadata>

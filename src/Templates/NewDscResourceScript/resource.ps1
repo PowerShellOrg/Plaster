@@ -1,11 +1,14 @@
 # The Get-<%=$PLASTER_PARAM_TargetResourceName%> function fetches the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
 # in the parameters for the target machine.
 function Get-<%=$PLASTER_PARAM_TargetResourceName%> {
+    [OutputType([Hashtable])]
     param (
     )
 
-    # Get and return an object representing the target resource instance.
+    # Return a hashtable of name/value pairs representing the target resource instance.
+    @{
 
+    }
 }
 
 # The Set-<%=$PLASTER_PARAM_TargetResourceName%> function is used to create, delete or configure a <%=$PLASTER_PARAM_TargetResourceName%> resource
@@ -16,7 +19,9 @@ function Set-<%=$PLASTER_PARAM_TargetResourceName%> {
     )
 
     # Set the target resource instance based on parameters passed into function.
+    if ($PSCmdlet.ShouldProcess("<%=$PLASTER_PARAM_TargetResourceName%>", "Set Resource")) {
 
+    }
 }
 
 # The Test-<%=$PLASTER_PARAM_TargetResourceName%> function tests the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
