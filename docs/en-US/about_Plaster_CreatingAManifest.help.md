@@ -74,7 +74,7 @@ Data for these parameters can be taken either as parameters to `Invoke-Plaster`,
 - `name`    - The name of the parameter. This is used as the identity to refer to and store the parameter value.
 - `type`    - the type of parameter, currently supported values are `text`, `choice`, `multichoice`, `user-fullname` and `user-email`.
 - `default` - The default value of the parameter, displayed in the UI inside parentheses. This is an optional attribute to assist users of your template. Default values for the `user-fullname` and `user-email` parameter types are retrieved from the user's .gitconfig if no stored value is available.
-- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. The supported types are the same as the available parameter types. Stored data is saved to a user profile folder and the filename is a function of the template name and version (`Name-Version-ID.clixml`).
+- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. Stored values will then be used as the default value the next time the template is run with `Invoke-Plaster`. The supported values are the same as the available parameter types and determines whether the stored value will be text, or encrypted. Stored data is saved to a user profile folder and the filename is a function of the template name and version (`Name-Version-ID.clixml`).
 
 Locations for the template input store differ based on operating system. Here is the list of possible locations and when they will be used:
 
@@ -289,11 +289,11 @@ This example shows Plaster parameter expansion working in the message element:
 ```
 
 ### Content element: Modify
-The modify element allows you to replace file contents, allowing you to copy files using the `file` element, then substituting content to meet your needs. Multiple original, substitute and condition attributes can be used in a single modify element to modify a file to your requirements.
+The modify element allows you to replace file contents, allowing you to copy files using the `file` element, then substituting content to meet your needs. Multiple replace elements can be used in a single modify element. Each replace element has one original and one substitute element to define what that replace operation does to the file.
 
 Available attributes for this content element are:
 - `replace`   - Specify a replacement operation of the file content.
-    - `original`   - The original text, or regular expression match to replace. If just searching for text, regular expression syntax must be used by escaping backslashes and other special characters.
+    - `original`   - The original text, or regular expression match to replace. If just searching for text, regular expression syntax must be used by escaping backslashes and other special characters. Additionally, because XML has to encode certain element content characters you might use in a regular expression (`<`, `>`), you may want to use a CDATA section to encode the expression.
         - `expand` - Whether to expand variables within the original for match.
     - `substitute` - The replacement text to substitute in place of the original text.
         - `expand` - Whether to expand variables within the substitute text.
