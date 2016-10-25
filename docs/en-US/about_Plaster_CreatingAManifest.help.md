@@ -35,7 +35,7 @@ The Plaster manifest attribute `schemaVersion` indicates the minimum required Pl
 ```
 
 ## Metadata
-The metadata section contains information about the Plaster manifest itself and requires the following data:
+The `metadata` section contains information about the Plaster manifest itself and requires the following data:
 
 - `name`        - Manifest name. This value is mandatory.
 - `id`          - The ID is the unique identifier used for the storing users
@@ -142,7 +142,7 @@ N - No license specified.
 ```
 
 ### Parameter Type: Multi Choice
-The `multichoice` parameter asks for one or more of the available options (supplied as a comma seperated list of choices). This choice type also provides a help option '`?`' used to display the help text:
+The `multichoice` parameter asks for one or more of the available options (supplied as a comma separated list of choices). This choice type also provides a help option '`?`' used to display the help text:
 ```xml
 <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
   <choice label='&amp;Pester test support'
@@ -201,7 +201,7 @@ The available element types are:
 - `templateFile`      - Specify one or more template files to copy and expand under the destination folder.
 - `message`           - Display a message to the user.
 - `modify`            - Modify an existing file under the destination folder (Used with the `file`/`templateFile` elements).
-- `newModuleManifest` - Create a new module manifest file using the New-ModuleManifest command.
+- `newModuleManifest` - Create a new module manifest file using the `New-ModuleManifest` command.
 - `requireModule`     - Checks to see if the specified module is installed. If not, the user is notified of the need to install the module.
 
 ### Content element: Common
@@ -222,10 +222,10 @@ Some elements use the encoding attribute, while not a common attribute, has a co
 
 Element attribute values support the use of Plaster parameters, which are parameter values that can be expanded into file names, or other pieces of information the template deals with. These map to available parameters, licenses and other data that is provided in the template.
 
-TODO: Talk about the Plaster parameters.
+TODO: Explain Plaster parameters and provide a list.
 
 ### Content element: File
-One or more files can be selected (using wildcards) with each file element. Attribute values support the inclusion of Plaster parameters to control (as an example) the location or the name of the resulting file.
+One or more files can be selected (using wild cards like `*`) with each file element. Attribute values support the inclusion of Plaster parameters to control (as an example) the location or the name of the resulting file.
 
 Available attributes for this content element:
 - `source`      - Specifies the relative path to the file in the template's root folder.
@@ -251,7 +251,7 @@ Two more complex examples are:
 ```
 
 ### Content element: TemplateFile
-Specify one or more template files (using wildcards, as with the file element) to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
+Specify one or more template files (using wild cards, as with the file element) to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
 
 Available attributes for this content element:
 - `source`      - Specifies the relative path to the file in the template's root folder.
@@ -259,7 +259,7 @@ Available attributes for this content element:
 - `encoding`    - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
 - `condition`
 
-An example of using the teplate file element:
+An example of using the template file element:
 
 ```xml
 <templateFile source='test\Shared.ps1'
@@ -340,7 +340,7 @@ Here is an example of the `newModuleManifest` element:
 ```
 
 ### Content element: RequireModule
-The requireModule element specifies modules that are required under certain conditions resulting from the choices input by the user.
+The `requireModule` element specifies modules that are required under certain conditions resulting from the choices input by the user.
 
 Available attributes for this content element:
 - `name`            - Specifies the name of the required module.
@@ -361,7 +361,7 @@ Available attributes for this content element:
 # EXAMPLES
 You can create a base plaster manifest by running the New-PlasterManifest command.
 
-See the included NewModule `plasterManifest.xml` for more in-depth examples.
+See the included `NewModule` or `NewDscResourceScript` `plasterManifest.xml` for more examples.
 
 # NOTE
 You can find additional information about Plaster at the [GitHub page](https://github.com/PowerShell/Plaster)
