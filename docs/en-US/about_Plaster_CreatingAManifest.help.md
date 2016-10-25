@@ -289,7 +289,7 @@ This example shows Plaster parameter expansion working in the message element:
 ```
 
 ### Content element: Modify
-The modify element allows you to replace file contents, allowing you to copy files using the `file` element, then substituting content to meet your needs.
+The modify element allows you to replace file contents, allowing you to copy files using the `file` element, then substituting content to meet your needs. Multiple original, substitute and condition attributes can be used in a single modify element to modify a file to your requirements.
 
 Available attributes for this content element are:
 - `replace`   - Specify a replacement operation of the file content.
@@ -314,7 +314,7 @@ Here is a simple example of the modify element, using a regular expressions:
 </modify>
 ```
 
-#### NOTE: Multiple original, substitute and condition attributes can be used in a single modify element.
+#### NOTE: Only use `(?[smi])` if you need to override PowerShell's default regular expression behavior. `(?s)` means that `.` matches every char including `\n` in order for the regular expression to span multiple lines.
 
 ### Content element: NewModuleManifest
 This element allows you to create a module manifest using the data that has been input to Plaster through Plaster parameters.
