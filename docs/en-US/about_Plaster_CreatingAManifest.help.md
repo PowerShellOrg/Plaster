@@ -11,7 +11,7 @@ This about topic will explain the schema of a Plaster Manifest.
 
 For nearly all uses the `New-PlasterManifest` command is correct approach to start with, as this will ensure you generate a valid base manifest.
 
-This topic serves to document the existing manifest schema, currently version `0.4`, using the example Plaster manifest `NewModuleTemplate`.
+This topic serves to document the existing manifest schema, currently version `0.4`, using the example Plaster manifest `NewModuleTemplate`. The current plaster manifest schema can be found at [PlasterManifest-v1.xsd](https://github.com/PowerShell/Plaster/blob/master/src/Schema/PlasterManifest-v1.xsd)
 
 ## The manifest base
 The overall structure of the manifest (shown below) consists of three main sections, `metadata`, `parameters` and `content`.
@@ -21,6 +21,8 @@ The `metadata` section contains data about the manifest itself, including `title
 The `parameters` section contains information about the data that needs to be gathered from the user, either as text, or as prompted choices.
 
 The final section, `content`, contains the information on how to name and structure the output of the template from the source files, as well as other data like required modules or informational messages to the user.
+
+The Plaster manifest attribute `schemaVersion` indicates the minimum required Plaster schema capable of reading the manifest. This will be automatically created when running `New-PlasterManifest` and populated with the current schema version.
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -39,7 +41,7 @@ The metadata section contains information about the Plaster manifest itself and 
 - `id`          - The ID is the unique identifier used for the storing users
 parameter data and makes sure that the store doesn't get used with another
 template. This field is automatically generated if not given a value.
-- `version`     - Version of the manifest. Defaults to 1.0.0.
+- `version`     - Version of the manifest. Defaults to 0.1.0.
 - `title`       - Manifest name used in menu lists. Defaults to `name`.
 - `description` - Manifest description summary.
 - `tags`        - Tags used to describe the purpose of the template.
@@ -72,7 +74,19 @@ Data for these parameters can be taken either as parameters to `Invoke-Plaster`,
 - `name`    - The name of the parameter. This is used as the identity to refer to and store the parameter value.
 - `type`    - the type of parameter, currently supported values are `text`, `choice`, `multichoice`, `user-fullname` and `user-email`.
 - `default` - The default value of the parameter, displayed in the UI inside parentheses. This is an optional attribute to assist users of your template. Default values for the `user-fullname` and `user-email` parameter types are retrieved from the user's .gitconfig if no stored value is available.
-- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. The supported types are the same as the available parameter types.
+- `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. The supported types are the same as the available parameter types. Stored data is saved to a user profile folder and the filename is a function of the template name and version (`Name-Version-ID.clixml`).
+
+Locations for the template input store differ based on operating system. Here is the list of possible locations and when they will be used:
+
+Windows
+- `$env:LOCALAPPDATA\Plaster`.
+
+Linux
+- `$XDG_DATA_HOME/plaster` (If `$XDG_DATA_HOME` has a value).
+- `$Home/.local/share/plaster` (No `$XDG_DATA_HOME` value).
+
+Other
+- `$Home/.plaster`.
 
 ### Parameter Type: Text
 In interactive mode, the `text` parameter type results in a prompt for a string of text:
@@ -97,7 +111,7 @@ Additionally, a default value can be specified, as shown in the next example:
 
 This results in the following output, with the default value in parentheses:
 ```
-Enter the version number for the module (1.0.0):
+Enter the version number for the module (0.1.0):
 ```
 
 ### Parameter Type: Choice
@@ -215,7 +229,7 @@ One or more files can be selected (using wildcards) with each file element. Attr
 
 Available attributes for this content element:
 - `source`      - Specifies the relative path to the file in the template's root folder.
-- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied. Files can only be copied to a location under the destination folder.
 - `condition`
 
 A basic example of this content element would be:
@@ -237,13 +251,21 @@ Two more complex examples are:
 ```
 
 ### Content element: TemplateFile
-Specify one or more template files to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
+Specify one or more template files (using wildcards, as with the file element) to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
 
 Available attributes for this content element:
 - `source`      - Specifies the relative path to the file in the template's root folder.
 - `destination` - Specifies the relative path, under the destination folder, to where the file will be copied.
-- `encoding`    - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `encoding`    - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
 - `condition`
+
+An example of using the teplate file element:
+
+```xml
+<templateFile source='test\Shared.ps1'
+              destination='test\Shared.ps1'
+              condition="$PLASTER_PARAM_Options -contains 'Pester'"/>
+```
 
 ### Content element: Message
 The message type is a pretty straightforward element with two potential attributes (both optional).
@@ -271,11 +293,13 @@ The modify element allows you to replace file contents, allowing you to copy fil
 
 Available attributes for this content element are:
 - `replace`   - Specify a replacement operation of the file content.
-    - `original`   - The original text, or regular expression match to replace.
+    - `original`   - The original text, or regular expression match to replace. If just searching for text, regular expression syntax must be used by escaping backslashes and other special characters.
+        - `expand` - Whether to expand variables within the original for match.
     - `substitute` - The replacement text to substitute in place of the original text.
+        - `expand` - Whether to expand variables within the substitute text.
     - `condition`
 - `path`      - Specifies the relative path, under the destination folder, of the file to be modified.
-- `encoding`  - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `encoding`  - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
 - `condition`
 
 Here is a simple example of the modify element, using a regular expressions:
@@ -302,7 +326,7 @@ Available attributes for this content element:
 - `description`   - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
 - `moduleVersion` - Specifies the value of the ModuleVersion property.
 - `rootModule`    - Specifies the value of the RootModule property.
-- `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values.
+- `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
 - `condition`
 
 Here is an example of the `newModuleManifest` element:
@@ -325,6 +349,8 @@ Available attributes for this content element:
 - `requiredVersion` - Specifies a specific version of the module. This attribute cannot be used with either the `minimumVersion` or `maximumVersion` attributes. Use this attribute rarely as any update to the module that changes its version will result in this check failing.
 - `message`         - Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine. This message should be used to tell the user what functionality will not work without the specified module.
 - `condition`
+
+#### NOTE: All versions in this element should be specified in the three part MAJOR.MINOR.PATCH (Semver) format.
 
 ```xml
 <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"'
