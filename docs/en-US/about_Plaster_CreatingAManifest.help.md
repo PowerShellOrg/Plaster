@@ -11,7 +11,7 @@ This about topic will explain the schema of a Plaster Manifest.
 
 For nearly all uses the `New-PlasterManifest` command is correct approach to start with, as this will ensure you generate a valid base manifest.
 
-This topic serves to document the existing manifest schema, currently version `0.4`, using the example Plaster manifest `NewModuleTemplate`. The current plaster manifest schema can be found at [PlasterManifest-v1.xsd](https://github.com/PowerShell/Plaster/blob/master/src/Schema/PlasterManifest-v1.xsd)
+This topic serves to document the existing manifest schema, currently version `0.4`, using the example Plaster manifest `NewModuleTemplate`. The current Plaster manifest schema can be found at [PlasterManifest-v1.xsd](https://github.com/PowerShell/Plaster/blob/master/src/Schema/PlasterManifest-v1.xsd)
 
 ## The manifest base
 The overall structure of the manifest (shown below) consists of three main sections, `metadata`, `parameters` and `content`.
@@ -359,7 +359,7 @@ Available attributes for this content element:
 ```
 
 # EXAMPLES
-You can create a base plaster manifest by running the New-PlasterManifest command.
+You can create a base Plaster manifest by running the New-PlasterManifest command.
 
 See the included `NewModule` or `NewDscResourceScript` `plasterManifest.xml` for more examples.
 
