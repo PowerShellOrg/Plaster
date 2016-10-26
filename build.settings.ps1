@@ -56,12 +56,20 @@ Properties {
 
     # ------------------- Testing properties ----------------------------------
 
+    # To control the build with code coverage, the $CodeCoverageStop variable can be used.
+    # The supported values for this variable are $true, $false and $null. $true enables
+    # code coverage, with the $CodeCoveragePercentage variable to reach (info below).
+    # $false disables code coverage entirely, while $null enables code coverage, but will
+    # only report on coverage status and not stop the build.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CodeCoverageStop = $null
+
     # You can specify a minimum code coverage percentage that must be reached in order
     # for the test task to pass. The code coverage test is not performed if
     # $CodeCoveragePercentage is 0. If $CodeCoveragePercentage is non-zero, but is not
     # reached, the build script will fail.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoveragePercentage = 0
+    $CodeCoveragePercentage = 60
 
     # CodeCoverageFiles specifies the files to perform code coverage analysis on. This property
     # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions

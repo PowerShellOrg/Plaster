@@ -270,7 +270,7 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
             }
         }
 
-        if ($CodeCoveragePercentage) {
+        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
             $Testing.CodeCoverage = $CodeCoverageSelection
         }
 
@@ -280,13 +280,15 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
             $TestResult.FailedCount -eq 0
         ) -failureMessage "One or more Pester tests failed, build cannot continue."
 
-        if ($CodeCoveragePercentage) {
+        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
             $TestCoverage = [int]($TestResult.CodeCoverage.NumberOfCommandsExecuted /
                 $TestResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
 
-            Assert -conditionToCheck (
-                $TestCoverage -gt $CodeCoveragePercentage
-            ) -failureMessage "Pester code coverage test failed. ($TestCoverage% Achieved, $CodeCoveragePercentage% Required.)"
+            if ($CodeCoverageStop) {
+                Assert -conditionToCheck (
+                    $TestCoverage -gt $CodeCoveragePercentage
+                ) -failureMessage "Pester code coverage test failed. ($TestCoverage% Achieved, $CodeCoveragePercentage% Required.)"
+            }
         }
     }
     finally {
