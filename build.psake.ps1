@@ -256,13 +256,42 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
 
         if ($TestOutputFile) {
-            $TestResult = Invoke-Pester -OutputFile $TestOutputFile -OutputFormat $TestOutputFormat -PassThru -Verbose:$VerbosePreference
+            $Testing = @{
+                OutputFile   = $TestOutputFile
+                OutputFormat = $TestOutputFormat
+                PassThru     = $true
+                Verbose      = $VerbosePreference
+            }
         }
         else {
-            $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
+            $Testing = @{
+                PassThru     = $true
+                Verbose      = $VerbosePreference
+            }
         }
 
-        Assert ($TestResult.FailedCount -eq 0) "One or more Pester tests failed, build cannot continue."
+        # To control the Pester code coverage, a boolean $CodeCoverageStop is used. ($true, $false and $null).
+        # $true enables code coverage. $false disables code coverage. $null enables code coverage but only report on coverage status.
+        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
+            $Testing.CodeCoverage = $CodeCoverageSelection
+        }
+
+        $TestResult = Invoke-Pester @Testing
+
+        Assert -conditionToCheck (
+            $TestResult.FailedCount -eq 0
+        ) -failureMessage "One or more Pester tests failed, build cannot continue."
+
+        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
+            $TestCoverage = [int]($TestResult.CodeCoverage.NumberOfCommandsExecuted /
+                $TestResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
+
+            if ($CodeCoverageStop) {
+                Assert -conditionToCheck (
+                    $TestCoverage -gt $CodeCoveragePercentage
+                ) -failureMessage "Pester code coverage test failed. ($TestCoverage% Achieved, $CodeCoveragePercentage% Required.)"
+            }
+        }
     }
     finally {
         Microsoft.PowerShell.Management\Pop-Location
