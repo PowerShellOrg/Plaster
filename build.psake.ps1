@@ -270,6 +270,8 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
             }
         }
 
+        # To control the Pester code coverage, a boolean $CodeCoverageStop is used. ($true, $false and $null).
+        # $true enables code coverage. $false disables code coverage. $null enables code coverage but only report on coverage status.
         if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
             $Testing.CodeCoverage = $CodeCoverageSelection
         }

@@ -62,7 +62,7 @@ Properties {
     # $false disables code coverage entirely, while $null enables code coverage, but will
     # only report on coverage status and not stop the build.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoverageStop = $null
+    $CodeCoverageStop = $false
 
     # You can specify a minimum code coverage percentage that must be reached in order
     # for the test task to pass. The code coverage test is not performed if
@@ -75,7 +75,7 @@ Properties {
     # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions
     # like the ones found here: https://github.com/pester/Pester/wiki/Code-Coverage.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoverageSelection = "$SrcRootDir\*.ps1"
+    $CodeCoverageSelection = "$SrcRootDir\*.ps1", "$SrcRootDir\*.psm1"
 
     # ------------------- Script signing properties ---------------------------
 
