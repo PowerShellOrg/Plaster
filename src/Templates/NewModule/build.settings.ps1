@@ -54,6 +54,21 @@ Properties {
         'My Custom Host with scriptanalyzer support'
     )
 
+    # ------------------- Testing properties ----------------------------------
+
+    # You can specify a minimum code coverage percentage that must be reached in order
+    # for the test task to pass. The code coverage test is not performed if
+    # $CodeCoveragePercentage is 0. If $CodeCoveragePercentage is non-zero, but is not
+    # reached, the build script will fail.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CodeCoveragePercentage = 0
+
+    # CodeCoverageFiles specifies the files to perform code coverage analysis on. This property
+    # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions
+    # like the ones found here: https://github.com/pester/Pester/wiki/Code-Coverage.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CodeCoverageSelection = "$SrcRootDir\*.ps1"
+
     # ------------------- Script signing properties ---------------------------
 
     # Set to $true if you want to sign your scripts. You will need to have a code-signing certificate.

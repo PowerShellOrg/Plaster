@@ -256,13 +256,38 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
 
         if ($TestOutputFile) {
-            $TestResult = Invoke-Pester -OutputFile $TestOutputFile -OutputFormat $TestOutputFormat -PassThru -Verbose:$VerbosePreference
+            $Testing = @{
+                OutputFile   = $TestOutputFile
+                OutputFormat = $TestOutputFormat
+                PassThru     = $true
+                Verbose      = $VerbosePreference
+            }
         }
         else {
-            $TestResult = Invoke-Pester -PassThru -Verbose:$VerbosePreference
+            $Testing = @{
+                PassThru     = $true
+                Verbose      = $VerbosePreference
+            }
         }
 
-        Assert ($TestResult.FailedCount -eq 0) "One or more Pester tests failed, build cannot continue."
+        if ($CodeCoveragePercentage) {
+            $Testing.CodeCoverage = $CodeCoverageSelection
+        }
+
+        $TestResult = Invoke-Pester @Testing
+
+        Assert -conditionToCheck (
+            $TestResult.FailedCount -eq 0
+        ) -failureMessage "One or more Pester tests failed, build cannot continue."
+
+        if ($CodeCoveragePercentage) {
+            $TestCoverage = [int]($TestResult.CodeCoverage.NumberOfCommandsExecuted /
+                $TestResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
+
+            Assert -conditionToCheck (
+                $TestCoverage -gt $CodeCoveragePercentage
+            ) -failureMessage "Pester code coverage test failed. ($TestCoverage% Achieved, $CodeCoveragePercentage% Required.)"
+        }
     }
     finally {
         Microsoft.PowerShell.Management\Pop-Location
