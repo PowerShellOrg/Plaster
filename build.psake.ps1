@@ -205,7 +205,7 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
 
     if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
         Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-           Update-MarkdownHelp -Path $_.FullName > $null
+            Update-MarkdownHelp -Path $_.FullName > $null
         }
     }
 
