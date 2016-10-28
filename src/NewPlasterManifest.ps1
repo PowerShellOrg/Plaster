@@ -31,8 +31,8 @@
 .EXAMPLE
     PS C:\> New-PlasterManifest -AddContent
     Creates a plasterManifest.xml file in the current directory with the content element filled in with all the
-    files (except for any plasterManifest files) in and below the specified directory which defaulits to the
-    current directory .
+    files (except for any plasterManifest files) in and below the specified directory which defaults to the
+    current directory.
 .INPUTS
     None
 
