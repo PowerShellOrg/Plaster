@@ -44,7 +44,7 @@
     Description = 'Plaster scaffolds PowerShell projects and files.'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '5.0'
+    PowerShellVersion = '3.0'
 
     # Functions to export from this module - explicitly list each function that should be
     # exported.  This improves performance of PowerShell when discovering the commands in
