@@ -2,8 +2,8 @@
 .SYNOPSIS
     Verifies that a plaster manifest file is a valid.
 .DESCRIPTION
-    Verifies that a plaster manifest file is a valid.  The details of the
-    errors can be viewed by using the Verbose parameter.
+    Verifies that a plaster manifest file is a valid. If there are any errors,
+    the details of the errors can be viewed by using the Verbose parameter.
 .EXAMPLE
     PS C:\> Test-PlasterManifest MyTemplate\plasterManifest.xml
     Verifies that the plasterManifest.xml file in the MyTemplate sub-directory
@@ -20,9 +20,10 @@
     System.Xml.XmlDocument
 
     Test-PlasterManifest returns a System.Xml.XmlDocument if the manifest is
-    valid.  Otherwise it returns $null.
+    valid. Otherwise it returns $null.
 .LINK
     Invoke-Plaster
+    New-PlasterManifest
 #>
 function Test-PlasterManifest {
     [CmdletBinding()]
