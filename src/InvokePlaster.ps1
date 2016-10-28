@@ -8,8 +8,8 @@
 ##     processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
 ##     processed not only in the ProcessParameter function but also in the dynamicparam function.
 ##
-##  3. Non-exported functions (subroutines) should avoid using PowerShell standart Verb-Noun naming convention.
-##     They should use camalCase or CamalCase instead.
+##  3. Non-exported functions should avoid using the PowerShell standard Verb-Noun naming convention.
+##     They should use PascalCase instead.
 ##
 ##  4. Please follow the scripting style of this file when adding new script.
 
