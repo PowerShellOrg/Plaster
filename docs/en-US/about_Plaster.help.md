@@ -1,6 +1,5 @@
+# Plaster
 ## about_Plaster
-# TOPIC
-Plaster 0.3.0
 
 # SHORT DESCRIPTION
 Plaster is a scaffolding engine for PowerShell. It can be used to create a single file such as a DSC resource
