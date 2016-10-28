@@ -147,6 +147,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[New-PlasterManifest
-Test-PlasterManifest]()
+[New-PlasterManifest](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/New-PlasterManifest.md)
+[Test-PlasterManifest](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Test-PlasterManifest.md)
 

@@ -205,7 +205,7 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
 
     if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
         Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-            Update-MarkdownHelp -Path $_.FullName > $null
+           Update-MarkdownHelp -Path $_.FullName > $null
         }
     }
 
@@ -220,7 +220,7 @@ Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
 
 Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
     if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
-        "No markdown help files to process. Skipping BuildDocs task."
+        "No markdown help files to process. Skipping BuildHelp task."
         return
     }
 

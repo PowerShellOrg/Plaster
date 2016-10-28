@@ -280,5 +280,6 @@ You cannot pipe input to this cmdlet.
 
 ## RELATED LINKS
 
-[Invoke-Plaster]()
+[Invoke-Plaster](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Invoke-Plaster.md)
+[Test-PlasterManifest](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Test-PlasterManifest.md)
 

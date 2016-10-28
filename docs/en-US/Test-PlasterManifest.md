@@ -75,6 +75,6 @@ valid. Otherwise it returns $null.
 
 ## RELATED LINKS
 
-[Invoke-Plaster
-New-PlasterManifest]()
+[Invoke-Plaster](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Invoke-Plaster.md)
+[New-PlasterManifest](https://github.com/PowerShell/Plaster/blob/master/docs/en-US/New-PlasterManifest.md)
 

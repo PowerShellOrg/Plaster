@@ -41,6 +41,7 @@
     None
 .LINK
     Invoke-Plaster
+    Test-PlasterManifest
 #>
 function New-PlasterManifest {
     [CmdletBinding(SupportsShouldProcess=$true)]
