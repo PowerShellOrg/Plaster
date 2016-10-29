@@ -220,7 +220,7 @@ Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
 
 Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
     if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
-        "No markdown help files to process. Skipping BuildDocs task."
+        "No markdown help files to process. Skipping BuildHelp task."
         return
     }
 
@@ -272,7 +272,7 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
 
         # To control the Pester code coverage, a boolean $CodeCoverageStop is used. ($true, $false and $null).
         # $true enables code coverage. $false disables code coverage. $null enables code coverage but only report on coverage status.
-        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
+        if ($CodeCoverageStop -ne $false) {
             $Testing.CodeCoverage = $CodeCoverageSelection
         }
 
@@ -282,7 +282,7 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
             $TestResult.FailedCount -eq 0
         ) -failureMessage "One or more Pester tests failed, build cannot continue."
 
-        if ($CodeCoverageStop -or ($null -eq $CodeCoverageStop)) {
+        if ($CodeCoverageStop -ne $false) {
             $TestCoverage = [int]($TestResult.CodeCoverage.NumberOfCommandsExecuted /
                 $TestResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
 

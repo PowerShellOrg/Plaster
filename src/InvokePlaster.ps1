@@ -1,52 +1,37 @@
-<#
-NOTE TO DEVELOPERS:
-All text displayed to the user except for Write-Debug (or $PSCmdlet.WriteDebug()) text must be added to the
-string tables in:
-    en-US\Plaster.psd1
-    Plaster.psm1
+## DEVELOPERS NOTES & CONVENTIONS
+##
+##  1. All text displayed to the user except for Write-Debug (or $PSCmdlet.WriteDebug()) text must be added to the
+##     string tables in:
+##         en-US\Plaster.psd1
+##         Plaster.psm1
+##  2. If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then
+##     processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
+##     processed not only in the ProcessParameter function but also in the dynamicparam function.
+##
+##  3. Non-exported functions should avoid using the PowerShell standard Verb-Noun naming convention.
+##     They should use PascalCase instead.
+##
+##  4. Please follow the scripting style of this file when adding new script.
 
-If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then
-processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
-processed not only in the ProcessParameter function but also in the dynamicparam function.
-
-Please follow the scripting style of this file when adding new script.
-#>
-
-<#
-.SYNOPSIS
-    Invokes the specified Plaster template which will scaffold out a file or set of files.
-.DESCRIPTION
-    Invokes the specified Plaster template which will scaffold out a file or set of files.
-.EXAMPLE
-    C:\PS> Invoke-Plaster -TemplatePath NewModule.zip -Destination .\NewModule
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function', Target='ProcessParameter')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        # Specifies the path to either the Template directory or a ZIP file containing the template.
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
 
-        # Specifies the path to directory in which the template will use as a root directory when generating files.
         [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $DestinationPath,
 
-        # Specify Force to override user prompts for conflicting handling.  This will override the confirmation
-        # prompt and allow the template to over write existing files.
         [Parameter()]
         [switch]
         $Force,
 
-        # Suppresses the display of the Plaster logo.
         [Parameter()]
         [switch]
         $NoLogo
@@ -75,7 +60,6 @@ function Invoke-Plaster {
             # are not building up multiple parametersets.  And no need for ExpandString since we are only
             # grabbing the parameter's value which is static.
             $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
-
             if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
                 throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
             }
