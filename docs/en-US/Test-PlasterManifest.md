@@ -50,7 +50,7 @@ Parameter Sets: (All)
 Aliases: PSPath
 
 Required: False
-Position: 1
+Position: 0
 Default value: "$pwd\plasterManifest.xml"
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False

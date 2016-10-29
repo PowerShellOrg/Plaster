@@ -70,14 +70,24 @@ current directory.
 
 ## PARAMETERS
 
-### -Path
-Specifies the path and file name of the new Plaster manifest.
-Enter a path and file name with a .xml
-extension, such as $pshome\Modules\MyPlasterTemplate\plasterManifest.xml.
-NOTE: Plaster requires the manifest
-file be named either plasterManifest.xml OR plasterManifest_\<culture-name\>.xml e.g.
-plasterManifest_fr-FR.xml.
-The default, if no value is provided is to create plasterManifest.xml in the current directory.
+### -AddContent
+If specified, the contents of the directory the manifest is being created in will be added to the
+manifest's content element.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Author
+Specifies the author of the template.
 
 ```yaml
 Type: String
@@ -85,25 +95,41 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
-Default value: "$pwd\plasterManifest.xml"
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-Specifies the name of the template.
-A template name is required.
-For localized manifests, this value
-should not be localized.
-The name is limited characters aA-zZ0-9_-.
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Description
+Description of the Plaster template.
+This describes what the the template is for.
+It is typically used in
+an editor like VSCode when displaying additional information about a Plaster template.
+A typical title might be "Creates files required for a PowerShell module with optional support for Pester
+tests, building with psake and publishing to the PowerShell Gallery."
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -128,6 +154,62 @@ Aliases:
 Required: False
 Position: Named
 Default value: [guid]::NewGuid()
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Name
+Specifies the name of the template.
+A template name is required.
+For localized manifests, this value
+should not be localized.
+The name is limited to the characters aA-zZ0-9_-.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Specifies the path and file name of the new Plaster manifest.
+Enter a path and file name with a .xml
+extension, such as $pshome\Modules\MyPlasterTemplate\plasterManifest.xml.
+NOTE: Plaster requires the manifest
+file be named either plasterManifest.xml OR plasterManifest_\<culture-name\>.xml e.g.
+plasterManifest_fr-FR.xml.
+The default, if no value is provided is to create plasterManifest.xml in the current directory.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 0
+Default value: "$pwd\plasterManifest.xml"
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Tags
+Specifies an array of tags for the template.
+Users can search for templates based on these tags.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -165,73 +247,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Description
-Description of the Plaster template.
-This describes what the the template is for.
-It is typically used in
-an editor like VSCode when displaying additional information about a Plaster template.
-A typical title might be "Creates files required for a PowerShell module with optional support for Pester
-tests, building with psake and publishing to the PowerShell Gallery."
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Tags
-Specifies an array of tags for the template.
-Users can search for templates based on these tags.
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Author
-Specifies the author of the template.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AddContent
-If specified, the contents of the directory the manifest is being created in will be added to the
-manifest's content element.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -WhatIf
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
@@ -240,21 +255,6 @@ The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
 
 Required: False
 Position: Named
