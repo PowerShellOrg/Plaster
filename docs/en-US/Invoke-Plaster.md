@@ -17,7 +17,8 @@ Invoke-Plaster [-TemplatePath] <String> [-DestinationPath] <String> [-Force] [-N
 ```
 
 ## DESCRIPTION
-Invokes the specified Plaster template which will scaffold out a file or a set of files and directories.
+Invokes the specified Plaster template which will scaffold out a file or a
+set of files and directories.
 
 ## EXAMPLES
 
@@ -35,10 +36,10 @@ directories in the ~\GitHub\NewModule directory.
 Invoke-Plaster -TemplatePath . -Destination ~\GitHub\NewModule -ModuleName Foo -Version 1.0.0
 ```
 
-This will invoke the Plaster template in the current directory using dynamic parameters ModuleName and
-Version extracted from the parameters section of the manifest file.
-The template will generate any files and
-directories in the ~\GitHub\NewModule directory.
+This will invoke the Plaster template in the current directory using dynamic
+parameters ModuleName and Version extracted from the parameters section of
+the manifest file. The template will generate any files and directories in
+the ~\GitHub\NewModule directory.
 
 ## PARAMETERS
 
@@ -48,7 +49,7 @@ Specifies the path to the template directory.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -64,7 +65,7 @@ If the directory does not exist, it will be created.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 2
@@ -81,7 +82,7 @@ prompt and allow the template to overwrite existing files.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -96,7 +97,7 @@ Suppresses the display of the Plaster logo.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named

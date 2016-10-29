@@ -18,30 +18,29 @@ New-PlasterManifest [[-Path] <String>] -Name <String> [-Id <Guid>] [-TemplateVer
 ```
 
 ## DESCRIPTION
-The New-PlasterManifest command creates a new Plaster manifest file, populates its values, and saves the
-manifest file in the specified path.
+The New-PlasterManifest command creates a new Plaster manifest file,
+populates its values, and saves the manifest file in the specified path.
 
-Template authors can use this command to create a manifest for their template.
-A template manifest is a file
-named plasterManifest.xml or plasterManifest_\<culture-name\>.xml.
-The information stored in the manifest is
-used to scaffold files and folders.
+Template authors can use this command to create a manifest for their
+template. A template manifest is a file named plasterManifest.xml or
+plasterManifest_\<culture-name\>.xml. The information stored in the manifest
+is used to scaffold files and folders.
 
-The metadata section of the manifest is used to supply information about the template e.g.
-a unique id, name,
-version, title, author and tags.
+The metadata section of the manifest is used to supply information about the
+template e.g. a unique id, name, version, title, author and tags.
 
-The parameters section of the manifest is used to describe choices the template user can choose from.
-Those
-choices are then used to conditionally create files and folders and modify existing files under the specified
+The parameters section of the manifest is used to describe choices the
+template user can choose from. Those choices are then used to conditionally
+create files and folders and modify existing files under the specified
 destination path.
 
-The content section is used to specify what actions the template will perform under the user's chosen
-destination directory.
-This includes copying files to the destination, copy & expanding template files,
-modifying files, verifying required modules are installed and displaying messages to the user.
+The content section is used to specify what actions the template will perform
+under the user's chosen destination directory. This includes copying files to
+the destination, copy & expanding template files, modifying files, verifying
+required modules are installed and displaying messages to the user.
 
-See the help topic about_Plaster_CreatingAManifest for more details on authoring a Plaster manifest file.
+See the help topic about_Plaster_CreatingAManifest for more details on
+authoring a Plaster manifest file.
 
 ## EXAMPLES
 
