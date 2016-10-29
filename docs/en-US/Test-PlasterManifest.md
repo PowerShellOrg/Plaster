@@ -17,8 +17,8 @@ Test-PlasterManifest [[-Path] <String>] [<CommonParameters>]
 
 ## DESCRIPTION
 Verifies that a plaster manifest file is a valid.
-If there are any errors,
-the details of the errors can be viewed by using the Verbose parameter.
+If there are any errors, the details of the errors can be viewed by using the
+Verbose parameter.
 
 ## EXAMPLES
 
@@ -35,10 +35,9 @@ is valid.
 Test-PlasterManifest plasterManifest.xml -Verbose
 ```
 
-Verifies that the plasterManifest.xml file in the current directory
-is valid.
-If there are any validation errors, using -Verbose will
-display the details of those errors.
+Verifies that the plasterManifest.xml file in the current directory is valid.
+If there are any validation errors, using -Verbose will display the details
+of those errors.
 
 ## PARAMETERS
 
@@ -51,7 +50,7 @@ Parameter Sets: (All)
 Aliases: PSPath
 
 Required: False
-Position: 1
+Position: 0
 Default value: "$pwd\plasterManifest.xml"
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False

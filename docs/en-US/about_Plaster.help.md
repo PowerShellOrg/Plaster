@@ -16,7 +16,7 @@ a unique id, name, version, title, author and tags.
 
 The parameters section of the manifest is used to describe choices the template user can choose from.
 Those choices are then used to conditionally create files and folders and modify existing files under the specified
-destination path.
+destination path. These parameters can be specified via dynamic parameters for non-interactive scenarios.
 
 The content section is used to specify what actions the template will perform under the user's chosen
 destination directory. This includes copying files to the destination, copy & expanding template files,

@@ -17,7 +17,8 @@ Invoke-Plaster [-TemplatePath] <String> [-DestinationPath] <String> [-Force] [-N
 ```
 
 ## DESCRIPTION
-Invokes the specified Plaster template which will scaffold out a file or a set of files and directories.
+Invokes the specified Plaster template which will scaffold out a file or a
+set of files and directories.
 
 ## EXAMPLES
 
@@ -35,23 +36,23 @@ directories in the ~\GitHub\NewModule directory.
 Invoke-Plaster -TemplatePath . -Destination ~\GitHub\NewModule -ModuleName Foo -Version 1.0.0
 ```
 
-This will invoke the Plaster template in the current directory using dynamic parameters ModuleName and
-Version extracted from the parameters section of the manifest file.
-The template will generate any files and
-directories in the ~\GitHub\NewModule directory.
+This will invoke the Plaster template in the current directory using dynamic
+parameters ModuleName and Version extracted from the parameters section of
+the manifest file. The template will generate any files and directories in
+the ~\GitHub\NewModule directory.
 
 ## PARAMETERS
 
-### -TemplatePath
-Specifies the path to the template directory.
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
 
 ```yaml
-Type: String
+Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases: cf
 
-Required: True
-Position: 1
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -67,7 +68,7 @@ Parameter Sets: (All)
 Aliases: 
 
 Required: True
-Position: 2
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -105,6 +106,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -TemplatePath
+Specifies the path to the template directory.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: 
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -WhatIf
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
@@ -113,21 +129,6 @@ The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
 
 Required: False
 Position: Named
