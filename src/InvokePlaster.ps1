@@ -13,51 +13,25 @@
 ##
 ##  4. Please follow the scripting style of this file when adding new script.
 
-<#
-.SYNOPSIS
-    Invokes the specified Plaster template which will scaffold out a file or a set of files and directories.
-.DESCRIPTION
-    Invokes the specified Plaster template which will scaffold out a file or a set of files and directories.
-.EXAMPLE
-    C:\PS> Invoke-Plaster -TemplatePath . -Destination ~\GitHub\NewModule
-
-    This will invoke the Plaster template in the current directory. The template will generate any files and
-    directories in the ~\GitHub\NewModule directory.
-.EXAMPLE
-    C:\PS> Invoke-Plaster -TemplatePath . -Destination ~\GitHub\NewModule -ModuleName Foo -Version 1.0.0
-
-    This will invoke the Plaster template in the current directory using dynamic parameters ModuleName and
-    Version extracted from the parameters section of the manifest file. The template will generate any files and
-    directories in the ~\GitHub\NewModule directory.
-.LINK
-    New-PlasterManifest
-    Test-PlasterManifest
-#>
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function', Target='ProcessParameter')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        # Specifies the path to the template directory.
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
 
-        # Specifies the path to directory in which the template will use as a root directory when generating files.
-        # If the directory does not exist, it will be created.
         [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $DestinationPath,
 
-        # Specify Force to override user prompts for conflicting handling. This will override the confirmation
-        # prompt and allow the template to overwrite existing files.
         [Parameter()]
         [switch]
         $Force,
 
-        # Suppresses the display of the Plaster logo.
         [Parameter()]
         [switch]
         $NoLogo
