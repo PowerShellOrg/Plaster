@@ -163,7 +163,7 @@ Specifies the name of the template.
 A template name is required.
 For localized manifests, this value
 should not be localized.
-The name is limited to the characters aA-zZ0-9_-.
+The name is limited to the characters: aA-zZ0-9_-.
 
 ```yaml
 Type: String
