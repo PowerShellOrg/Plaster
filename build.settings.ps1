@@ -7,10 +7,10 @@ Properties {
 
     # The root directories for the module's docs, src and test.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $DocsRootDir = "$PSScriptRoot/docs"
-    $SrcRootDir  = "$PSScriptRoot/src"
+    $DocsRootDir = "$PSScriptRoot\docs"
+    $SrcRootDir  = "$PSScriptRoot\src"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $TestRootDir = "$PSScriptRoot/test"
+    $TestRootDir = "$PSScriptRoot\test"
 
     # The name of your module should match the basename of the PSD1 file.
     $ModuleName = Get-Item $SrcRootDir/*.psd1 |
@@ -18,9 +18,9 @@ Properties {
                       Select-Object -First 1 | Foreach-Object BaseName
 
     # The $OutDir must match the ModuleName in order to support publishing the module.
-    $ReleaseDir = "$PSScriptRoot/Release"
+    $ReleaseDir = "$PSScriptRoot\Release"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $OutDir     = "$ReleaseDir/$ModuleName"
+    $OutDir     = "$ReleaseDir\$ModuleName"
 
     # Default Locale used for documentation generatioon, defaults to en-US.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]

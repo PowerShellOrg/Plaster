@@ -192,25 +192,29 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
     }
 
     $moduleInfo = Import-Module $OutDir\$ModuleName.psd1 -Global -Force -PassThru
-    if ($moduleInfo.ExportedCommands.Count -eq 0) {
-        "No commands have been exported. Skipping $($psake.context.currentTaskName) task."
-        return
-    }
-
-    if (!(Test-Path -LiteralPath $DocsRootDir)) {
-        New-Item $DocsRootDir -ItemType Directory > $null
-    }
-
-    if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
-        Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-            Update-MarkdownHelp -Path $_.FullName > $null
+    try {
+        if ($moduleInfo.ExportedCommands.Count -eq 0) {
+            "No commands have been exported. Skipping $($psake.context.currentTaskName) task."
+            return
         }
+
+        if (!(Test-Path -LiteralPath $DocsRootDir)) {
+            New-Item $DocsRootDir -ItemType Directory > $null
+        }
+
+        if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
+            Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
+                Update-MarkdownHelp -Path $_.FullName > $null
+            }
+        }
+
+        # ErrorAction set to SilentlyContinue so this command will not overwrite an existing MD file.
+        New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
+                         -WithModulePage -ErrorAction SilentlyContinue > $null
     }
-
-    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
-                     -WithModulePage -ErrorAction SilentlyContinue > $null
-
-    Remove-Module $ModuleName
+    finally {
+        Remove-Module $ModuleName
+    }
 }
 
 Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
@@ -223,7 +227,7 @@ Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, Out
     }
 
     foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null
+        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue > $null
     }
 }
 
