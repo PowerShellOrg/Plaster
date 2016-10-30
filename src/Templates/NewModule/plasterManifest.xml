@@ -143,7 +143,7 @@
         <requireModule name="PSScriptAnalyzer" condition='$PLASTER_PARAM_Options -contains "PSScriptAnalyzer"'
             message="Without PSScriptAnalyzer, you will not be able to perform script analysis, or use the provided options to control script analysis."/>
 
-        <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'
+        <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"' minimumVersion="0.7.2"
             message="Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
 
         <message>
