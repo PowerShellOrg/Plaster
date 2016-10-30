@@ -83,12 +83,12 @@ Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, Out
 
 Task Analyze -depends BuildImpl -requiredVariables OutDir, ScriptAnalysisEnabled, ScriptAnalysisFailBuildOnSeverityLevel, ScriptAnalyzerSettingsPath {
     if (!$ScriptAnalysisEnabled) {
-        "Script analysis is not enabled.  Skipping Analyze task."
+        "Script analysis is not enabled.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
     if (!(Get-Module PSScriptAnalyzer -ListAvailable)) {
-        "PSScriptAnalyzer module is not installed.  Skipping Analyze task."
+        "PSScriptAnalyzer module is not installed.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -121,7 +121,7 @@ Task Analyze -depends BuildImpl -requiredVariables OutDir, ScriptAnalysisEnabled
 
 Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSigningEnabled {
     if (!$ScriptSigningEnabled) {
-        "Script signing is not enabled.  Skipping Sign task."
+        "Script signing is not enabled.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -193,7 +193,7 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
 
     $moduleInfo = Import-Module $OutDir\$ModuleName.psd1 -Global -Force -PassThru
     if ($moduleInfo.ExportedCommands.Count -eq 0) {
-        "No commands have been exported. Skipping GenerateDocs task."
+        "No commands have been exported. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -218,7 +218,7 @@ Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
 
 Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
     if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
-        "No markdown help files to process. Skipping BuildHelp task."
+        "No markdown help files to process. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -249,7 +249,7 @@ Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
 
 Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverageEnabled, CodeCoverageFiles {
     if (!(Get-Module Pester -ListAvailable)) {
-        "Pester module is not installed.  Skipping Test task."
+        "Pester module is not installed.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
