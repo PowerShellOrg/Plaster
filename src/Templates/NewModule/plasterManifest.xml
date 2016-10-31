@@ -106,8 +106,12 @@
         <file source='ScriptAnalyzerSettings.psd1'
               destination=''/>
 
-        <templateFile source='en-US\about_Module.help.txt'
-                      destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
+        <templateFile condition="$PLASTER_PARAM_Options -contains 'platyPS'"
+                      source='docs\en-US\about_Module.help.md'
+                      destination='docs\en-US\about_${PLASTER_PARAM_ModuleName}.help.md'/>
+        <templateFile condition="$PLASTER_PARAM_Options -notcontains 'platyPS'"
+                      source='docs\en-US\about_Module.help.txt'
+                      destination='src\en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
         <templateFile condition="$PLASTER_PARAM_Options -contains 'Pester'"
                       source='test\Module.T.ps1'
                       destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1' />
