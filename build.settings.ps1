@@ -7,10 +7,10 @@ Properties {
 
     # The root directories for the module's docs, src and test.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $DocsRootDir = "$PSScriptRoot/docs"
-    $SrcRootDir  = "$PSScriptRoot/src"
+    $DocsRootDir = "$PSScriptRoot\docs"
+    $SrcRootDir  = "$PSScriptRoot\src"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $TestRootDir = "$PSScriptRoot/test"
+    $TestRootDir = "$PSScriptRoot\test"
 
     # The name of your module should match the basename of the PSD1 file.
     $ModuleName = Get-Item $SrcRootDir/*.psd1 |
@@ -18,12 +18,12 @@ Properties {
                       Select-Object -First 1 | Foreach-Object BaseName
 
     # The $OutDir must match the ModuleName in order to support publishing the module.
-    $ReleaseDir = "$PSScriptRoot/Release"
+    $ReleaseDir = "$PSScriptRoot\Release"
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $OutDir     = "$ReleaseDir/$ModuleName"
+    $OutDir     = "$ReleaseDir\$ModuleName"
 
     # Default Locale used for documentation generatioon, defaults to en-US.
-    # [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $DefaultLocale = $null
 
     # Items in the $Exclude array will not be copied to the $OutDir e.g. $Exclude = @('.gitattributes')
@@ -32,50 +32,24 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $Exclude = @()
 
-    # -------------------- Script analysis properties ------------------------------
+    # ------------------ Script analysis properties ---------------------------
 
-    # To control the failure of the build with specific script analyzer rule severities,
-    # the CodeAnalysisStop variable can be used. The supported values for this variable are
-    # 'Warning', 'Error', 'All', 'None' or 'ReportOnly'. Invalid input will stop on all rules.
-    # 'None' will skip over the code analysis step all together.
+    # Enable/disable use of PSScriptAnalyzer to perform script analysis.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ScriptAnalysisAction = 'Error'
+    $ScriptAnalysisEnabled = $true
 
-    # Path to PowerShell Script Analyzer settings file.
+    # When PSScriptAnalyzer is enabled, control which severity level will generate a build failure.
+    # Valid values are Error, Warning, Information and None.  "None" will report errors but will not
+    # cause a build failure.  "Error" will fail the build only on diagnostic records that are of
+    # severity error.  "Warning" will fail the build on Warning and Error diagnostic records.
+    # "Any" will fail the build on any diagnostic record, regardless of severity.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ScriptAnalysisSettingsPath = "$PSScriptRoot\ScriptAnalyzerSettings.psd1"
+    [ValidateSet('Error', 'Warning', 'Any', 'None')]
+    $ScriptAnalysisFailBuildOnSeverityLevel = 'Error'
 
-    # The script analysis task step will run, unless your host is in the array defined below.
-    # This allows you to control whether code analysis is executed, for hosts where script
-    # analysis is included in the product.
+    # Path to the PSScriptAnalyzer settings file.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $SkipScriptAnalysisHost = @(
-        'Visual Studio Code Host',
-        'My Custom Host with scriptanalyzer support'
-    )
-
-    # ------------------- Testing properties ----------------------------------
-
-    # To control the build with code coverage, the $CodeCoverageStop variable can be used.
-    # The supported values for this variable are $true, $false and $null. $true enables
-    # code coverage, with the $CodeCoveragePercentage variable to reach (info below).
-    # $false disables code coverage entirely, while $null enables code coverage, but will
-    # only report on coverage status and not stop the build.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoverageStop = $false
-
-    # You can specify a minimum code coverage percentage that must be reached in order
-    # for the test task to pass. The code coverage test is not performed if
-    # $CodeCoveragePercentage is 0. If $CodeCoveragePercentage is non-zero, but is not
-    # reached, the build script will fail.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoveragePercentage = 60
-
-    # CodeCoverageFiles specifies the files to perform code coverage analysis on. This property
-    # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions
-    # like the ones found here: https://github.com/pester/Pester/wiki/Code-Coverage.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $CodeCoverageSelection = "$SrcRootDir\*.ps1", "$SrcRootDir\*.psm1"
+    $ScriptAnalyzerSettingsPath = "$PSScriptRoot\ScriptAnalyzerSettings.psd1"
 
     # ------------------- Script signing properties ---------------------------
 
@@ -84,7 +58,7 @@ Properties {
     # provide either a subject name or path to a PFX file.  After this one time prompt, the value will
     # saved for future use and you will no longer be prompted.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $SignScripts = $false
+    $ScriptSigningEnabled = $false
 
     # Specify the Subject Name of the certificate used to sign your scripts.  Leave it as $null and the
     # first time you build, you will be prompted to enter your code-signing certificate's Subject Name.
@@ -102,6 +76,18 @@ Properties {
     # Certificate store path.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $CertPath = "Cert:\"
+
+    # ------------------- Testing properties ----------------------------------
+
+    # Enable/disable Pester code coverage reporting.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CodeCoverageEnabled = $true
+
+    # CodeCoverageFiles specifies the files to perform code coverage analysis on. This property
+    # acts as a direct input to the Pester -CodeCoverage parameter, so will support constructions
+    # like the ones found here: https://github.com/pester/Pester/wiki/Code-Coverage.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CodeCoverageFiles = "$SrcRootDir\*.ps1", "$SrcRootDir\*.psm1"
 
     # -------------------- Publishing properties ------------------------------
 
@@ -122,15 +108,15 @@ Properties {
 
     # ----------------------- Misc properties ---------------------------------
 
+    # The local installation directory for the install task. Defaults to your home Modules location.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $InstallPath = $null
+
     # In addition, PFX certificates are supported in an interactive scenario only,
     # as a way to import a certificate into the user personal store for later use.
     # This can be provided using the CertPfxPath parameter. PFX passwords will not be stored.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $SettingsPath = "$env:LOCALAPPDATA\Plaster\NewModuleTemplate\SecuredBuildSettings.clixml"
-
-    # The local installation directory for the install task. Defaults to your user PSModulePath.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $InstallPath = $null
 
     # Specifies an output file path to send to Invoke-Pester's -OutputFile parameter.
     # This is typically used to write out test results so that they can be sent to a CI

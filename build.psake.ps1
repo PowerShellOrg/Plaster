@@ -81,49 +81,47 @@ Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, Out
     Copy-Item -Path $SrcRootDir -Destination $OutDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
 }
 
-Task Analyze -depends BuildImpl -requiredVariables ScriptAnalysisAction, OutDir {
-    if ($Host.Name -in $SkipScriptAnalysisHost) {
-        $ScriptAnalysisAction = 'None'
+Task Analyze -depends BuildImpl -requiredVariables OutDir, ScriptAnalysisEnabled, ScriptAnalysisFailBuildOnSeverityLevel, ScriptAnalyzerSettingsPath {
+    if (!$ScriptAnalysisEnabled) {
+        "Script analysis is not enabled.  Skipping $($psake.context.currentTaskName) task."
+        return
     }
 
     if (!(Get-Module PSScriptAnalyzer -ListAvailable)) {
-        "PSScriptAnalyzer module is not installed.  Skipping Analyze task."
+        "PSScriptAnalyzer module is not installed.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
-    if ($ScriptAnalysisAction -eq 'None') {
-        "Script analysis is not enabled.  Skipping Analyze task."
-        return
-    }
+    "ScriptAnalysisFailBuildOnSeverityLevel set to: $ScriptAnalysisFailBuildOnSeverityLevel"
 
-    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Settings $ScriptAnalysisSettingsPath -Recurse -Verbose:$VerbosePreference
+    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Settings $ScriptAnalyzerSettingsPath -Recurse -Verbose:$VerbosePreference
     $analysisResult | Format-Table
-    switch ($ScriptAnalysisAction) {
+    switch ($ScriptAnalysisFailBuildOnSeverityLevel) {
+        'None' {
+            return
+        }
         'Error' {
             Assert -conditionToCheck (
                 ($analysisResult | Where-Object Severity -eq 'Error').Count -eq 0
-                ) -failureMessage 'One or more Script Analyzer errors were found. Build cannot continue!'
+                ) -failureMessage 'One or more ScriptAnalyzer errors were found. Build cannot continue!'
         }
         'Warning' {
             Assert -conditionToCheck (
                 ($analysisResult | Where-Object {
                     $_.Severity -eq 'Warning' -or $_.Severity -eq 'Error'
-                }).Count -eq 0) -failureMessage 'One or more Script Analyzer warnings were found. Build cannot continue!'
-        }
-        'ReportOnly' {
-            return
+                }).Count -eq 0) -failureMessage 'One or more ScriptAnalyzer warnings were found. Build cannot continue!'
         }
         default {
             Assert -conditionToCheck (
                 $analysisResult.Count -eq 0
-                ) -failureMessage 'One or more Script Analyzer issues were found. Build cannot continue!'
+                ) -failureMessage 'One or more ScriptAnalyzer issues were found. Build cannot continue!'
         }
     }
 }
 
-Task Sign -depends BuildImpl -requiredVariables SettingsPath, SignScripts {
-    if (!$SignScripts) {
-        "Script signing is not enabled.  Skipping Sign task."
+Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSigningEnabled {
+    if (!$ScriptSigningEnabled) {
+        "Script signing is not enabled.  Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -194,25 +192,29 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
     }
 
     $moduleInfo = Import-Module $OutDir\$ModuleName.psd1 -Global -Force -PassThru
-    if ($moduleInfo.ExportedCommands.Count -eq 0) {
-        "No commands have been exported. Skipping GenerateDocs task."
-        return
-    }
-
-    if (!(Test-Path -LiteralPath $DocsRootDir)) {
-        New-Item $DocsRootDir -ItemType Directory > $null
-    }
-
-    if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
-        Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-            Update-MarkdownHelp -Path $_.FullName > $null
+    try {
+        if ($moduleInfo.ExportedCommands.Count -eq 0) {
+            "No commands have been exported. Skipping $($psake.context.currentTaskName) task."
+            return
         }
+
+        if (!(Test-Path -LiteralPath $DocsRootDir)) {
+            New-Item $DocsRootDir -ItemType Directory > $null
+        }
+
+        if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
+            Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
+                Update-MarkdownHelp -Path $_.FullName > $null
+            }
+        }
+
+        # ErrorAction set to SilentlyContinue so this command will not overwrite an existing MD file.
+        New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
+                         -WithModulePage -ErrorAction SilentlyContinue > $null
     }
-
-    New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
-                     -WithModulePage -ErrorAction SilentlyContinue > $null
-
-    Remove-Module $ModuleName
+    finally {
+        Remove-Module $ModuleName
+    }
 }
 
 Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
@@ -220,12 +222,12 @@ Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
 
 Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
     if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
-        "No markdown help files to process. Skipping BuildHelp task."
+        "No markdown help files to process. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
     foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue | Out-Null
+        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue > $null
     }
 }
 
@@ -249,14 +251,19 @@ Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
     "Module installed into $InstallPath"
 }
 
-Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
+Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverageEnabled, CodeCoverageFiles {
+    if (!(Get-Module Pester -ListAvailable)) {
+        "Pester module is not installed.  Skipping $($psake.context.currentTaskName) task."
+        return
+    }
+
     Import-Module Pester
 
     try {
         Microsoft.PowerShell.Management\Push-Location -LiteralPath $TestRootDir
 
         if ($TestOutputFile) {
-            $Testing = @{
+            $testing = @{
                 OutputFile   = $TestOutputFile
                 OutputFormat = $TestOutputFormat
                 PassThru     = $true
@@ -264,33 +271,27 @@ Task Test -depends Analyze -requiredVariables TestRootDir, ModuleName {
             }
         }
         else {
-            $Testing = @{
+            $testing = @{
                 PassThru     = $true
                 Verbose      = $VerbosePreference
             }
         }
 
-        # To control the Pester code coverage, a boolean $CodeCoverageStop is used. ($true, $false and $null).
-        # $true enables code coverage. $false disables code coverage. $null enables code coverage but only report on coverage status.
-        if ($CodeCoverageStop -ne $false) {
-            $Testing.CodeCoverage = $CodeCoverageSelection
+        # To control the Pester code coverage, a boolean $CodeCoverageEnabled is used.
+        if ($CodeCoverageEnabled) {
+            $testing.CodeCoverage = $CodeCoverageFiles
         }
 
-        $TestResult = Invoke-Pester @Testing
+        $testResult = Invoke-Pester @testing
 
         Assert -conditionToCheck (
-            $TestResult.FailedCount -eq 0
+            $testResult.FailedCount -eq 0
         ) -failureMessage "One or more Pester tests failed, build cannot continue."
 
-        if ($CodeCoverageStop -ne $false) {
-            $TestCoverage = [int]($TestResult.CodeCoverage.NumberOfCommandsExecuted /
-                $TestResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
-
-            if ($CodeCoverageStop) {
-                Assert -conditionToCheck (
-                    $TestCoverage -gt $CodeCoveragePercentage
-                ) -failureMessage "Pester code coverage test failed. ($TestCoverage% Achieved, $CodeCoveragePercentage% Required.)"
-            }
+        if ($CodeCoverageEnabled) {
+            $testCoverage = [int]($testResult.CodeCoverage.NumberOfCommandsExecuted /
+                                  $testResult.CodeCoverage.NumberOfCommandsAnalyzed * 100)
+            "Pester code coverage on specified files: ${testCoverage}%"
         }
     }
     finally {
