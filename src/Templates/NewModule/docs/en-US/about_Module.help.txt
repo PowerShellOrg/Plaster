@@ -1,5 +1,5 @@
 TOPIC
-    <%=$PLASTER_PARAM_ModuleName%> <%=$PLASTER_PARAM_Version%>
+    <%=$PLASTER_PARAM_ModuleName%>
 
 SHORT DESCRIPTION
     You should considering providing an introduction and overview of your
