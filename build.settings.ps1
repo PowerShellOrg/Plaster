@@ -13,18 +13,18 @@ Properties {
     $TestRootDir = "$PSScriptRoot\test"
 
     # The name of your module should match the basename of the PSD1 file.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ModuleName = Get-Item $SrcRootDir/*.psd1 |
                       Where-Object { $null -ne (Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue) } |
                       Select-Object -First 1 | Foreach-Object BaseName
 
-    # The $OutDir must match the ModuleName in order to support publishing the module.
-    $ReleaseDir = "$PSScriptRoot\Release"
+    # The $OutDir is where module files are staged for signing, help generation and publishing from.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $OutDir     = "$ReleaseDir\$ModuleName"
+    $OutDir = "$PSScriptRoot\Release"
 
-    # Default Locale used for documentation generatioon, defaults to en-US.
+    # Default Locale used for help generation, defaults to en-US.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $DefaultLocale = $null
+    $DefaultLocale = 'en-US'
 
     # Items in the $Exclude array will not be copied to the $OutDir e.g. $Exclude = @('.gitattributes')
     # Typically you wouldn't put any file under the src dir unless the file was going to ship with
@@ -36,7 +36,7 @@ Properties {
 
     # Enable/disable use of PSScriptAnalyzer to perform script analysis.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ScriptAnalysisEnabled = $true
+    $ScriptAnalysisEnabled = $false
 
     # When PSScriptAnalyzer is enabled, control which severity level will generate a build failure.
     # Valid values are Error, Warning, Information and None.  "None" will report errors but will not
