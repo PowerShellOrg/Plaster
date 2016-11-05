@@ -235,7 +235,13 @@ Available attributes for this content element:
 A basic example of this content element would be:
 ```xml
 <file source='ReleaseNotes.md'
-              destination=''/>
+      destination=''/>
+```
+
+A basic example of this content element, to create an empty directory, would be:
+```xml
+<file source=''
+      destination='src\bin'/>
 ```
 
 Two more complex examples are:
