@@ -10,7 +10,7 @@
 # Clean, Build, Sign, BuildHelp, Install, Test and Publish.
 #
 # The default task is Build.  This task copies the appropriate files from the
-# $SrcRootDir to the $OutDir.  Later, other tasks such as Sign and BuildHelp
+# $SrcRootDir under the $OutDir.  Later, other tasks such as Sign and BuildHelp
 # will further modify the contents of $OutDir and add new files.
 #
 # The Sign task will only sign scripts if the $SignScripts variable is set to
@@ -20,7 +20,8 @@
 # comment-based help for your exported commands.  platyPS then generates
 # a help file for your module from the markdown files.
 #
-# The Install task simplies copies the $OutDir to your profile's Modules folder.
+# The Install task simplies copies the module folder under $OutDir to your
+# profile's Modules folder.
 #
 # The Test task invokes Pester on the $TestRootDir.
 #
@@ -58,43 +59,78 @@
 . $PSScriptRoot\build.settings.ps1
 
 ###############################################################################
+# Private properties.
+###############################################################################
+Properties {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $ModuleOutDir = "$OutDir\$ModuleName"
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $UpdatableHelpOutDir = "$OutDir\UpdatableHelp"
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $SharedProperties = @{}
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $LineSep = "-" * 78
+}
+
+###############################################################################
 # Core task implementations. Avoid modifying these tasks.
 ###############################################################################
 Task default -depends Build
 
 Task Init -requiredVariables OutDir {
-    if (!(Test-Path $OutDir) -and $OutDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
-        New-Item $OutDir -ItemType Directory > $null
+    if (!(Test-Path -LiteralPath $OutDir)) {
+        New-Item $OutDir -ItemType Directory -Verbose:$VerbosePreference > $null
+    }
+    else {
+        Write-Verbose "$($psake.context.currentTaskName) - directory already exists '$OutDir'."
     }
 }
 
-Task Clean -requiredVariables ReleaseDir {
-    if ((Test-Path $ReleaseDir) -and $ReleaseDir.StartsWith($PSScriptRoot, 'OrdinalIgnoreCase')) {
-        Get-ChildItem $ReleaseDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
+Task Clean -depends Init -requiredVariables OutDir {
+    # Maybe a bit paranoid but this task nuked \ on my laptop. Good thing I was not running as admin.
+    if ($OutDir.Length -gt 3) {
+        Get-ChildItem $OutDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
+    }
+    else {
+        Write-Verbose "$($psake.context.currentTaskName) - `$OutDir '$OutDir' must be longer than 3 characters."
     }
 }
 
-Task Build -depends BuildImpl, Analyze, Sign, PostBuild {
+Task StageFiles -depends Init, Clean, BeforeStageFiles, CoreStageFiles, AfterStageFiles {
 }
 
-Task BuildImpl -depends Init, Clean, PreBuild -requiredVariables SrcRootDir, OutDir {
-    Copy-Item -Path $SrcRootDir -Destination $OutDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
+Task CoreStageFiles -requiredVariables ModuleOutDir, SrcRootDir {
+    if (!(Test-Path -LiteralPath $ModuleOutDir)) {
+        New-Item $ModuleOutDir -ItemType Directory -Verbose:$VerbosePreference > $null
+    }
+    else {
+        Write-Verbose "$($psake.context.currentTaskName) - directory already exists '$ModuleOutDir'."
+    }
+
+    Copy-Item -Path $SrcRootDir\* -Destination $ModuleOutDir -Recurse -Exclude $Exclude -Verbose:$VerbosePreference
 }
 
-Task Analyze -depends BuildImpl -requiredVariables OutDir, ScriptAnalysisEnabled, ScriptAnalysisFailBuildOnSeverityLevel, ScriptAnalyzerSettingsPath {
+Task Build -depends Init, Clean, BeforeBuild, StageFiles, Analyze, Sign, AfterBuild {
+}
+
+Task Analyze -depends StageFiles `
+             -requiredVariables ModuleOutDir, ScriptAnalysisEnabled, ScriptAnalysisFailBuildOnSeverityLevel, ScriptAnalyzerSettingsPath {
     if (!$ScriptAnalysisEnabled) {
-        "Script analysis is not enabled.  Skipping $($psake.context.currentTaskName) task."
+        "Script analysis is not enabled. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
     if (!(Get-Module PSScriptAnalyzer -ListAvailable)) {
-        "PSScriptAnalyzer module is not installed.  Skipping $($psake.context.currentTaskName) task."
+        "PSScriptAnalyzer module is not installed. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
     "ScriptAnalysisFailBuildOnSeverityLevel set to: $ScriptAnalysisFailBuildOnSeverityLevel"
 
-    $analysisResult = Invoke-ScriptAnalyzer -Path $OutDir -Settings $ScriptAnalyzerSettingsPath -Recurse -Verbose:$VerbosePreference
+    $analysisResult = Invoke-ScriptAnalyzer -Path $ModuleOutDir -Settings $ScriptAnalyzerSettingsPath -Recurse -Verbose:$VerbosePreference
     $analysisResult | Format-Table
     switch ($ScriptAnalysisFailBuildOnSeverityLevel) {
         'None' {
@@ -119,9 +155,9 @@ Task Analyze -depends BuildImpl -requiredVariables OutDir, ScriptAnalysisEnabled
     }
 }
 
-Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSigningEnabled {
+Task Sign -depends StageFiles -requiredVariables CertPath, SettingsPath, ScriptSigningEnabled {
     if (!$ScriptSigningEnabled) {
-        "Script signing is not enabled.  Skipping $($psake.context.currentTaskName) task."
+        "Script signing is not enabled. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -152,6 +188,8 @@ Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSi
                        Sort-Object NotAfter -Descending | Select-Object -First 1
 
     if ($certificate) {
+        $SharedProperties.CodeSigningCertificate = $certificate
+
         if ($storeCertSubjectName) {
             SetSetting -Key $certSubjectNameKey -Value $certificate.SubjectName.Name -Path $SettingsPath
             "The new certificate subject name has been stored in ${SettingsPath}."
@@ -160,11 +198,19 @@ Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSi
             "Using stored certificate subject name $CertSubjectName from ${SettingsPath}."
         }
 
+        $LineSep
         "Using code-signing certificate: $certificate"
+        $LineSep
 
-        $files = @(Get-ChildItem -Path $OutDir\* -Recurse -Include *.ps1,*.psm1)
+        $files = @(Get-ChildItem -Path $ModuleOutDir\* -Recurse -Include *.ps1,*.psm1)
         foreach ($file in $files) {
-            $result = Set-AuthenticodeSignature -FilePath $file.FullName -Certificate $certificate -Verbose:$VerbosePreference
+            $setAuthSigParams = @{
+                FilePath = $file.FullName
+                Certificate = $certificate
+                Verbose = $VerbosePreference
+            }
+
+            $result = Microsoft.PowerShell.Security\Set-AuthenticodeSignature @setAuthSigParams
             if ($result.Status -ne 'Valid') {
                 throw "Failed to sign script: $($file.FullName)."
             }
@@ -186,12 +232,17 @@ Task Sign -depends BuildImpl -requiredVariables CertPath, SettingsPath, ScriptSi
     }
 }
 
-Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDir, ModuleName, OutDir {
-    if ($null -eq $DefaultLocale) {
-        $DefaultLocale = 'en-US'
+Task BuildHelp -depends Build, BeforeBuildHelp, GenerateMarkdown, GenerateHelpFiles, AfterBuildHelp {
+}
+
+Task GenerateMarkdown -requiredVariables DefaultLocale, DocsRootDir, ModuleName, ModuleOutDir {
+    if (!(Get-Module platyPS -ListAvailable)) {
+        "platyPS module is not installed. Skipping $($psake.context.currentTaskName) task."
+        return
     }
 
-    $moduleInfo = Import-Module $OutDir\$ModuleName.psd1 -Global -Force -PassThru
+    $moduleInfo = Import-Module $ModuleOutDir\$ModuleName.psd1 -Global -Force -PassThru
+
     try {
         if ($moduleInfo.ExportedCommands.Count -eq 0) {
             "No commands have been exported. Skipping $($psake.context.currentTaskName) task."
@@ -204,56 +255,134 @@ Task GenerateMarkdown -depends Build, PreBuildHelp -requiredVariables DocsRootDi
 
         if (Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse) {
             Get-ChildItem -LiteralPath $DocsRootDir -Directory | ForEach-Object {
-                Update-MarkdownHelp -Path $_.FullName > $null
+                Update-MarkdownHelp -Path $_.FullName -Verbose:$VerbosePreference > $null
             }
         }
 
         # ErrorAction set to SilentlyContinue so this command will not overwrite an existing MD file.
         New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocsRootDir\$DefaultLocale `
-                         -WithModulePage -ErrorAction SilentlyContinue > $null
+                         -WithModulePage -ErrorAction SilentlyContinue -Verbose:$VerbosePreference > $null
     }
     finally {
         Remove-Module $ModuleName
     }
 }
 
-Task BuildHelp -depends BuildHelpImpl, PostBuildHelp {
-}
+Task GenerateHelpFiles -requiredVariables DocsRootDir, ModuleName, ModuleOutDir, OutDir {
+    if (!(Get-Module platyPS -ListAvailable)) {
+        "platyPS module is not installed. Skipping $($psake.context.currentTaskName) task."
+        return
+    }
 
-Task BuildHelpImpl -depends GenerateMarkdown -requiredVariables DocsRootDir, OutDir {
-    if (!(Test-Path -LiteralPath $DocsRootDir) -or !(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse)) {
+    if (!(Get-ChildItem -LiteralPath $DocsRootDir -Filter *.md -Recurse -ErrorAction SilentlyContinue)) {
         "No markdown help files to process. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
-    foreach ($locale in (Get-ChildItem -Path $DocsRootDir -Directory).Name) {
-        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $OutDir\$locale -Force -ErrorAction SilentlyContinue > $null
+    $helpLocales = (Get-ChildItem -Path $DocsRootDir -Directory).Name
+
+    # Generate the module's primary MAML help file.
+    foreach ($locale in $helpLocales) {
+        New-ExternalHelp -Path $DocsRootDir\$locale -OutputPath $ModuleOutDir\$locale -Force `
+                         -ErrorAction SilentlyContinue -Verbose:$VerbosePreference > $null
     }
 }
 
-Task Install -depends InstallImpl, PostInstall {
+Task BuildUpdatableHelp -depends BuildHelp, BeforeBuildUpdatableHelp, CoreBuildUpdatableHelp, AfterBuildUpdatableHelp {
 }
 
-Task InstallImpl -depends BuildHelp, PreInstall -requiredVariables OutDir {
-    if ($null -eq $InstallPath) {
-        # The default installation path is the current user's module path.
-        $moduleInfo = Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1
-        $InstallPath = Join-Path -Path (Split-Path $profile.CurrentUserAllHosts -Parent) `
-                                 -ChildPath "Modules\$ModuleName\$($moduleInfo.Version.ToString())"
+Task CoreBuildUpdatableHelp -requiredVariables DocsRootDir, ModuleName, UpdatableHelpOutDir {
+    if (!(Get-Module platyPS -ListAvailable)) {
+        "platyPS module is not installed. Skipping $($psake.context.currentTaskName) task."
+        return
     }
 
-    if (!(Test-Path -Path $InstallPath)) {
-        Write-Verbose 'Creating local install directory'
+    $helpLocales = (Get-ChildItem -Path $DocsRootDir -Directory).Name
+
+    # Create updatable help output directory.
+    if (!(Test-Path -LiteralPath $UpdatableHelpOutDir)) {
+        New-Item $UpdatableHelpOutDir -ItemType Directory -Verbose:$VerbosePreference > $null
+    }
+    else {
+        Write-Verbose "$($psake.context.currentTaskName) - directory already exists '$UpdatableHelpOutDir'."
+        Get-ChildItem $UpdatableHelpOutDir | Remove-Item -Recurse -Force -Verbose:$VerbosePreference
+    }
+
+    # Generate updatable help files.  Note: this will currently update the version number in the module's MD
+    # file in the metadata.
+    foreach ($locale in $helpLocales) {
+        New-ExternalHelpCab -CabFilesFolder $ModuleOutDir\$locale -LandingPagePath $DocsRootDir\$locale\$ModuleName.md `
+                            -OutputFolder $UpdatableHelpOutDir -Verbose:$VerbosePreference > $null
+    }
+}
+
+Task GenerateFileCatalog -depends Build, BuildHelp, BeforeGenerateFileCatalog, CoreGenerateFileCatalog, AfterGenerateFileCatalog {
+}
+
+Task CoreGenerateFileCatalog -requiredVariables CatalogGenerationEnabled, CatalogVersion, ModuleName, ModuleOutDir, OutDir {
+    if (!$CatalogGenerationEnabled) {
+        "FileCatalog generation is not enabled. Skipping $($psake.context.currentTaskName) task."
+        return
+    }
+
+    if (!(Get-Command Microsoft.PowerShell.Security\New-FileCatalog -ErrorAction SilentlyContinue)) {
+        "FileCatalog commands not available on this version of PowerShell. Skipping $($psake.context.currentTaskName) task."
+        return
+    }
+
+    $catalogFilePath = "$OutDir\$ModuleName.cat"
+
+    $newFileCatalogParams = @{
+        Path = $ModuleOutDir
+        CatalogFilePath = $catalogFilePath
+        CatalogVersion = $CatalogVersion
+        Verbose = $VerbosePreference
+    }
+
+    Microsoft.PowerShell.Security\New-FileCatalog @newFileCatalogParams > $null
+
+    if ($ScriptSigningEnabled) {
+        if ($SharedProperties.CodeSigningCertificate) {
+            $setAuthSigParams = @{
+                FilePath = $catalogFilePath
+                Certificate = $SharedProperties.CodeSigningCertificate
+                Verbose = $VerbosePreference
+            }
+
+            $result = Microsoft.PowerShell.Security\Set-AuthenticodeSignature @setAuthSigParams
+            if ($result.Status -ne 'Valid') {
+                throw "Failed to sign file catalog: $($catalogFilePath)."
+            }
+
+            "Successfully signed file catalog: $($catalogFilePath)"
+        }
+        else {
+            "No code-signing certificate was found to sign the file catalog."
+        }
+    }
+    else {
+        "Script signing is not enabled. Skipping signing of file catalog."
+    }
+
+    Move-Item -LiteralPath $newFileCatalogParams.CatalogFilePath -Destination $ModuleOutDir
+}
+
+Task Install -depends Build, BuildHelp, GenerateFileCatalog, BeforeInstall, CoreInstall, AfterInstall {
+}
+
+Task CoreInstall -requiredVariables ModuleOutDir {
+    if (!(Test-Path -LiteralPath $InstallPath)) {
+        Write-Verbose 'Creating install directory'
         New-Item -Path $InstallPath -ItemType Directory -Verbose:$VerbosePreference > $null
     }
 
-    Copy-Item -Path $OutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
+    Copy-Item -Path $ModuleOutDir\* -Destination $InstallPath -Verbose:$VerbosePreference -Recurse -Force
     "Module installed into $InstallPath"
 }
 
 Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverageEnabled, CodeCoverageFiles {
     if (!(Get-Module Pester -ListAvailable)) {
-        "Pester module is not installed.  Skipping $($psake.context.currentTaskName) task."
+        "Pester module is not installed. Skipping $($psake.context.currentTaskName) task."
         return
     }
 
@@ -300,12 +429,12 @@ Task Test -depends Build -requiredVariables TestRootDir, ModuleName, CodeCoverag
     }
 }
 
-Task Publish -depends Test, PrePublish, PublishImpl, PostPublish {
+Task Publish -depends Build, Test, BuildHelp, GenerateFileCatalog, BeforePublish, CorePublish, AfterPublish {
 }
 
-Task PublishImpl -requiredVariables SettingsPath, OutDir {
+Task CorePublish -requiredVariables SettingsPath, ModuleOutDir {
     $publishParams = @{
-        Path        = $OutDir
+        Path        = $ModuleOutDir
         NuGetApiKey = $NuGetApiKey
     }
 
@@ -329,7 +458,7 @@ Task PublishImpl -requiredVariables SettingsPath, OutDir {
     }
 
     $publishParams = @{
-        Path        = $OutDir
+        Path        = $ModuleOutDir
         NuGetApiKey = $NuGetApiKey
     }
 
@@ -353,7 +482,7 @@ Task PublishImpl -requiredVariables SettingsPath, OutDir {
 
 Task ? -description 'Lists the available tasks' {
     "Available tasks:"
-    $PSake.Context.Peek().Tasks.Keys | Sort-Object
+    $psake.context.Peek().Tasks.Keys | Sort-Object
 }
 
 Task RemoveApiKey -requiredVariables SettingsPath {
