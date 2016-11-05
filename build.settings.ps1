@@ -18,9 +18,15 @@ Properties {
                       Where-Object { $null -ne (Test-ModuleManifest -Path $_ -ErrorAction SilentlyContinue) } |
                       Select-Object -First 1 | Foreach-Object BaseName
 
-    # The $OutDir is where module files are staged for signing, help generation and publishing from.
+    # The $OutDir is where module files and updatable help files are staged for signing, install and publishing.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $OutDir = "$PSScriptRoot\Release"
+
+    # The local installation directory for the install task. Defaults to your home Modules location.
+    # The test for $profile is for the Plaster AppVeyor build machine since it doesn't define $profile.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $InstallPath = Join-Path (Split-Path $(if ($profile) {$profile} else {$Home}) -Parent) `
+                             "Modules\$ModuleName\$((Test-ModuleManifest -Path $SrcRootDir\$ModuleName.psd1).Version.ToString())"
 
     # Default Locale used for help generation, defaults to en-US.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -77,7 +83,18 @@ Properties {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $CertPath = "Cert:\"
 
-    # ------------------- Testing properties ----------------------------------
+    # -------------------- File catalog properties ----------------------------
+
+    # Enable/disable generation of a catalog (.cat) file for the module.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CatalogGenerationEnabled = $true
+
+    # Select the hash version to use for the catalog file: 1 for SHA1 (compat with Windows 7 and
+    # Windows Server 2008 R2), 2 for SHA2 to support only newer Windows versions.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $CatalogVersion = 2
+
+    # ---------------------- Testing properties -------------------------------
 
     # Enable/disable Pester code coverage reporting.
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
@@ -108,10 +125,6 @@ Properties {
 
     # ----------------------- Misc properties ---------------------------------
 
-    # The local installation directory for the install task. Defaults to your home Modules location.
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $InstallPath = $null
-
     # In addition, PFX certificates are supported in an interactive scenario only,
     # as a way to import a certificate into the user personal store for later use.
     # This can be provided using the CertPfxPath parameter. PFX passwords will not be stored.
@@ -131,49 +144,85 @@ Properties {
 }
 
 ###############################################################################
+# Customize these tasks for performing operations before and/or after file staging.
+###############################################################################
+
+# Executes before the StageFiles task.
+Task BeforeStageFiles {
+}
+
+# Executes after the StageFiles task.
+Task AfterStageFiles {
+}
+
+###############################################################################
 # Customize these tasks for performing operations before and/or after Build.
 ###############################################################################
 
-# Executes before the BuildImpl phase of the Build task.
-Task PreBuild {
+# Executes before the BeforeStageFiles phase of the Build task.
+Task BeforeBuild {
 }
 
-# Executes after the Sign phase of the Build task.
-Task PostBuild {
+# Executes after the Build task.
+Task AfterBuild {
 }
 
 ###############################################################################
 # Customize these tasks for performing operations before and/or after BuildHelp.
 ###############################################################################
 
-# Executes before the GenerateMarkdown phase of the BuildHelp task.
-Task PreBuildHelp {
+# Executes before the BuildHelp task.
+Task BeforeBuildHelp {
 }
 
-# Executes after the BuildHelpImpl phase of the BuildHelp task.
-Task PostBuildHelp {
+# Executes after the BuildHelp task.
+Task AfterBuildHelp {
+}
+
+###############################################################################
+# Customize these tasks for performing operations before and/or after BuildUpdatableHelp.
+###############################################################################
+
+# Executes before the BuildUpdatableHelp task.
+Task BeforeBuildUpdatableHelp {
+}
+
+# Executes after the BuildUpdatableHelp task.
+Task AfterBuildUpdatableHelp {
+}
+
+###############################################################################
+# Customize these tasks for performing operations before and/or after GenerateFileCatalog.
+###############################################################################
+
+# Executes before the GenerateFileCatalog task.
+Task BeforeGenerateFileCatalog {
+}
+
+# Executes after the GenerateFileCatalog task.
+Task AfterGenerateFileCatalog {
 }
 
 ###############################################################################
 # Customize these tasks for performing operations before and/or after Install.
 ###############################################################################
 
-# Executes before the InstallImpl phase of the Install task.
-Task PreInstall {
+# Executes before the Install task.
+Task BeforeInstall {
 }
 
-# Executes after the InstallImpl phase of the Install task.
-Task PostInstall {
+# Executes after the Install task.
+Task AfterInstall {
 }
 
 ###############################################################################
 # Customize these tasks for performing operations before and/or after Publish.
 ###############################################################################
 
-# Executes before publishing occurs.
-Task PrePublish {
+# Executes before the Publish task.
+Task BeforePublish {
 }
 
-# Executes after publishing occurs.
-Task PostPublish {
+# Executes after the Publish task.
+Task AfterPublish {
 }
