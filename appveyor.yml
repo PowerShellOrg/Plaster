@@ -14,14 +14,14 @@ install:
 
 build_script:
   - ps: |
-      $testResultsFile = Join-Path $pwd -ChildPath "./TestResults.xml"
+      $testResultsFile = Join-Path $pwd -ChildPath "$PSScriptRoot/TestResults.xml"
       try {
           Invoke-psake build.psake.ps1 -taskList Test -properties @{"TestOutputFile" = $testResultsFile} -ErrorAction Stop
-          if (!$?) {
-             $Error | Format-List * -Force
-          }
+          "Error list:"
+          $Error | Format-List * -Force
       }
       catch {
+          "Caught exception, error list:"
           $_ | Format-List * -Force
       }
       if ($psake.build_success -and (Test-Path $testResultsFile)) {
@@ -31,5 +31,3 @@ build_script:
         # Terminate the script to fail the build
         exit 1;
       }
-
-
