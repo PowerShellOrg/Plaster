@@ -17,6 +17,9 @@ build_script:
       $testResultsFile = Join-Path $pwd -ChildPath "./TestResults.xml"
       try {
           Invoke-psake build.psake.ps1 -taskList Test -properties @{"TestOutputFile" = $testResultsFile} -ErrorAction Stop
+          if (!$?) {
+             $Error | Format-List * -Force
+          }
       }
       catch {
           $_ | Format-List * -Force
