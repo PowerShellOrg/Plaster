@@ -30,7 +30,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -56,7 +56,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Description "This is <cool> & awesome."
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -Description "This is <cool> & awesome."
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -82,7 +82,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -Tags "Bag&Tag", Foo, Bar, "Baz boy"
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -Tags "Bag&Tag", Foo, Bar, "Baz boy"
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -129,7 +129,7 @@ Describe 'New-PlasterManifest Command Tests' {
 
             $plasterPath = "$OutDir\plasterManifest.xml"
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName -AddContent
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -AddContent
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -142,7 +142,7 @@ Describe 'New-PlasterManifest Command Tests' {
             if (Test-Path $plasterPath) {
                 throw "$plasterManifest should have been removed for this test to work correctly."
             }
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -Name TemplateName
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
         }
     }
