@@ -1,7 +1,7 @@
 function New-PlasterManifest {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        [Parameter(Position=0)]
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
         $Path = "$pwd\plasterManifest.xml",
@@ -9,7 +9,7 @@ function New-PlasterManifest {
         [Parameter(Mandatory=$true)]
         [ValidatePattern('^[0-9a-zA-Z_-]+$')]
         [string]
-        $Name,
+        $TemplateName,
 
         [Parameter()]
         [Guid]
@@ -24,7 +24,7 @@ function New-PlasterManifest {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Title = $Name,
+        $Title = $TemplateName,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -74,7 +74,7 @@ function New-PlasterManifest {
         $manifest = [xml]$manifestStr
 
         # Set via .innerText to get .NET to encode special XML chars as entity references.
-        $manifest.plasterManifest.metadata["name"].innerText = "$Name"
+        $manifest.plasterManifest.metadata["name"].innerText = "$TemplateName"
         $manifest.plasterManifest.metadata["id"].innerText = "$Id"
         $manifest.plasterManifest.metadata["version"].innerText = "$TemplateVersion"
         $manifest.plasterManifest.metadata["title"].innerText = "$Title"
