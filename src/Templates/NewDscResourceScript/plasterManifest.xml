@@ -16,7 +16,7 @@
 
         <parameter name='Ensure'
                    type='choice'
-                   prompt='Add an Enure parameter to the resource functions?'
+                   prompt='Add an `"Ensure`" parameter to the resource functions?'
                    default='0'>
             <choice label='&amp;No'
                     help="Select this option to not add an Ensure parameter."

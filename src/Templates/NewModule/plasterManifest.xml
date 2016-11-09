@@ -138,6 +138,10 @@
               source='editor\VSCode\tasks_psake_pester.json'
               destination='.vscode\tasks.json' />
 
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -contains 'PSScriptAnalyzer')"
+              source='editor\VSCode\settings.json'
+              destination='.vscode\settings.json' />
+
         <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"' minimumVersion="3.4.0"
             message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 
