@@ -235,7 +235,13 @@ Available attributes for this content element:
 A basic example of this content element would be:
 ```xml
 <file source='ReleaseNotes.md'
-              destination=''/>
+      destination=''/>
+```
+
+A basic example of this content element, to create an empty directory, would be:
+```xml
+<file source=''
+      destination='src\bin'/>
 ```
 
 Two more complex examples are:
@@ -357,6 +363,48 @@ Available attributes for this content element:
                minimumVersion="3.4.0"
                message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 ```
+
+## Attribute and Condition Evaluation
+Most of the XML attributes in a manifest can contain variables or expressions that evaluate to a string.
+The attribute's value is passed into a constrained runspace for evaluation and the resulting string is used for template processing.
+Note the XML attributes on the `<parameter>` directive are not processed this way because they are processed during `dynamicparam` execution.
+At that time, the constrained runspace in which these expressions are evaluated has not been created.
+
+Many of the directives in a Plaster manifest have a `condition` attribute.
+The contents of this condition attribute are evaluated in the same constrained runspace that attribute values are evaluated in.
+However, in the case of a `condition` attribute the resulting value is coerced to a [bool] which determines whether the associated directive is executed.
+
+## PowerShell constrained runspace
+
+The manifest parameters you define are available via variables named `PLASTER_PARAM_<parameter-name>`.
+In addition to these variables, Plaster defines a set of built-in variables:
+
+- PLASTER_TemplatePath    - The absolute path to the template directory.
+- PLASTER_DestinationPath - The absolute path to the destination directory.
+- PLASTER_DestinationName - The name of the destinaion directory.
+- PLASTER_FileContent     - The contents of a file be modified via the `<modify>` directive.
+- PLASTER_DirSepChar      - The directory separator char for the platform.
+- PLASTER_HostName        - The PowerShell host name e.g. $Host.Name
+- PLASTER_Guid1           - Randomly generated GUID value
+- PLASTER_Guid2           - Randomly generated GUID value
+- PLASTER_Guid3           - Randomly generated GUID value
+- PLASTER_Guid4           - Randomly generated GUID value
+- PLASTER_Guid5           - Randomly generated GUID value
+- PLASTER_Date            - Date in short date string format e.g. 10/31/2016
+- PLASTER_Time            - Time in short time string format e.g. 5:11 PM
+- PLASTER_Year            - The four digit yearf
+
+In this constrained runspace, you have access to the Environment and FileSystem providers.
+In addition, the following commands are available:
+
+- Get-Content
+- Get-Date
+- Get-ChildItem
+- Get-Item
+- Get-ItemProperty
+- Get-Module
+- Get-Variable
+- Test-Path
 
 # EXAMPLES
 You can create a base Plaster manifest by running the New-PlasterManifest command.

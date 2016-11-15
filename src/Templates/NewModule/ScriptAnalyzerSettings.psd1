@@ -7,6 +7,7 @@
 
     # Use IncludeRules when you want to run only a subset of the default rule set.
     #IncludeRules = @('PSAvoidDefaultValueSwitchParameter',
+    #                 'PSMisleadingBacktick',
     #                 'PSMissingModuleManifestField',
     #                 'PSReservedCmdletChar',
     #                 'PSReservedParams',

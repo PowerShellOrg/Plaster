@@ -1,6 +1,7 @@
-## What is New in Plaster 0.1.0
-May 27, 2016
+## What is New in Plaster 0.3.0
+Nov 5, 2016
 
+* Updated build script with support for building help from markdown files, building updatable help files and generating file catalog.
 * Initial release shows the basics of what this module could do.
 
 ### Feedback

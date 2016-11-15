@@ -12,7 +12,7 @@ Creates a new Plaster template manifest file.
 ## SYNTAX
 
 ```
-New-PlasterManifest [[-Path] <String>] -Name <String> [-Id <Guid>] [-TemplateVersion <String>]
+New-PlasterManifest [[-Path] <String>] -TemplateName <String> [-Id <Guid>] [-TemplateVersion <String>]
  [-Title <String>] [-Description <String>] [-Tags <String[]>] [-Author <String>] [-AddContent] [-WhatIf]
  [-Confirm] [<CommonParameters>]
 ```
@@ -46,14 +46,14 @@ authoring a Plaster manifest file.
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-New-PlasterManifest
+New-PlasterManifest -TemplateName NewPowerShellItem
 ```
 
 Creates a basic plasterManifest.xml file in the current directory.
 
 ### -------------------------- EXAMPLE 2 --------------------------
 ```
-New-PlasterManifest -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
 ```
 
 Creates a plasterManifest.xml file in the current directory with the version set to 0.1.0 and with the
@@ -61,7 +61,7 @@ Description and Tags elements populated.
 
 ### -------------------------- EXAMPLE 3 --------------------------
 ```
-New-PlasterManifest -AddContent
+New-PlasterManifest -TemplateName NewPowerShellItem -AddContent
 ```
 
 Creates a plasterManifest.xml file in the current directory with the content element filled in with all the
@@ -77,7 +77,7 @@ manifest's content element.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -92,7 +92,7 @@ Specifies the author of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -127,7 +127,7 @@ tests, building with psake and publishing to the PowerShell Gallery."
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -149,30 +149,11 @@ template.
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
 Default value: [guid]::NewGuid()
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Specifies the name of the template.
-A template name is required.
-For localized manifests, this value
-should not be localized.
-The name is limited to the characters: aA-zZ0-9_-.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: True
-Position: Named
-Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -189,10 +170,10 @@ The default, if no value is provided is to create plasterManifest.xml in the cur
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 0
+Position: Named
 Default value: "$pwd\plasterManifest.xml"
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -205,9 +186,28 @@ Users can search for templates based on these tags.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TemplateName
+Specifies the name of the template.
+A template name is required.
+For localized manifests, this value
+should not be localized.
+The name is limited to the characters: aA-zZ0-9_-.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -220,7 +220,7 @@ Specifies the version of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -238,7 +238,7 @@ A typical title might be "New DSC Resource" or "New PowerShell Module".
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named

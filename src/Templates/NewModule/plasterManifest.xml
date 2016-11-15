@@ -106,8 +106,12 @@
         <file source='ScriptAnalyzerSettings.psd1'
               destination=''/>
 
-        <templateFile source='en-US\about_Module.help.txt'
-                      destination='en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
+        <templateFile condition="$PLASTER_PARAM_Options -contains 'platyPS'"
+                      source='docs\en-US\about_Module.help.md'
+                      destination='docs\en-US\about_${PLASTER_PARAM_ModuleName}.help.md'/>
+        <templateFile condition="$PLASTER_PARAM_Options -notcontains 'platyPS'"
+                      source='docs\en-US\about_Module.help.txt'
+                      destination='src\en-US\about_${PLASTER_PARAM_ModuleName}.help.txt'/>
         <templateFile condition="$PLASTER_PARAM_Options -contains 'Pester'"
                       source='test\Module.T.ps1'
                       destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1' />
@@ -134,6 +138,10 @@
               source='editor\VSCode\tasks_psake_pester.json'
               destination='.vscode\tasks.json' />
 
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_Options -contains 'PSScriptAnalyzer')"
+              source='editor\VSCode\settings.json'
+              destination='.vscode\settings.json' />
+
         <requireModule name="Pester" condition='$PLASTER_PARAM_Options -contains "Pester"' minimumVersion="3.4.0"
             message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
 
@@ -143,7 +151,7 @@
         <requireModule name="PSScriptAnalyzer" condition='$PLASTER_PARAM_Options -contains "PSScriptAnalyzer"'
             message="Without PSScriptAnalyzer, you will not be able to perform script analysis, or use the provided options to control script analysis."/>
 
-        <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"'
+        <requireModule name="platyPS" condition='$PLASTER_PARAM_Options -contains "platyPS"' minimumVersion="0.7.2"
             message="Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."/>
 
         <message>
