@@ -9,7 +9,8 @@ ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
 ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
 ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
 ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
-InvalidConditionExpression_F2=The condition expression '{0}' is invalid.  Error: {1}
+InterpolationExpressionError_F2=The Plaster manifest attribute value '{0}' could not be interpolated.  Error: {1}
+InvalidConditionExpression_F2=The Plaster manifest condition '{0}' is invalid.  Error: {1}
 FileConflict=Plaster file conflict
 ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
 ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
@@ -44,7 +45,6 @@ ShouldCreateNewPlasterManifest=Create Plaster manifest
 ShouldProcessCreateDir=Create directory
 ShouldProcessExpandTemplate=Expand template file
 ShouldProcessNewModuleManifest=Create new module manifest
-SubstitutionExpressionError_F2=The substitution expression '{0}' failed expansion.  Error: {1}
 TempFileOperation_F1={0} into temp file before copying to destination
 TempFileTarget_F1=temp file for '{0}'
 TestPlasterNoXmlSchemaValidationWarning=The version of .NET Core that PowerShell is running on does not support XML schema-based validation. Test-PlasterManifest will operate in "limited validation" mode primarily verifying the specified manifest file is well-formed XML. For full, XML schema-based validation, run this command on Windows PowerShell.

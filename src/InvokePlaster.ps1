@@ -214,11 +214,6 @@ function Invoke-Plaster {
             $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
             $iss.Providers.Add($sspe)
 
-            # Uncomment for **ONLY** debugging runspace capabilities. If this is left enabled in the shipping version of
-            # Plaster, then folks can execute any command e.g. $stopps = Get-Command Stop-Process; &$stopps -Name code
-            # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
-            # $iss.Commands.Add($ssce)
-
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Content',([Microsoft.PowerShell.Commands.GetContentCommand]),$null
             $iss.Commands.Add($ssce)
 
@@ -246,7 +241,8 @@ function Invoke-Plaster {
             $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
             $plasterVars = Get-Variable -Name PLASTER_*
             foreach ($var in $plasterVars) {
-                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry $var.Name,$var.Value,$var.Description,$scopedItemOptions
+                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
+                            $var.Name,$var.Value,$var.Description,$scopedItemOptions
                 $iss.Variables.Add($ssve)
             }
 
@@ -277,13 +273,18 @@ function Invoke-Plaster {
                 }
                 $powershell.Runspace = $constrainedRunspace
 
-                $powershell.AddScript("`"$Str`"") > $null
-                $res = $powershell.Invoke()
-                $res[0]
+                try {
+                    $powershell.AddScript("`"$Str`"") > $null
+                    $res = $powershell.Invoke()
+                    $res[0]
+                }
+                catch {
+                    throw ($LocalizedData.InterpolationExpressionError_F2 -f $Str,$_)
+                }
 
                 if ($powershell.Streams.Error.Count -gt 0) {
                     $err = $powershell.Streams.Error[0]
-                    throw ($LocalizedData.SubstitutionExpressionError_F2 -f $Str,$err)
+                    throw ($LocalizedData.InterpolationExpressionError_F2 -f $Str,$err)
                 }
             }
             finally {
@@ -302,13 +303,18 @@ function Invoke-Plaster {
                 }
                 $powershell.Runspace = $constrainedRunspace
 
-                $powershell.AddScript($Expression) > $null
-                $res = $powershell.Invoke()
-                [bool]$res[0]
+                try {
+                    $powershell.AddScript($Expression) > $null
+                    $res = $powershell.Invoke()
+                    [bool]$res[0]
+                }
+                catch {
+                    throw ($LocalizedData.InvalidConditionExpression_F2 -f $Expression,$_)
+                }
 
                 if ($powershell.Streams.Error.Count -gt 0) {
                     $err = $powershell.Streams.Error[0]
-                    throw ($LocalizedData.InvalidConditionExpression_F2 -f $Str,$err)
+                    throw ($LocalizedData.InvalidConditionExpression_F2 -f $Expression,$err)
                 }
             }
             finally {
