@@ -64,7 +64,7 @@ $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $DefaultEncoding = 'Default'
 
-if ($IsWindows) {
+if (($PSVersionTable.PSVersion.Major -le 5) -or ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows) {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 }
