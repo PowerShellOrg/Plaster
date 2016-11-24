@@ -207,5 +207,36 @@ Describe 'Test-PlasterManifest Command Tests' {
             $verboseRecord.Message | Should Match "attribute value 'Git,psake'"
             $verboseRecord.Message | Should Match "one or more zero-based"
         }
+
+        It 'Detects invalid condition attribute value' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$($SchemaVersion.Major).$($SchemaVersion.Minor)" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content>
+  <file condition='"foo" -eq "bar'
+        source='Recurse\foo.txt'
+        destination='foo.txt'/>
+  </content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+            $TestErr | Should Not BeNullOrEmpty
+            $verboseRecord | Should Not BeNullOrEmpty
+            $verboseRecord.Message | Should Match "Invalid condition '`"foo`" -eq `"bar'"
+        }
     }
 }

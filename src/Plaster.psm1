@@ -15,11 +15,12 @@ data LocalizedData {
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
     ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
-    ManifestSchemaInvalidChoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify a zero-based integer index that corresponds to the default choice.
-    ManifestSchemaInvalidMultichoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
-    ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
-    ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
-    ManifestSchemaVersionNotSupported_F1=The template's manifest schema version ({0}) requires a newer version of Plaster. Update the Plaster module and try again.
+    ManifestSchemaInvalidCondition_F3=Invalid condition '{0}' in file '{1}'. Error: {2}
+    ManifestSchemaInvalidChoiceDefault_F3=Invalid default attribute value '{0}' for parameter '{1}' in file '{2}'. The default value must specify a zero-based integer index that corresponds to the default choice.
+    ManifestSchemaInvalidMultichoiceDefault_F3=Invalid default attribute value '{0}' for parameter '{1}' in file '{2}'. The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
+    ManifestSchemaInvalidRequireModuleAttrs_F2=The requireModule attribute 'requiredVersion' for module '{0}' in file '{1}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
+    ManifestSchemaValidationError_F2=Plaster manifest schema error in file '{0}'. Error: {1}
+    ManifestSchemaVersionNotSupported_F2=The template's manifest schema version ({0}) in file '{1}' requires a newer version of Plaster. Update the Plaster module and try again.
     ManifestErrorReading_F1=Error reading Plaster manifest: {0}
     ManifestNotValid_F1=The Plaster manifest '{0}' is not valid.
     ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
