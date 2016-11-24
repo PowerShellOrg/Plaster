@@ -650,6 +650,14 @@ function Invoke-Plaster {
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
+        function CopyModuleManifestPropertyToHashtable([PSModuleInfo]$oldModuleManifest, [hashtable]$hashtable, [string[]]$Property) {
+            foreach ($prop in $Property) {
+                if ($oldModuleManifest.$prop) {
+                    $hashtable["$prop"] = $oldModuleManifest.$prop
+                }
+            }
+        }
+
         function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
             $moduleVersion = ExpandString $Node.moduleVersion
             $rootModule = ExpandString $Node.rootModule
@@ -687,6 +695,19 @@ function Invoke-Plaster {
                 }
 
                 $newModuleManifestParams = @{}
+
+                # If there is an existing module manifest, load it so we can reuse old values not specified by
+                # template.
+                if (Test-Path -LiteralPath $dstPath) {
+                    $oldModuleManifest = Test-ModuleManifest -Path $dstPath -ErrorAction SilentlyContinue
+                    if ($? -and $oldModuleManifest) {
+                        $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
+                                 'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
+                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess'
+
+                        CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
+                    }
+                }
 
                 if (![string]::IsNullOrWhiteSpace($moduleVersion)) {
                     $newModuleManifestParams['ModuleVersion'] = $moduleVersion
@@ -738,6 +759,19 @@ function Invoke-Plaster {
         #
         # Begin ProcessFile helper methods
         #
+        function NewBackupFilename([string]$Path) {
+            $dir = [System.IO.Path]::GetDirectoryName($Path)
+            $basename = [System.IO.Path]::GetFileNameWithoutExtension($Path)
+            $backupPath = Join-Path -Path $dir -ChildPath "${basename}.bak"
+            $i = 1;
+            while (Test-Path -LiteralPath $backupPath) {
+                $backupPath = Join-Path -Path $dir -ChildPath "${basename}.bak$i"
+                $i++
+            }
+
+            $backupPath
+        }
+
         function AreFilesIdentical($Path1, $Path2) {
             $file1 = Get-Item -LiteralPath $Path1 -Force
             $file2 = Get-Item -LiteralPath $Path2 -Force
@@ -872,6 +906,8 @@ function Invoke-Plaster {
                                                              $LocalizedData.FileConflict,
                                                              [ref]$fileConflictConfirmYesToAll,
                                                              [ref]$fileConflictConfirmNoToAll)) {
+                    $backupFilename = NewBackupFilename $DstPath
+                    Copy-Item -LiteralPath $DstPath -Destination $backupFilename
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
                     $templateCreatedFiles[$DstPath] = $null
                 }
