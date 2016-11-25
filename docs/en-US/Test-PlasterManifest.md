@@ -45,7 +45,7 @@ of those errors.
 Specifies a path to a plasterManifest.xml file.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases: PSPath
 
