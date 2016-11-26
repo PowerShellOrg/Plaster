@@ -149,13 +149,31 @@ function Test-PlasterManifest {
                 }
             }
 
-            # Validate that all the condition values are valid PowerShell script.
+            # Validate that all the condition attribute values are valid PowerShell script.
             $conditionAttrs = Select-Xml -Xml $manifest -XPath '//@condition'
             foreach ($conditionAttr in $conditionAttrs) {
                 $tokens = $errors = $null
                 [System.Management.Automation.Language.Parser]::ParseInput($conditionAttr.Node.Value, [ref] $tokens, [ref] $errors) > $null
                 if ($errors.Count -gt 0) {
-                    $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidCondition_F3 -f $conditionAttr.Node.Value, $aPath, $errors[0]))
+                    $msg = $LocalizedData.ManifestSchemaInvalidCondition_F3 -f $conditionAttr.Node.Value, $aPath, $errors[0]
+                    $PSCmdLet.WriteVerbose($msg)
+                    $manifestIsValid.Value = $false
+                }
+            }
+
+            # Validate all content attribute values are valid within a PowerShell string interpolation context.
+            $contentAttrs = Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $targetNamespace}
+            foreach ($contentAttr in $contentAttrs) {
+                $name = $contentAttr.Node.LocalName
+                if ($name -eq 'condition') { continue }
+
+                $tokens = $errors = $null
+                $value = $contentAttr.Node.Value
+                [System.Management.Automation.Language.Parser]::ParseInput("`"$value`"", [ref] $tokens, [ref] $errors) > $null
+                if ($errors.Count -gt 0) {
+                    $ownerName = $contentAttr.Node.OwnerElement.LocalName
+                    $msg = $LocalizedData.ManifestSchemaInvalidAttrValue_F5 -f $name, $value, $ownerName, $aPath, $errors[0]
+                    $PSCmdLet.WriteVerbose($msg)
                     $manifestIsValid.Value = $false
                 }
             }
@@ -166,7 +184,7 @@ function Test-PlasterManifest {
                 # Use a simplified form (no patch version) of semver for checking XML schema version compatibility.
                 if (($manifestSchemaVersion.Major -gt $LatestSupportedSchemaVersion.Major) -or
                     (($manifestSchemaVersion.Major -eq $LatestSupportedSchemaVersion.Major) -and
-                    ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor))) {
+                     ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor))) {
 
                     Write-Error ($LocalizedData.ManifestSchemaVersionNotSupported_F2 -f $manifestSchemaVersion,$aPath)
                     return
