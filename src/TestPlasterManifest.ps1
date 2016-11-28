@@ -153,7 +153,7 @@ function Test-PlasterManifest {
             $conditionAttrs = Select-Xml -Xml $manifest -XPath '//@condition'
             foreach ($conditionAttr in $conditionAttrs) {
                 $tokens = $errors = $null
-                [System.Management.Automation.Language.Parser]::ParseInput($conditionAttr.Node.Value, [ref] $tokens, [ref] $errors) > $null
+                $null = [System.Management.Automation.Language.Parser]::ParseInput($conditionAttr.Node.Value, [ref] $tokens, [ref] $errors)
                 if ($errors.Count -gt 0) {
                     $msg = $LocalizedData.ManifestSchemaInvalidCondition_F3 -f $conditionAttr.Node.Value, $aPath, $errors[0]
                     $PSCmdLet.WriteVerbose($msg)
@@ -161,17 +161,19 @@ function Test-PlasterManifest {
                 }
             }
 
-            # Validate all content attribute values are valid within a PowerShell string interpolation context.
-            $contentAttrs = Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $targetNamespace}
-            foreach ($contentAttr in $contentAttrs) {
-                $name = $contentAttr.Node.LocalName
+            # Validate all interpolated attribute values are valid within a PowerShell string interpolation context.
+            $interpolatedAttrs  = @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@default' -Namespace @{tns = $targetNamespace})
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@prompt' -Namespace @{tns = $targetNamespace})
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $targetNamespace})
+            foreach ($interpolatedAttr in $interpolatedAttrs) {
+                $name = $interpolatedAttr.Node.LocalName
                 if ($name -eq 'condition') { continue }
 
                 $tokens = $errors = $null
-                $value = $contentAttr.Node.Value
-                [System.Management.Automation.Language.Parser]::ParseInput("`"$value`"", [ref] $tokens, [ref] $errors) > $null
+                $value = $interpolatedAttr.Node.Value
+                $null = [System.Management.Automation.Language.Parser]::ParseInput("`"$value`"", [ref] $tokens, [ref] $errors)
                 if ($errors.Count -gt 0) {
-                    $ownerName = $contentAttr.Node.OwnerElement.LocalName
+                    $ownerName = $interpolatedAttr.Node.OwnerElement.LocalName
                     $msg = $LocalizedData.ManifestSchemaInvalidAttrValue_F5 -f $name, $value, $ownerName, $aPath, $errors[0]
                     $PSCmdLet.WriteVerbose($msg)
                     $manifestIsValid.Value = $false
