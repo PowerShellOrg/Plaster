@@ -2,6 +2,7 @@
 data LocalizedData {
     # culture="en-US"
     ConvertFrom-StringData @'
+    DestPath_F1=Destination path: {0}
     ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
     ErrorProcessingDynamicParams_F1=Failed to create dynamic parameters from the template's manifest file.  Template-based dynamic parameters will not be available until the error is corrected.  The error was: {0}
     ErrorTemplatePathIsInvalid_F1=The TemplatePath parameter value must refer to an existing directory. The specified path '{0}' does not.
