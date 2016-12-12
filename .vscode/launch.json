@@ -2,9 +2,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PowerShell",
             "type": "PowerShell",
             "request": "launch",
+            "name": "PowerShell Launch (debugHarness.ps1)",
+            "program": "${workspaceRoot}/debugHarness.ps1",
+            "args": [],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch (current file)",
             "program": "${file}",
             "args": [],
             "cwd": "${file}"

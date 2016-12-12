@@ -222,8 +222,6 @@ Some elements use the encoding attribute, while not a common attribute, has a co
 
 Element attribute values support the use of Plaster parameters, which are parameter values that can be expanded into file names, or other pieces of information the template deals with. These map to available parameters, licenses and other data that is provided in the template.
 
-TODO: Explain Plaster parameters and provide a list.
-
 ### Content element: File
 One or more files can be selected (using wild cards like `*`) with each file element. Attribute values support the inclusion of Plaster parameters to control (as an example) the location or the name of the resulting file.
 
@@ -365,14 +363,32 @@ Available attributes for this content element:
 ```
 
 ## Attribute and Condition Evaluation
-Most of the XML attributes in a manifest can contain variables or expressions that evaluate to a string.
-The attribute's value is passed into a constrained runspace for evaluation and the resulting string is used for template processing.
-Note the XML attributes on the `<parameter>` directive are not processed this way because they are processed during `dynamicparam` execution.
+Many of the XML attributes in a manifest can contain variables or expressions that evaluate to a string.
+The attribute's value is passed into a constrained runspace in the context of a double quoted string for interpolation and the resulting string is used for template processing.
+Note the XML attributes on the `<parameter>` directive, except for the `default` and `prompt` attributes, are not processed this way because they are processed during `dynamicparam` execution.
 At that time, the constrained runspace in which these expressions are evaluated has not been created.
 
 Many of the directives in a Plaster manifest have a `condition` attribute.
 The contents of this condition attribute are evaluated in the same constrained runspace that attribute values are evaluated in.
 However, in the case of a `condition` attribute the resulting value is coerced to a [bool] which determines whether the associated directive is executed.
+
+## TemplateFile processing
+A file that is processed with the `<templateFile>` directive will be processed, replacing script expression delimiters and script block delimiters with PowerShell generated text.
+The script expression delimiter is `<%= %>`.  The contents of a script expression delimiter are executed and the results cast to a string and inserted into the file.
+
+The script block delimiter is:
+```
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        # Ensure the presence/absene of the resource."
+"        [ValidateSet('Present','Absent')]"
+"        [string]"
+"        `$Ensure = 'Present'"
+    }
+%>
+```
+Where both starting and closing delimiter must appear in column zero.
+The contents of a script block delimiter are executed and the results cast to a string array and inserted into the file.
 
 ## PowerShell constrained runspace
 

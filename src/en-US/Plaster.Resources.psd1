@@ -9,8 +9,16 @@ ErrorUnencryptingSecureString_F1=Failed to unencrypt value for parameter '{0}'.
 ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
 ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
 ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
-InterpolationExpressionError_F2=The Plaster manifest attribute value '{0}' could not be interpolated.  Error: {1}
-InvalidConditionExpression_F2=The Plaster manifest condition '{0}' is invalid.  Error: {1}
+ExpressionInvalid_F2=The expression '{0}' is invalid or threw an exception. Error: {1}
+ExpressionNonTermErrors_F2=The expression '{0}' generated error output - {1}
+ExpressionExecError_F2=PowerShell expression failed execution. Location: {0}. Error: {1}
+ExpressionErrorLocationFile_F2=<{0}> attribute '{1}'
+ExpressionErrorLocationModify_F1=<modify> attribute '{0}'
+ExpressionErrorLocationNewModManifest_F1=<newModuleManifest> attribute '{0}'
+ExpressionErrorLocationParameter_F2=<parameter> name='{0}', attribute '{1}'
+ExpressionErrorLocationRequireModule_F2=<requireModule> name='{0}', attribute '{1}'
+ExpressionInvalidCondition_F3=The Plaster manifest condition '{0}' failed. Location: {1}. Error: {2}
+InterpolationError_F3=The Plaster manifest attribute value '{0}' failed string interpolation. Location: {1}. Error: {2}
 FileConflict=Plaster file conflict
 ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
 ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.

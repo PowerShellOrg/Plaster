@@ -30,21 +30,8 @@
     <content>
         <message>&#10;&#10;Scaffolding your PowerShell DSC Resource Script...&#10;&#10;&#10;</message>
 
-        <templateFile source='resource.ps1'
+        <templateFile source='resource.ps1.txt'
                       destination='${PLASTER_PARAM_TargetResourceName}.ps1'/>
-
-        <modify condition="$PLASTER_PARAM_Ensure -eq 'Yes'"
-                path="${PLASTER_PARAM_TargetResourceName}.ps1"
-                encoding="UTF8">
-            <replace>
-                <original><![CDATA[(?si)(?<=param\s*\()(.)]]></original>
-                <substitute><![CDATA[
-        # Ensure the presence/absence of the resource.
-        [ValidateSet("Present","Absent")]
-        [string]
-        $Ensure = "Present"]]></substitute>
-            </replace>
-        </modify>
 
         <message>
 

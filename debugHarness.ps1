@@ -11,15 +11,31 @@ $OutDir = "$PSScriptRoot\examples\Out"
 Remove-Item $OutDir -Recurse -ErrorAction SilentlyContinue
 
 $PlasterParams = @{
-    TemplatePath = "$PSScriptRoot\examples\NewModule"
+    TemplatePath = "$PSScriptRoot\src\Templates\NewPowerShellModule"
     DestinationPath = $OutDir
     ModuleName = 'FooUtils'
-    ModuleDesc = 'Utilities for Foo.'
-    FullName = 'John Q. Doe'
     Version = '1.2.0'
-    Options = 'Git','psake','Pester','PSScriptAnalyzer','platyPS'
+    AddTest = 'Yes'
     Editor = 'VSCode'
-    License = 'MIT'
 }
+
+# $PlasterParams = @{
+#     TemplatePath = "$PSScriptRoot\examples\NewDscResourceScript"
+#     DestinationPath = $OutDir
+#     TargetResourceName = 'ZipFile'
+#     Ensure = 'Yes'
+# }
+
+# $PlasterParams = @{
+#     TemplatePath = "$PSScriptRoot\examples\NewModule"
+#     DestinationPath = $OutDir
+#     ModuleName = 'FooUtils'
+#     ModuleDesc = 'Utilities for Foo.'
+#     FullName = 'John Q. Doe'
+#     Version = '1.2.0'
+#     Options = 'Git','psake','Pester','PSScriptAnalyzer','platyPS'
+#     Editor = 'VSCode'
+#     License = 'MIT'
+# }
 
 Invoke-Plaster @PlasterParams -Force
