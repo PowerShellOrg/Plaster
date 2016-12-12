@@ -1299,6 +1299,9 @@ function Invoke-Plaster {
                 $defaultValueStore | Export-Clixml -LiteralPath $defaultValueStorePath
             }
 
+            # Output the DestinationPath
+            $LocalizedData.DestPath_F1 -f $destinationAbsolutePath
+
             # Process content
             foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement]) { continue }
