@@ -1027,6 +1027,8 @@ function Invoke-Plaster {
                 if (Test-Path -LiteralPath $srcPath -PathType Container) {
                     if (!(Test-Path -LiteralPath $dstPath)) {
                         if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
+                            WriteOperationStatus $LocalizedData.OpCreate `
+                                ($dstRelPath.TrimEnd(([char]'\'),([char]'/')) + [System.IO.Path]::DirectorySeparatorChar)
                             New-Item -Path $dstPath -ItemType Directory > $null
                         }
                     }
