@@ -1341,6 +1341,7 @@ function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath)
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
     Set-Variable -Name PLASTER_DirSepChar      -Value ([System.IO.Path]::DirectorySeparatorChar) -Scope Script
     Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
+    Set-Variable -Name PLASTER_Version         -Value $MyInvocation.MyCommand.Module.Version -Scope Script
 
     Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script
     Set-Variable -Name PLASTER_Guid2 -Value ([Guid]::NewGuid()) -Scope Script

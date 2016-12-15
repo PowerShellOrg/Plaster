@@ -401,6 +401,7 @@ In addition to these variables, Plaster defines a set of built-in variables:
 - PLASTER_FileContent     - The contents of a file be modified via the `<modify>` directive.
 - PLASTER_DirSepChar      - The directory separator char for the platform.
 - PLASTER_HostName        - The PowerShell host name e.g. $Host.Name
+- PLASTER_Version         - The version of the Plaster module invoking the template.
 - PLASTER_Guid1           - Randomly generated GUID value
 - PLASTER_Guid2           - Randomly generated GUID value
 - PLASTER_Guid3           - Randomly generated GUID value

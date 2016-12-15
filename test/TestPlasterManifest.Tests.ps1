@@ -1,10 +1,61 @@
 . $PSScriptRoot\Shared.ps1
 
-$plasterModule = Get-Module Plaster
 $SchemaVersion = $plasterModule.Invoke({$LatestSupportedSchemaVersion})
 
 Describe 'Test-PlasterManifest Command Tests' {
-    Context 'Verifies manifest schema version correctly' {
+    Context 'Verifies plasterVersion correctly' {
+        It 'Works with the current Plaster version.' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$SchemaVersion" plasterVersion="$($plasterModule.Version)" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content></content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            Test-PlasterManifest -Path $PlasterManifestPath -OutVariable xmldoc | Should Not BeNullOrEmpty
+            $xmldoc.plasterManifest.plasterVersion | Should Be $plasterModule.Version
+        }
+
+        It 'Errors on manifest plasterVersion greater than the current Plaster version.' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$SchemaVersion" plasterVersion="9999.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content></content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should BeNullOrEmpty
+            $TestErr.Exception.Message -match "specifies a plasterVersion of 9999\.0" | Should Be $true
+        }
+    }
+
+    Context 'Verifies manifest schema correctly' {
         It 'Errors on manifest major version greater than supported' {
             CleanDir $TemplateDir
 

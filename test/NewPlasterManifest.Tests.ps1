@@ -1,5 +1,7 @@
 . $PSScriptRoot\Shared.ps1
 
+$LatestSchemaVersion = $plasterModule.Invoke({$LatestSupportedSchemaVersion})
+
 function CompareManifestContent($expectedManifest, $actualManifestPath) {
     # Compare the manifests while accounting for possible newline incompatiblity
     $expectedManifest = $expectedManifest -replace "`r`n", "`n"
@@ -15,7 +17,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -41,7 +43,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -67,7 +69,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -93,7 +95,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
