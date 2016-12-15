@@ -19,7 +19,7 @@ function Test-PlasterManifest {
         # Schema validation is not available on .NET Core - at the moment.
         if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
             $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
-            $xmlSchemaSet.Add($targetNamespace, $schemaPath) > $null
+            $xmlSchemaSet.Add($TargetNamespace, $schemaPath) > $null
         }
         else {
             $PSCmdLet.WriteWarning($LocalizedData.TestPlasterNoXmlSchemaValidationWarning)
@@ -62,12 +62,12 @@ function Test-PlasterManifest {
             # Validate the manifest contains the required root element and target namespace that the following
             # XML schema validation will apply to.
             if (!$manifest.plasterManifest) {
-                Write-Error ($LocalizedData.ManifestMissingDocElement_F2 -f $aPath,$targetNamespace)
+                Write-Error ($LocalizedData.ManifestMissingDocElement_F2 -f $aPath,$TargetNamespace)
                 return
             }
 
-            if ($manifest.plasterManifest.NamespaceURI -cne $targetNamespace) {
-                Write-Error ($LocalizedData.ManifestMissingDocTargetNamespace_F2 -f $aPath,$targetNamespace)
+            if ($manifest.plasterManifest.NamespaceURI -cne $TargetNamespace) {
+                Write-Error ($LocalizedData.ManifestMissingDocTargetNamespace_F2 -f $aPath,$TargetNamespace)
                 return
             }
 
@@ -140,7 +140,7 @@ function Test-PlasterManifest {
 
             # Validate that the requireModule attribute requiredVersion is mutually exclusive from both
             # the version and maximumVersion attributes.
-            $requireModules = Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $targetNamespace}
+            $requireModules = Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $TargetNamespace}
             foreach ($requireModuleInfo in $requireModules) {
                 $requireModuleNode = $requireModuleInfo.Node
                 if ($requireModuleNode.requiredVersion -and ($requireModuleNode.minimumVersion -or $requireModuleNode.maximumVersion)) {
@@ -162,9 +162,9 @@ function Test-PlasterManifest {
             }
 
             # Validate all interpolated attribute values are valid within a PowerShell string interpolation context.
-            $interpolatedAttrs  = @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@default' -Namespace @{tns = $targetNamespace})
-            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@prompt' -Namespace @{tns = $targetNamespace})
-            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $targetNamespace})
+            $interpolatedAttrs  = @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@default' -Namespace @{tns = $TargetNamespace})
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@prompt' -Namespace @{tns = $TargetNamespace})
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $TargetNamespace})
             foreach ($interpolatedAttr in $interpolatedAttrs) {
                 $name = $interpolatedAttr.Node.LocalName
                 if ($name -eq 'condition') { continue }
@@ -181,6 +181,7 @@ function Test-PlasterManifest {
             }
 
             if ($manifestIsValid.Value) {
+                # Verify manifest schema version is supported.
                 $manifestSchemaVersion = [System.Version]$manifest.plasterManifest.schemaVersion
 
                 # Use a simplified form (no patch version) of semver for checking XML schema version compatibility.
@@ -190,6 +191,22 @@ function Test-PlasterManifest {
 
                     Write-Error ($LocalizedData.ManifestSchemaVersionNotSupported_F2 -f $manifestSchemaVersion,$aPath)
                     return
+                }
+
+                # Verify that the plasterVersion is supported.
+                if ($manifest.plasterManifest.plasterVersion) {
+                    $requiredPlasterVersion = [System.Version]$manifest.plasterManifest.plasterVersion
+
+                    # Is user specifies major.minor, change build to 0 (from default of -1) so compare works correctly.
+                    if ($requiredPlasterVersion.Build -eq -1) {
+                        $requiredPlasterVersion = [System.Version]"${requiredPlasterVersion}.0"
+                    }
+
+                    if ($requiredPlasterVersion -gt $MyInvocation.MyCommand.Module.Version) {
+                        $plasterVersion = $manifest.plasterManifest.plasterVersion
+                        Write-Error ($LocalizedData.ManifestPlasterVersionNotSupported_F2 -f $aPath,$plasterVersion)
+                        return
+                    }
                 }
 
                 $manifest

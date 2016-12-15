@@ -10,7 +10,7 @@
 	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 	elementFormDefault="qualified"
   attributeFormDefault="unqualified"
-  version="0.4"
+  version="0.5"
   xml:lang="en"
 	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
 		vs:friendlyname="Plaster Manifest Schema"
@@ -479,7 +479,12 @@
 
       <xs:attribute name="schemaVersion" type="ptd:SchemaVersionType" use="required">
         <xs:annotation>
-          <xs:documentation>Version level of the associated XML schema. Only breaking changes to the XML schema result in a new target namespace.</xs:documentation>
+          <xs:documentation>Version level of the associated XML schema. Use this when the Plaster template schema has beed updated with features required by the template. Only breaking changes to the XML schema result in a new target namespace.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="plasterVersion" type="ptd:ModuleVersionType">
+        <xs:annotation>
+          <xs:documentation>Specifies the minimum version of Plaster required to invoke the template. Use this when the Plaster engine has been updated with new functionality required by the template.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>
