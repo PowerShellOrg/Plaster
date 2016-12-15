@@ -24,3 +24,11 @@ build_script:
           $Error | Format-List * -Force
           exit 1;
       }
+
+on_finish:
+    - ps: |
+        # Publish the contents of the Release folder
+        Add-Type -assemblyname System.IO.Compression.FileSystem
+        $zipPath = "$pwd\Plaster.zip"
+        [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\Release", $zipPath)
+        Push-AppveyorArtifact $zipPath
