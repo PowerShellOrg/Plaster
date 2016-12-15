@@ -2,7 +2,7 @@
 Module Name: Plaster
 Module Guid: cfce3c5e-402f-412a-a83a-7b7ee9832ff4
 Download Help Link: https://github.com/PowerShell/Plaster/tree/master/docs
-Help Version: 0.3.0
+Help Version: 1.0.0
 Locale: en-US
 ---
 
@@ -24,3 +24,4 @@ Creates a new Plaster template manifest file.
 
 ### [Test-PlasterManifest](Test-PlasterManifest.md)
 Verifies that a plaster manifest file is a valid.
+

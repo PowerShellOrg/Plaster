@@ -1,5 +1,16 @@
 # Plaster Release History
 
+## 1.0.0
+### Friday, December 16, 2016
+
+- First official release shipped to the PowerShell Gallery!
+
+## 0.3.0
+### Saturday, November 5, 2016
+
+- Updated build script with support for building help from markdown files, building updatable help files and generating file catalog.
+- Initial release shows the basics of what this module could do.
+
 ## 0.2.0
 ### Sunday, July 31, 2016
 

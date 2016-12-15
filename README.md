@@ -9,20 +9,30 @@ fill in details and choose from options to get their desired output.
 
 You can think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
 
-> **NOTE:** This project is at a very early phase of development.  We have not officially
-> launched this project yet but we're opening up the repo for early feedback from the
-> PowerShell community.  Please try it out and let us know what you think!
+## Installation
 
-## Trying it Out
+If you have the [PowerShellGet](https://msdn.microsoft.com/powershell/gallery/readme) module installed
+you can enter the following command:
 
-If you'd like to try out an early version of this project, clone this repo to your
-hard drive and then follow the instructions in our [Examples\README.md](examples/README.md)
-file.
+```PowerShell
+Install-Module Plaster -Scope CurrentUser
+```
+
+Alternatively you can download a ZIP file of the latest version from our [Releases](https://github.com/PowerShell/Plaster/releases)
+page.
+
+## Documentation
+
+You can learn how to use Plaster and write your own templates by reading our documentation:
+
+- [About Plaster](docs/en-US/about_Plaster.help.md)
+- [Creating a Plaster Manifest](docs/en-US/about_Plaster_CreatingAManifest.help.md)
+- [Cmdlet Documentation](docs/en-US/Plaster.md)
 
 ## Maintainers
 
-- [David Wilson](https://github.com/daviwil) - [@daviwil](http://twitter.com/daviwil)
 - [Keith Hill](https://github.com/rkeithhill) - [@r_keith_hill](http://twitter.com/r_keith_hill)
+- [David Wilson](https://github.com/daviwil) - [@daviwil](http://twitter.com/daviwil)
 - [Dave Green](https://github.com/davegreen) - [@neongreenie](http://twitter.com/neongreenie)
 
 ## License

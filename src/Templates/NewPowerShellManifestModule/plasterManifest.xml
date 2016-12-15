@@ -6,7 +6,7 @@
     <version>1.0.0</version>
     <title>New PowerShell Manifest Module</title>
     <description>Creates files for a simple, non-shared PowerShell manifest module.</description>
-    <author>Plaster project</author>
+    <author>Plaster</author>
     <tags>Module, ModuleManifest</tags>
   </metadata>
   <parameters>
