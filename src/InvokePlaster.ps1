@@ -134,6 +134,24 @@ function Invoke-Plaster {
     }
 
     begin {
+        # Write out the Plaster logo if necessary
+        $plasterLogo = @'
+  ____  _           _
+ |  _ \| | __ _ ___| |_ ___ _ __
+ | |_) | |/ _` / __| __/ _ \ '__|
+ |  __/| | (_| \__ \ ||  __/ |
+ |_|   |_|\__,_|___/\__\___|_|
+'@
+
+        if (!$NoLogo) {
+            $versionString = "v$PlasterVersion"
+            Write-Host $plasterLogo
+            Write-Host ((" " * (50 - $versionString.Length)) + $versionString)
+            Write-Host ("=" * 50)
+        }
+    }
+
+    process {
         $boundParameters = $PSBoundParameters
         $constrainedRunspace = $null
         $templateCreatedFiles = @{}
@@ -143,14 +161,6 @@ function Invoke-Plaster {
         $flags = @{
             DefaultValueStoreDirty = $false
         }
-
-        $plasterLogo = @'
-  ____  _           _
- |  _ \| | __ _ ___| |_ ___ _ __
- | |_) | |/ _` / __| __/ _ \ '__|
- |  __/| | (_| \__ \ ||  __/ |
- |_|   |_|\__,_|___/\__\___|_|
-'@
 
         # Verify TemplatePath parameter value is valid.
         $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
@@ -172,11 +182,6 @@ function Invoke-Plaster {
             else {
                 throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
             }
-        }
-
-        if (!$NoLogo) {
-            Write-Host $plasterLogo
-            Write-Host ("=" * 50)
         }
 
         # If the destination path doesn't exist, create it.

@@ -16,6 +16,9 @@ PowerShell DSC module or DSC resource.
 ### [Invoke-Plaster](Invoke-Plaster.md)
 Invokes the specified Plaster template which will scaffold out a file or a set of files and directories.
 
+### [Get-PlasterTemplate](Get-PlasterTemplate.md)
+Retrieves available Plaster templates which can be scaffolded with Invoke-Plaster.
+
 ### [New-PlasterManifest](New-PlasterManifest.md)
 Creates a new Plaster template manifest file.
 

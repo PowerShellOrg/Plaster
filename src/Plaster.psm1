@@ -70,6 +70,8 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaste
 
 # Module variables
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+$PlasterVersion = (Test-ModuleManifest -Path $PSScriptRoot\Plaster.psd1).Version
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $LatestSupportedSchemaVersion = [System.Version]'1.0'
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
@@ -93,6 +95,7 @@ else {
 # Dot source the individual module command scripts.
 . $PSScriptRoot\NewPlasterManifest.ps1
 . $PSScriptRoot\TestPlasterManifest.ps1
+. $PSScriptRoot\GetPlasterTemplate.ps1
 . $PSScriptRoot\InvokePlaster.ps1
 
 Export-ModuleMember -Function *-*

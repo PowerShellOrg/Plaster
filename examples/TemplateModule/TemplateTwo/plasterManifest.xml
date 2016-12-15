@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateTwoTemplate</name>
+    <id>76a18e25-3c2f-4266-9a6f-64cdef44de94</id>
+    <version>0.1.0</version>
+    <title>TemplateTwo Template</title>
+    <description>An example Plaster template from a PowerShell module.</description>
+    <author>Plaster project</author>
+    <tags>Module, ModuleManifest</tags>
+  </metadata>
+  <parameters>
+        <parameter name='ModuleName'
+                   type='text'
+                   prompt='Enter the name of the module'/>
+  </parameters>
+
+  <content>
+        <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
+                           moduleVersion='$PLASTER_PARAM_Version'
+                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+                           encoding='UTF8-NoBOM'/>
+  </content>
+</plasterManifest>
