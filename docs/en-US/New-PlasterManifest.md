@@ -12,9 +12,9 @@ Creates a new Plaster template manifest file.
 ## SYNTAX
 
 ```
-New-PlasterManifest [[-Path] <String>] -TemplateName <String> [-Id <Guid>] [-TemplateVersion <String>]
- [-Title <String>] [-Description <String>] [-Tags <String[]>] [-Author <String>] [-AddContent] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [[-Id] <Guid>] [[-TemplateVersion] <String>]
+ [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>] [[-Author] <String>] [-AddContent]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -77,7 +77,7 @@ manifest's content element.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -92,10 +92,10 @@ Specifies the author of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -127,10 +127,10 @@ tests, building with psake and publishing to the PowerShell Gallery."
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 5
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -149,10 +149,10 @@ template.
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 2
 Default value: [guid]::NewGuid()
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -170,10 +170,10 @@ The default, if no value is provided is to create plasterManifest.xml in the cur
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 0
 Default value: "$pwd\plasterManifest.xml"
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -186,10 +186,10 @@ Users can search for templates based on these tags.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 6
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -205,10 +205,10 @@ The name is limited to the characters: aA-zZ0-9_-.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -220,10 +220,10 @@ Specifies the version of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 3
 Default value: 1.0.0
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -238,10 +238,10 @@ A typical title might be "New DSC Resource" or "New PowerShell Module".
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
-Position: Named
+Position: 4
 Default value: $Name
 Accept pipeline input: False
 Accept wildcard characters: False

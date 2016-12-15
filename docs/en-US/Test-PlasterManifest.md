@@ -12,7 +12,7 @@ Verifies that a plaster manifest file is a valid.
 ## SYNTAX
 
 ```
-Test-PlasterManifest [[-Path] <String>] [<CommonParameters>]
+Test-PlasterManifest [[-Path] <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
