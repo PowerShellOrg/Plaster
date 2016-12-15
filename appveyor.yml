@@ -11,11 +11,12 @@ install:
       Install-Module Pester -MinimumVersion 3.4.0 -Scope CurrentUser -Force | Out-Null
       Install-Module psake -Scope CurrentUser -Force | Out-Null
       Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
+      Install-Module platyPS -Scope CurrentUser -Force | Out-Null
 
 build_script:
   - ps: |
       $testResultsFile = Join-Path $pwd -ChildPath "$PSScriptRoot/TestResults.xml"
-      Invoke-psake build.psake.ps1 -taskList Test -properties @{"TestOutputFile" = $testResultsFile}
+      Invoke-psake build.psake.ps1 -taskList Test, BuildHelp, GenerateFileCatalog -properties @{"TestOutputFile" = $testResultsFile}
       if ($psake.build_success -and (Test-Path $testResultsFile)) {
           (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsFile)
       }
