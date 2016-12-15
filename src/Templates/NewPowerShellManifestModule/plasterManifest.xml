@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<plasterManifest
-  schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
-    <name>NewPowerShellModule</name>
-    <id>22949f55-9db9-4c21-ba87-ee66c49747dd</id>
-    <version>0.5.0</version>
-    <title>New PowerShell Module</title>
-    <description>Creates files for a simple, non-shared PowerShell module.</description>
+    <name>NewPowerShellManifestModule</name>
+    <id>3b64b931-8e82-4fbe-9077-62819b36c3bd</id>
+    <version>1.0.0</version>
+    <title>New PowerShell Manifest Module</title>
+    <description>Creates files for a simple, non-shared PowerShell manifest module.</description>
     <author>Plaster project</author>
     <tags>Module, ModuleManifest</tags>
   </metadata>
@@ -26,10 +25,10 @@
                    default='0'
                    store='text'>
             <choice label='&amp;No'
-                    help="Chose to not add Pester test support."
+                    help="Choose not to add Pester test support."
                     value="No"/>
             <choice label='&amp;Yes'
-                    help="Chose to add Pester test support."
+                    help="Choose to add Pester test support."
                     value="Yes"/>
         </parameter>
 
