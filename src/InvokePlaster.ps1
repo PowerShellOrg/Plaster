@@ -1263,10 +1263,34 @@ function Invoke-Plaster {
                 $versionRequirements = " ($versionInfo)"
             }
 
+            # PowerShell v3 Get-Module command does not have the FullyQualifiedName parameter.
+            if ($PSVersionTable.PSVersion.Major -lt 4) {
+                $getModuleParams.Remove("FullyQualifiedName")
+                $getModuleParams["Name"] = $name
+            }
+
             $module = Get-Module @getModuleParams
 
             if ($null -ne $module) {
-                WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+                if ($PSVersionTable.PSVersion.Major -gt 3) {
+                    WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+                }
+                else {
+                    # On V3, we have to the version matching with the results that Get-Module return.
+                    $installedVersion = $module | Sort-Object Version -Descending | Select-Object -First 1 | Foreach-Object Version
+                    if ($installedVersion.Build -eq -1) {
+                        $installedVersion = [System.Version]"${installedVersion}.0.0"
+                    }
+                    elseif ($installedVersion.Revision -eq -1) {
+                        $installedVersion = [System.Version]"${installedVersion}.0"
+                    }
+
+                    if (($requiredVersion -and ($installedVersion -ne $requiredVersion)) -or
+                        ($minimumVersion -and ($installedVersion -lt $minimumVersion)) -or
+                        ($maximumVersion -and ($installedVersion -gt $maximumVersion))) {
+                        WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+                    }
+                }
             }
             else {
                 WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
