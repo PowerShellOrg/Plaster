@@ -1,5 +1,10 @@
 # Plaster Release History
 
+## 1.0.1
+### Friday, December 16, 2016
+
+- Fixed issue with the used of `GetModule -FullyQualifiedName` on PowerShell v3
+
 ## 1.0.0
 ### Friday, December 16, 2016
 
