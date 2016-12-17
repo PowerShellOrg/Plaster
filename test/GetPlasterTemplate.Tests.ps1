@@ -18,15 +18,17 @@ Describe 'Get-PlasterTemplate' {
     Context "when searching modules for templates" {
         It "finds built-in templates" {
             $templates = Get-PlasterTemplate
-            $templates[0].Title | Should Be "New PowerShell Manifest Module"
+            $templates | Where-Object Title -eq 'New PowerShell Manifest Module' | Should Not BeNullOrEmpty
         }
 
         It "finds templates included with modules" {
+            $builtInTemplates = Get-PlasterTemplate
             $oldPSModulePath = $env:PSModulePath;
             $env:PSModulePath = "$(Resolve-Path "$PSScriptRoot/../examples")$([System.IO.Path]::PathSeparator)$($env:PSModulePath)";
 
             $templates = Get-PlasterTemplate -IncludeInstalledModules
-            $templates[1].Title | Should Be "TemplateOne Template"
+            $templates.Count -gt $builtInTemplates.Count | Should Be $true
+            $templates[$builtInTemplates.Count].Title | Should Be "TemplateOne Template"
 
             $env:PSModulePath = $oldPSModulePath
         }
