@@ -829,11 +829,11 @@ function Invoke-Plaster {
         #
         function NewBackupFilename([string]$Path) {
             $dir = [System.IO.Path]::GetDirectoryName($Path)
-            $basename = [System.IO.Path]::GetFileNameWithoutExtension($Path)
-            $backupPath = Join-Path -Path $dir -ChildPath "${basename}.bak"
+            $filename = [System.IO.Path]::GetFileName($Path)
+            $backupPath = Join-Path -Path $dir -ChildPath "${filename}.bak"
             $i = 1;
             while (Test-Path -LiteralPath $backupPath) {
-                $backupPath = Join-Path -Path $dir -ChildPath "${basename}.bak$i"
+                $backupPath = Join-Path -Path $dir -ChildPath "${filename}.bak$i"
                 $i++
             }
 

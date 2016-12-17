@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>AddPSScriptAnalyzerSettings</name>
+    <id>f58338ce-b153-4b70-80b8-c7dc63074f7d</id>
+    <version>1.0.0</version>
+    <title>AddPSScriptAnalyzerSettings</title>
+    <description>Add a PowerShell Script Analyzer settings file to the root of your workspace.</description>
+    <author>Plaster project</author>
+    <tags>PSScriptAnalyzer, settings</tags>
+  </metadata>
+  <parameters>
+    <parameter name='FileName' type='text' default='PSScriptAnalyzerSettings.psd1'
+               prompt='Enter the name of the Script Analyzer settings file'/>
+    <parameter name='Editor'
+               type='choice'
+               prompt='Select an editor for editor integration (or None):'
+               default='0'
+               store='text' >
+       <choice label='&amp;None'
+               help="No editor specified."
+               value="None"/>
+       <choice label='Visual Studio &amp;Code'
+               help="Your editor is Visual Studio Code."
+               value="VSCode"/>
+    </parameter>
+  </parameters>
+  <content>
+    <file source="PSScriptAnalyzerSettings.psd1"
+          destination="$PLASTER_PARAM_FileName" />
+
+    <modify path='.vscode\settings.json' encoding='UTF8'
+            condition='($PLASTER_PARAM_Editor -eq "VSCode") -and (Test-Path -LiteralPath $PLASTER_DestinationPath\.vscode\settings.json)'>
+        <replace condition='$PLASTER_FileContent -notmatch "`"$PLASTER_PARAM_FileName`""'>
+            <original><![CDATA[(?si)(?<=^[^{]*\{)(\s*)]]></original>
+            <substitute expand="true"><![CDATA[`$1// Use a custom PowerShell Script Analyzer settings file for this workspace.
+    // Relative paths for this setting are always relative to the workspace root dir.
+    `"powershell.scriptAnalysis.settingsPath`": `"$PLASTER_PARAM_FileName`",
+    `$1]]></substitute>
+        </replace>
+    </modify>
+
+    <templateFile condition="($PLASTER_PARAM_Editor -eq 'VSCode') -and !(Test-Path -LiteralPath $PLASTER_DestinationPath\.vscode\settings.json)"
+                  source=".vscode\settings.json"
+                  destination="" />
+
+    <message>
+
+$PLASTER_PARAM_FileName has been added to the folder '$PLASTER_DestinationPath'.
+Edit this file to configure your PSScriptAnalyzer settings.
+
+    </message>
+
+    <message condition="$PLASTER_PARAM_Editor -eq 'VSCode'">
+The PowerShell extension for Visual Studio Code has been configured to use $PLASTER_PARAM_FileName
+via the settings.json file in '$PLASTER_DestinationPath\.vscode'.
+
+    </message>
+  </content>
+</plasterManifest>

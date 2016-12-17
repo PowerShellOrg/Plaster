@@ -34,7 +34,7 @@
 
         <parameter name='Editor'
                    type='choice'
-                   prompt='Select a editor for editor integration (or None):'
+                   prompt='Select an editor for editor integration (or None):'
                    default='0'
                    store='text' >
             <choice label='&amp;None'
