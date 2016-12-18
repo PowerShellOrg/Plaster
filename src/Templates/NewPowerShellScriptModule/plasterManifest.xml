@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
-    <name>NewPowerShellManifestModule</name>
-    <id>3b64b931-8e82-4fbe-9077-62819b36c3bd</id>
+    <name>NewPowerShellScriptModule</name>
+    <id>2a7c3f58-4a45-4d55-9b07-753ac7608114</id>
     <version>1.0.0</version>
     <title>New PowerShell Manifest Module</title>
-    <description>Creates files for a simple, non-shared PowerShell manifest module.</description>
+    <description>Creates files for a simple, non-shared PowerShell script module.</description>
     <author>Plaster</author>
     <tags>Module, ModuleManifest</tags>
   </metadata>
