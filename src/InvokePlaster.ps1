@@ -20,6 +20,7 @@ function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessModifyFile')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessNewModuleManifest')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Position = 0, Mandatory = $true)]
@@ -38,7 +39,11 @@ function Invoke-Plaster {
 
         [Parameter()]
         [switch]
-        $NoLogo
+        $NoLogo,
+
+        [Parameter()]
+        [switch]
+        $PassThru
     )
 
     # Process the template's Plaster manifest file to convert parameters defined there into dynamic parameters.
@@ -149,9 +154,7 @@ function Invoke-Plaster {
             Write-Host ((" " * (50 - $versionString.Length)) + $versionString)
             Write-Host ("=" * 50)
         }
-    }
 
-    process {
         $boundParameters = $PSBoundParameters
         $constrainedRunspace = $null
         $templateCreatedFiles = @{}
@@ -188,6 +191,18 @@ function Invoke-Plaster {
         $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
         if (!(Test-Path -LiteralPath $destinationAbsolutePath)) {
             New-Item $destinationAbsolutePath -ItemType Directory > $null
+        }
+
+        # Prepare output object if user has specified the -PassThru parameter.
+        if ($PassThru) {
+            $InvokePlasterInfo = [PSCustomObject]@{
+                TemplatePath = $templateAbsolutePath
+                DestinationPath = $destinationAbsolutePath
+                Success = $false
+                CreatedFiles = [string[]]@()
+                UpdatedFiles = [string[]]@()
+                MissingModules = [string[]]@()
+            }
         }
 
         # Create the pre-defined Plaster variables.
@@ -910,7 +925,7 @@ function Invoke-Plaster {
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
             $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams |
-                Where-Object {$_.GetFileSystemInfos().Length -eq 0})
+                          Where-Object {$_.GetFileSystemInfos().Length -eq 0})
             foreach ($dir in $dirs) {
                 $dirSrcPath = $dir.FullName
                 $relPath = $dirSrcPath.Substring($srcRelRootPathLength)
@@ -968,6 +983,9 @@ function Invoke-Plaster {
 
                 if (($operation -eq $LocalizedData.OpCreate) -or ($operation -eq $LocalizedData.OpUpdate)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    if ($PassThru) {
+                        $InvokePlasterInfo.CreatedFiles += $DstPath
+                    }
                     $templateCreatedFiles[$DstPath] = $null
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
@@ -977,6 +995,9 @@ function Invoke-Plaster {
                     $backupFilename = NewBackupFilename $DstPath
                     Copy-Item -LiteralPath $DstPath -Destination $backupFilename
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    if ($PassThru) {
+                        $InvokePlasterInfo.UpdatedFiles += $DstPath
+                    }
                     $templateCreatedFiles[$DstPath] = $null
                 }
             }
@@ -1271,7 +1292,18 @@ function Invoke-Plaster {
 
             $module = Get-Module @getModuleParams
 
-            if ($null -ne $module) {
+            $moduleDesc = if ($versionRequirements) { "${name}:$versionRequirements" } else { $name }
+
+            if ($null -eq $module) {
+                WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
+                if ($message) {
+                    WriteOperationAdditionalStatus $message
+                }
+                if ($PassThru) {
+                    $InvokePlasterInfo.MissingModules += $moduleDesc
+                }
+            }
+            else {
                 if ($PSVersionTable.PSVersion.Major -gt 3) {
                     WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
                 }
@@ -1288,14 +1320,15 @@ function Invoke-Plaster {
                     if (($requiredVersion -and ($installedVersion -ne $requiredVersion)) -or
                         ($minimumVersion -and ($installedVersion -lt $minimumVersion)) -or
                         ($maximumVersion -and ($installedVersion -gt $maximumVersion))) {
+
+                        WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
+                        if ($PassThru) {
+                            $InvokePlasterInfo.MissingModules += $moduleDesc
+                        }
+                    }
+                    else {
                         WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
                     }
-                }
-            }
-            else {
-                WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
-                if ($message) {
-                    WriteOperationAdditionalStatus $message
                 }
             }
         }
@@ -1343,6 +1376,11 @@ function Invoke-Plaster {
                     'requireModule'     { ProcessRequireModule $node; break }
                     default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
+            }
+
+            if ($PassThru) {
+                $InvokePlasterInfo.Success = $true
+                $InvokePlasterInfo
             }
         }
         finally {

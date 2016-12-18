@@ -12,8 +12,8 @@ Invokes the specified Plaster template which will scaffold out a file or a set o
 ## SYNTAX
 
 ```
-Invoke-Plaster [-TemplatePath] <String> [-DestinationPath] <String> [-Force] [-NoLogo] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+Invoke-Plaster [-TemplatePath] <String> [-DestinationPath] <String> [-Force] [-NoLogo] [-PassThru] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -65,7 +65,7 @@ If the directory does not exist, it will be created.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -82,7 +82,7 @@ prompt and allow the template to overwrite existing files.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -97,11 +97,33 @@ Suppresses the display of the Plaster logo.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PassThru
+Returns an InvokePlasterInfo object with the following fields:
+
+* TemplatePath
+* DestinationPath
+* Success
+* CreatedFiles
+* UpdatedFiles
+* MissingModules
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -112,7 +134,7 @@ Specifies the path to the template directory.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0

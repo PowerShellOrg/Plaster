@@ -10,6 +10,14 @@ Import-Module $PSScriptRoot\src\Plaster.psd1
 $OutDir = "$PSScriptRoot\examples\Out"
 Remove-Item $OutDir -Recurse -ErrorAction SilentlyContinue
 
+# $PlasterParams = @{
+#     TemplatePath = "$PSScriptRoot\src\Templates\AddPSScriptAnalyzerSettings"
+#     DestinationPath = $OutDir
+#     FileName = 'PSScriptAnalyzerSettings.psd1'
+#     Editor = 'VSCode'
+#     PassThru = $true
+# }
+
 $PlasterParams = @{
     TemplatePath = "$PSScriptRoot\src\Templates\NewPowerShellManifestModule"
     DestinationPath = $OutDir
@@ -17,6 +25,7 @@ $PlasterParams = @{
     Version = '1.2.0'
     AddTest = 'Yes'
     Editor = 'VSCode'
+    PassThru = $true
 }
 
 # $PlasterParams = @{
@@ -24,6 +33,7 @@ $PlasterParams = @{
 #     DestinationPath = $OutDir
 #     TargetResourceName = 'ZipFile'
 #     Ensure = 'Yes'
+#     PassThru = $true
 # }
 
 # $PlasterParams = @{
@@ -36,6 +46,7 @@ $PlasterParams = @{
 #     Options = 'Git','psake','Pester','PSScriptAnalyzer','platyPS'
 #     Editor = 'VSCode'
 #     License = 'MIT'
+#     PassThru = $true
 # }
 
 Invoke-Plaster @PlasterParams -Force
