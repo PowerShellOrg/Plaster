@@ -49,4 +49,4 @@ $PlasterParams = @{
 #     PassThru = $true
 # }
 
-Invoke-Plaster @PlasterParams
+Invoke-Plaster @PlasterParams -Force
