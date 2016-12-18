@@ -11,7 +11,7 @@ $OutDir = "$PSScriptRoot\examples\Out"
 Remove-Item $OutDir -Recurse -ErrorAction SilentlyContinue
 
 $PlasterParams = @{
-    TemplatePath = "$PSScriptRoot\src\Templates\NewPowerShellManifestModule"
+    TemplatePath = "$PSScriptRoot\src\Templates\NewPowerShellScriptModule"
     DestinationPath = $OutDir
     ModuleName = 'FooUtils'
     Version = '1.2.0'
