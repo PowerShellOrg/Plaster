@@ -38,7 +38,7 @@ Describe 'Invoke-Plaster Tests' {
 
 @"
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="0.3" templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
         <name>TemplateName</name>
         <id>513d2fdc-3cce-47d9-9531-d85114efb224</id>
@@ -48,7 +48,7 @@ Describe 'Invoke-Plaster Tests' {
         <tags></tags>
     </metadata>
     <content>
-        <file source='Recurse\foo.txt' destination='foo.txt'/>
+        <file source='Recurse\foo.txt' destination='foo.txt' openInEditor='true'/>
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
@@ -60,11 +60,13 @@ Describe 'Invoke-Plaster Tests' {
             $res = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $DestPath -NoLogo -PassThru 6> $null
 
             $res.Success | Should Be $true
+            $res.TemplateType | Should Be 'Project'
             $res.TemplatePath -eq $TemplateDir | Should Be $true
             $res.DestinationPath -eq $DestPath | Should Be $true
             @($res.CreatedFiles)[0] | Should Be "$DestPath\foo.txt"
             $res.UpdatedFiles.Count | Should Be 0
             $res.MissingModules.Count | Should Be 0
+            @($res.OpenFiles)[0] | Should Be "$DestPath\foo.txt"
         }
     }
 }

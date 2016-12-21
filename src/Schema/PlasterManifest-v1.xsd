@@ -10,7 +10,7 @@
 	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 	elementFormDefault="qualified"
   attributeFormDefault="unqualified"
-  version="1.0"
+  version="1.1"
   xml:lang="en"
 	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
 		vs:friendlyname="Plaster Manifest Schema"
@@ -99,6 +99,18 @@
     </xs:restriction>
   </xs:simpleType>
 
+    <xs:simpleType name="TemplateTypeType">
+    <xs:annotation>
+      <xs:documentation>
+        Defines the type of the template.  Current values are either Project or Item.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Item"/>
+      <xs:enumeration value="Project"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="TemplateVersionType">
     <xs:annotation>
       <xs:documentation>
@@ -139,6 +151,13 @@
       <xs:documentation>Specifies the file encoding to use when writing the modified file.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="ptd:EncodingType"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="openInEditor">
+    <xs:annotation>
+      <xs:documentation>Used to indicate that an editor should open this file in the editor if its condition evaluates to true.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:boolean"/>
   </xs:simpleType>
 
 
@@ -321,6 +340,7 @@
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
+                  <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
                 </xs:complexType>
               </xs:element>
 
@@ -341,6 +361,7 @@
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                  <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
                 </xs:complexType>
               </xs:element>
 
@@ -388,6 +409,7 @@
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                  <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
                 </xs:complexType>
               </xs:element>
 
@@ -428,6 +450,7 @@
                   </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
+                  <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
                 </xs:complexType>
               </xs:element>
 
@@ -485,6 +508,11 @@
       <xs:attribute name="plasterVersion" type="ptd:ModuleVersionType">
         <xs:annotation>
           <xs:documentation>Specifies the minimum version of Plaster required to invoke the template. Use this when the Plaster engine has been updated with new functionality required by the template.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="templateType" type="ptd:TemplateTypeType">
+        <xs:annotation>
+          <xs:documentation>Specifies the type of the template: Item or Project.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>

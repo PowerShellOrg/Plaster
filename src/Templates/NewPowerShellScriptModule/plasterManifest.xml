@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="1.1"
+                 templateType="Project"
+                 xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>NewPowerShellScriptModule</name>
     <id>2a7c3f58-4a45-4d55-9b07-753ac7608114</id>
@@ -52,10 +54,12 @@
         <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
                            moduleVersion='$PLASTER_PARAM_Version'
                            rootModule='${PLASTER_PARAM_ModuleName}.psm1'
-                           encoding='UTF8-NoBOM'/>
+                           encoding='UTF8-NoBOM'
+                           openInEditor="true"/>
 
         <file source='Module.psm1'
-              destination='${PLASTER_PARAM_ModuleName}.psm1'/>
+              destination='${PLASTER_PARAM_ModuleName}.psm1'
+              openInEditor="true"/>
 
         <templateFile condition="$PLASTER_PARAM_AddTest -eq 'Yes'"
                       source='test\Module.T.ps1'

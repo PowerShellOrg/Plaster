@@ -72,7 +72,7 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaste
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $PlasterVersion = (Test-ModuleManifest -Path $PSScriptRoot\Plaster.psd1).Version
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-$LatestSupportedSchemaVersion = [System.Version]'1.0'
+$LatestSupportedSchemaVersion = [System.Version]'1.1'
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]

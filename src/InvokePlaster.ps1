@@ -199,9 +199,11 @@ function Invoke-Plaster {
                 TemplatePath = $templateAbsolutePath
                 DestinationPath = $destinationAbsolutePath
                 Success = $false
+                TemplateType = if ($manifest.plasterManifest.templateType) {$manifest.plasterManifest.templateType} else {'Unspecified'}
                 CreatedFiles = [string[]]@()
                 UpdatedFiles = [string[]]@()
                 MissingModules = [string[]]@()
+                OpenFiles = [string[]]@()
             }
         }
 
@@ -829,6 +831,10 @@ function Invoke-Plaster {
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
                     CopyFileWithConflictDetection $tempFile $dstPath
+
+                    if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                        $InvokePlasterInfo.OpenFiles += $dstPath
+                    }
                 }
                 finally {
                     if ($tempFile -and (Test-Path $tempFile)) {
@@ -1110,6 +1116,10 @@ function Invoke-Plaster {
                     }
 
                     CopyFileWithConflictDetection $srcPath $dstPath
+
+                    if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                        $InvokePlasterInfo.OpenFiles += $dstPath
+                    }
                 }
                 finally {
                     if ($tempFile -and (Test-Path $tempFile)) {
@@ -1221,6 +1231,10 @@ function Invoke-Plaster {
 
                         WriteContentWithEncoding -Path $tempFile -Content $PLASTER_FileContent -Encoding $encoding
                         CopyFileWithConflictDetection $tempFile $filePath
+
+                        if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                            $InvokePlasterInfo.OpenFiles += $filePath
+                        }
                     }
                     else {
                         WriteOperationStatus $LocalizedData.OpIdentical (ConvertToDestinationRelativePath $filePath)

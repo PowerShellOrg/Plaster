@@ -11,13 +11,14 @@ function CompareManifestContent($expectedManifest, $actualManifestPath) {
 
 Describe 'New-PlasterManifest Command Tests' {
     Context 'Generates a valid manifest' {
-        It 'Works with just Path, Name and Id' {
+        It 'Works with just Path, TemplateName, TemplateType and Id' {
             CleanDir $OutDir
 
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion"
+  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -32,7 +33,7 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -TemplateType item
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -43,7 +44,8 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion"
+  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -58,7 +60,8 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -Description "This is <cool> & awesome."
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
+                                -TemplateType project -Description "This is <cool> & awesome."
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -69,7 +72,8 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion"
+  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -84,7 +88,8 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -Tags "Bag&Tag", Foo, Bar, "Baz boy"
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
+                                -TemplateType item -Tags "Bag&Tag", Foo, Bar, "Baz boy"
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -95,7 +100,8 @@ Describe 'New-PlasterManifest Command Tests' {
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
-  schemaVersion="$LatestSchemaVersion" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  schemaVersion="$LatestSchemaVersion"
+  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -131,7 +137,8 @@ Describe 'New-PlasterManifest Command Tests' {
 
             $plasterPath = "$OutDir\plasterManifest.xml"
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -AddContent
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
+                                -TemplateType project -AddContent
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
@@ -144,7 +151,8 @@ Describe 'New-PlasterManifest Command Tests' {
             if (Test-Path $plasterPath) {
                 throw "$plasterManifest should have been removed for this test to work correctly."
             }
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
+                                -TemplateType item
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
         }
     }
