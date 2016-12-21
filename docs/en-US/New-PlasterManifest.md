@@ -12,9 +12,9 @@ Creates a new Plaster template manifest file.
 ## SYNTAX
 
 ```
-New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [[-Id] <Guid>] [[-TemplateVersion] <String>]
- [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>] [[-Author] <String>] [-AddContent]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [-TemplateType] <String> [[-Id] <Guid>]
+ [[-TemplateVersion] <String>] [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>]
+ [[-Author] <String>] [-AddContent] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -46,14 +46,14 @@ authoring a Plaster manifest file.
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item
 ```
 
 Creates a basic plasterManifest.xml file in the current directory.
 
 ### -------------------------- EXAMPLE 2 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
 ```
 
 Creates a plasterManifest.xml file in the current directory with the version set to 0.1.0 and with the
@@ -61,7 +61,7 @@ Description and Tags elements populated.
 
 ### -------------------------- EXAMPLE 3 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem -AddContent
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -AddContent
 ```
 
 Creates a plasterManifest.xml file in the current directory with the content element filled in with all the
@@ -77,7 +77,7 @@ manifest's content element.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -92,10 +92,10 @@ Specifies the author of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 7
+Position: 8
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -127,10 +127,10 @@ tests, building with psake and publishing to the PowerShell Gallery."
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 5
+Position: 6
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -149,10 +149,10 @@ template.
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 2
+Position: 3
 Default value: [guid]::NewGuid()
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -170,7 +170,7 @@ The default, if no value is provided is to create plasterManifest.xml in the cur
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 0
@@ -186,10 +186,10 @@ Users can search for templates based on these tags.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 6
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -205,10 +205,29 @@ The name is limited to the characters: aA-zZ0-9_-.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TemplateType
+Defines the type of template.  Valid values are: Project and Item.  This value
+is used by editor extensions like the PowerShell extension for Visual Studio
+Code to determine if the template expects to create a whole new project in an
+empty workspace or if it adds an item to an existing workspace.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+Accepted values: Item, Project
+
+Required: True
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -220,10 +239,10 @@ Specifies the version of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 3
+Position: 4
 Default value: 1.0.0
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -238,10 +257,10 @@ A typical title might be "New DSC Resource" or "New PowerShell Module".
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 4
+Position: 5
 Default value: $Name
 Accept pipeline input: False
 Accept wildcard characters: False
