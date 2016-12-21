@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="0.4"
+                 templateType="Item"
+                 xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>AddPSScriptAnalyzerSettings</name>
     <id>f58338ce-b153-4b70-80b8-c7dc63074f7d</id>
@@ -27,7 +29,8 @@
   </parameters>
   <content>
     <file source="PSScriptAnalyzerSettings.psd1"
-          destination="$PLASTER_PARAM_FileName" />
+          destination="$PLASTER_PARAM_FileName"
+          openInEditor="true" />
 
     <modify path='.vscode\settings.json' encoding='UTF8'
             condition='($PLASTER_PARAM_Editor -eq "VSCode") -and (Test-Path -LiteralPath $PLASTER_DestinationPath\.vscode\settings.json)'>
