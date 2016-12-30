@@ -12,9 +12,9 @@ Creates a new Plaster template manifest file.
 ## SYNTAX
 
 ```
-New-PlasterManifest [[-Path] <String>] -TemplateName <String> [-Id <Guid>] [-TemplateVersion <String>]
- [-Title <String>] [-Description <String>] [-Tags <String[]>] [-Author <String>] [-AddContent] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [-TemplateType] <String> [[-Id] <Guid>]
+ [[-TemplateVersion] <String>] [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>]
+ [[-Author] <String>] [-AddContent] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -46,14 +46,14 @@ authoring a Plaster manifest file.
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item
 ```
 
 Creates a basic plasterManifest.xml file in the current directory.
 
 ### -------------------------- EXAMPLE 2 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
 ```
 
 Creates a plasterManifest.xml file in the current directory with the version set to 0.1.0 and with the
@@ -61,7 +61,7 @@ Description and Tags elements populated.
 
 ### -------------------------- EXAMPLE 3 --------------------------
 ```
-New-PlasterManifest -TemplateName NewPowerShellItem -AddContent
+New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -AddContent
 ```
 
 Creates a plasterManifest.xml file in the current directory with the content element filled in with all the
@@ -95,7 +95,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 8
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -130,7 +130,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 6
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -152,7 +152,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 3
 Default value: [guid]::NewGuid()
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -173,7 +173,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 0
 Default value: "$pwd\plasterManifest.xml"
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -189,7 +189,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 7
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -208,7 +208,26 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TemplateType
+Defines the type of template.  Valid values are: Project and Item.  This value
+is used by editor extensions like the PowerShell extension for Visual Studio
+Code to determine if the template expects to create a whole new project in an
+empty workspace or if it adds an item to an existing workspace.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+Accepted values: Item, Project
+
+Required: True
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -223,7 +242,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 4
 Default value: 1.0.0
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -241,7 +260,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 5
 Default value: $Name
 Accept pipeline input: False
 Accept wildcard characters: False

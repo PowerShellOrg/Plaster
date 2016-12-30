@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="1.1"
+                 templateType="Project"
+                 xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>NewPowerShellScriptModule</name>
+    <id>2a7c3f58-4a45-4d55-9b07-753ac7608114</id>
+    <version>1.0.0</version>
+    <title>New PowerShell Manifest Module</title>
+    <description>Creates files for a simple, non-shared PowerShell script module.</description>
+    <author>Plaster</author>
+    <tags>Module, ModuleManifest</tags>
+  </metadata>
+  <parameters>
+        <parameter name='ModuleName'
+                   type='text'
+                   prompt='Enter the name of the module'/>
+
+        <parameter name='Version'
+                   type='text'
+                   prompt='Enter the version number of the module'
+                   default='0.1.0'/>
+
+        <parameter name='AddTest'
+                   type='choice'
+                   prompt='Create test dir and add Pester test for module manifest validation:'
+                   default='0'
+                   store='text'>
+            <choice label='&amp;No'
+                    help="Choose not to add Pester test support."
+                    value="No"/>
+            <choice label='&amp;Yes'
+                    help="Choose to add Pester test support."
+                    value="Yes"/>
+        </parameter>
+
+        <parameter name='Editor'
+                   type='choice'
+                   prompt='Select an editor for editor integration (or None):'
+                   default='0'
+                   store='text' >
+            <choice label='&amp;None'
+                    help="No editor specified."
+                    value="None"/>
+            <choice label='Visual Studio &amp;Code'
+                    help="Your editor is Visual Studio Code."
+                    value="VSCode"/>
+        </parameter>
+  </parameters>
+
+  <content>
+        <message>&#10;&#10;Scaffolding your PowerShell Module...&#10;&#10;&#10;</message>
+
+        <newModuleManifest destination='${PLASTER_PARAM_ModuleName}.psd1'
+                           moduleVersion='$PLASTER_PARAM_Version'
+                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+                           encoding='UTF8-NoBOM'
+                           openInEditor="true"/>
+
+        <file source='Module.psm1'
+              destination='${PLASTER_PARAM_ModuleName}.psm1'
+              openInEditor="true"/>
+
+        <templateFile condition="$PLASTER_PARAM_AddTest -eq 'Yes'"
+                      source='test\Module.T.ps1'
+                      destination='test\${PLASTER_PARAM_ModuleName}.Tests.ps1' />
+
+        <file condition="($PLASTER_PARAM_Editor -eq 'VSCode')"
+              source='editor\VSCode\settings.json'
+              destination='.vscode\settings.json' />
+
+        <file condition="(($PLASTER_PARAM_Editor -eq 'VSCode') -and ($PLASTER_PARAM_AddTest -eq 'Yes'))"
+              source='editor\VSCode\tasks.json'
+              destination='.vscode\tasks.json' />
+
+        <requireModule name="Pester" condition="$PLASTER_PARAM_AddTest -eq 'Yes'" minimumVersion="3.4.0"
+            message="Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."/>
+
+        <message>
+
+Your new PowerShell module project '$PLASTER_PARAM_ModuleName' has been created.
+
+        </message>
+
+        <message condition="$PLASTER_PARAM_AddTest -eq 'Yes'">
+A Pester test has been created to validate the module's manifest file.  Add additional tests to the test directory.
+You can run the Pester tests in your project by executing the 'test' task.  Press Ctrl+P, then type 'task test'.
+
+        </message>
+  </content>
+</plasterManifest>

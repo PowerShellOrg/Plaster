@@ -12,7 +12,7 @@ Verifies that a plaster manifest file is a valid.
 ## SYNTAX
 
 ```
-Test-PlasterManifest [[-Path] <String>] [<CommonParameters>]
+Test-PlasterManifest [[-Path] <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ of those errors.
 Specifies a path to a plasterManifest.xml file.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases: PSPath
 

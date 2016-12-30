@@ -1,10 +1,61 @@
 . $PSScriptRoot\Shared.ps1
 
-$plasterModule = Get-Module Plaster
 $SchemaVersion = $plasterModule.Invoke({$LatestSupportedSchemaVersion})
 
 Describe 'Test-PlasterManifest Command Tests' {
-    Context 'Verifies manifest schema version correctly' {
+    Context 'Verifies plasterVersion correctly' {
+        It 'Works with the current Plaster version.' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$SchemaVersion" plasterVersion="$($plasterModule.Version)" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content></content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            Test-PlasterManifest -Path $PlasterManifestPath -OutVariable xmldoc | Should Not BeNullOrEmpty
+            $xmldoc.plasterManifest.plasterVersion | Should Be $plasterModule.Version
+        }
+
+        It 'Errors on manifest plasterVersion greater than the current Plaster version.' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$SchemaVersion" plasterVersion="9999.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content></content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should BeNullOrEmpty
+            $TestErr.Exception.Message -match "specifies a plasterVersion of 9999\.0" | Should Be $true
+        }
+    }
+
+    Context 'Verifies manifest schema correctly' {
         It 'Errors on manifest major version greater than supported' {
             CleanDir $TemplateDir
 
@@ -206,6 +257,67 @@ Describe 'Test-PlasterManifest Command Tests' {
             $verboseRecord | Should Not BeNullOrEmpty
             $verboseRecord.Message | Should Match "attribute value 'Git,psake'"
             $verboseRecord.Message | Should Match "one or more zero-based"
+        }
+
+        It 'Detects invalid condition attribute value' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$($SchemaVersion.Major).$($SchemaVersion.Minor)" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content>
+  <file condition='"foo" -eq "bar'
+        source='Recurse\foo.txt'
+        destination='foo.txt'/>
+  </content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+            $TestErr | Should Not BeNullOrEmpty
+            $verboseRecord | Should Not BeNullOrEmpty
+            $verboseRecord.Message | Should Match "Invalid condition '`"foo`" -eq `"bar'"
+        }
+
+        It 'Detects invalid content attribute value' {
+            CleanDir $TemplateDir
+
+            @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$($SchemaVersion.Major).$($SchemaVersion.Minor)" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content>
+  <file source='Recurse\"foo.txt'
+        destination='foo.txt'/>
+  </content>
+</plasterManifest>
+"@ | Out-File $PlasterManifestPath -Encoding utf8
+
+            $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+            $TestErr | Should Not BeNullOrEmpty
+            $verboseRecord | Should Not BeNullOrEmpty
+            $verboseRecord.Message | Should Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
         }
     }
 }

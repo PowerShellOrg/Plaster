@@ -3,6 +3,14 @@
 function Get-<%=$PLASTER_PARAM_TargetResourceName%> {
     [OutputType([Hashtable])]
     param (
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        # Ensure the presence/absene of the resource."
+"        [ValidateSet('Present','Absent')]"
+"        [string]"
+"        `$Ensure = 'Present'"
+    }
+%>
     )
 
     # Return a hashtable of name/value pairs representing the target resource instance.
@@ -16,6 +24,14 @@ function Get-<%=$PLASTER_PARAM_TargetResourceName%> {
 function Set-<%=$PLASTER_PARAM_TargetResourceName%> {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param (
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        # Ensure the presence/absene of the resource."
+"        [ValidateSet('Present','Absent')]"
+"        [string]"
+"        `$Ensure = 'Present'"
+    }
+%>
     )
 
     # Set the target resource instance based on parameters passed into function.
@@ -30,6 +46,14 @@ function Test-<%=$PLASTER_PARAM_TargetResourceName%> {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param (
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        # Ensure the presence/absene of the resource."
+"        [ValidateSet('Present','Absent')]"
+"        [string]"
+"        `$Ensure = 'Present'"
+    }
+%>
     )
 
     [bool]$result = $false

@@ -11,6 +11,11 @@ function New-PlasterManifest {
         [string]
         $TemplateName,
 
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('Item','Project')]
+        [string]
+        $TemplateType,
+
         [Parameter()]
         [Guid]
         $Id = [guid]::NewGuid(),
@@ -47,11 +52,14 @@ function New-PlasterManifest {
 
     begin {
         $resolvedPath = $PSCmdLet.GetUnresolvedProviderPathFromPSPath($Path)
+
+        $caseCorrectedTemplateType = [System.Char]::ToUpper($TemplateType[0]) + $TemplateType.Substring(1).ToLower()
+
         $manifestStr = @"
 <?xml version="1.0" encoding="utf-8"?>
-<plasterManifest
-    schemaVersion="$LatestSupportedSchemaVersion"
-    xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+<plasterManifest schemaVersion="$LatestSupportedSchemaVersion"
+                 templateType="$caseCorrectedTemplateType"
+                 xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
 
     <metadata>
         <name></name>

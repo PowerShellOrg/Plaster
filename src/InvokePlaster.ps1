@@ -16,6 +16,11 @@
 function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidShouldContinueWithoutForce', '', Scope='Function', Target='CopyFileWithConflictDetection')]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function', Target='ProcessParameter')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='CopyFileWithConflictDetection')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessModifyFile')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessNewModuleManifest')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Position = 0, Mandatory = $true)]
@@ -34,7 +39,11 @@ function Invoke-Plaster {
 
         [Parameter()]
         [switch]
-        $NoLogo
+        $NoLogo,
+
+        [Parameter()]
+        [switch]
+        $PassThru
     )
 
     # Process the template's Plaster manifest file to convert parameters defined there into dynamic parameters.
@@ -56,8 +65,8 @@ function Invoke-Plaster {
             $ErrorActionPreference = 'Stop'
 
             # The constrained runspace is not available in the dynamicparam block.  Shouldn't be needed
-            # since we are only evaluating the parameters in the manifest - no need for condition eval as we
-            # are not building up multiple parametersets.  And no need for ExpandString since we are only
+            # since we are only evaluating the parameters in the manifest - no need for EvaluateConditionAttribute as we
+            # are not building up multiple parametersets.  And no need for EvaluateAttributeValue since we are only
             # grabbing the parameter's value which is static.
             $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
             if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
@@ -130,6 +139,22 @@ function Invoke-Plaster {
     }
 
     begin {
+        # Write out the Plaster logo if necessary
+        $plasterLogo = @'
+  ____  _           _
+ |  _ \| | __ _ ___| |_ ___ _ __
+ | |_) | |/ _` / __| __/ _ \ '__|
+ |  __/| | (_| \__ \ ||  __/ |
+ |_|   |_|\__,_|___/\__\___|_|
+'@
+
+        if (!$NoLogo) {
+            $versionString = "v$PlasterVersion"
+            Write-Host $plasterLogo
+            Write-Host ((" " * (50 - $versionString.Length)) + $versionString)
+            Write-Host ("=" * 50)
+        }
+
         $boundParameters = $PSBoundParameters
         $constrainedRunspace = $null
         $templateCreatedFiles = @{}
@@ -139,14 +164,6 @@ function Invoke-Plaster {
         $flags = @{
             DefaultValueStoreDirty = $false
         }
-
-        $plasterLogo = @'
-  ____  _           _
- |  _ \| | __ _ ___| |_ ___ _ __
- | |_) | |/ _` / __| __/ _ \ '__|
- |  __/| | (_| \__ \ ||  __/ |
- |_|   |_|\__,_|___/\__\___|_|
-'@
 
         # Verify TemplatePath parameter value is valid.
         $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
@@ -170,15 +187,24 @@ function Invoke-Plaster {
             }
         }
 
-        if (!$NoLogo) {
-            Write-Host $plasterLogo
-            Write-Host ("=" * 50)
-        }
-
         # If the destination path doesn't exist, create it.
         $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
         if (!(Test-Path -LiteralPath $destinationAbsolutePath)) {
             New-Item $destinationAbsolutePath -ItemType Directory > $null
+        }
+
+        # Prepare output object if user has specified the -PassThru parameter.
+        if ($PassThru) {
+            $InvokePlasterInfo = [PSCustomObject]@{
+                TemplatePath = $templateAbsolutePath
+                DestinationPath = $destinationAbsolutePath
+                Success = $false
+                TemplateType = if ($manifest.plasterManifest.templateType) {$manifest.plasterManifest.templateType} else {'Unspecified'}
+                CreatedFiles = [string[]]@()
+                UpdatedFiles = [string[]]@()
+                MissingModules = [string[]]@()
+                OpenFiles = [string[]]@()
+            }
         }
 
         # Create the pre-defined Plaster variables.
@@ -214,11 +240,6 @@ function Invoke-Plaster {
             $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
             $iss.Providers.Add($sspe)
 
-            # Uncomment for **ONLY** debugging runspace capabilities. If this is left enabled in the shipping version of
-            # Plaster, then folks can execute any command e.g. $stopps = Get-Command Stop-Process; &$stopps -Name code
-            # $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Command',([Microsoft.PowerShell.Commands.GetCommandCommand]),$null
-            # $iss.Commands.Add($ssce)
-
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Get-Content',([Microsoft.PowerShell.Commands.GetContentCommand]),$null
             $iss.Commands.Add($ssce)
 
@@ -246,7 +267,8 @@ function Invoke-Plaster {
             $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
             $plasterVars = Get-Variable -Name PLASTER_*
             foreach ($var in $plasterVars) {
-                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry $var.Name,$var.Value,$var.Description,$scopedItemOptions
+                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
+                            $var.Name,$var.Value,$var.Description,$scopedItemOptions
                 $iss.Variables.Add($ssve)
             }
 
@@ -261,14 +283,7 @@ function Invoke-Plaster {
             $runspace
         }
 
-        function ExpandString($Str) {
-            if ($null -eq $Str) {
-                return [string]::Empty
-            }
-            elseif ([string]::IsNullOrWhiteSpace($Str)) {
-                return $Str
-            }
-
+        function ExecuteExpressionImpl([string]$Expression) {
             try {
                 $powershell = [PowerShell]::Create()
 
@@ -277,13 +292,19 @@ function Invoke-Plaster {
                 }
                 $powershell.Runspace = $constrainedRunspace
 
-                $powershell.AddScript("`"$Str`"") > $null
-                $res = $powershell.Invoke()
-                $res[0]
+                try {
+                    $powershell.AddScript($Expression) > $null
+                    $res = $powershell.Invoke()
+                    $res
+                }
+                catch {
+                    throw ($LocalizedData.ExpressionInvalid_F2 -f $Expression,$_)
+                }
 
+                # Check for non-terminating errors.
                 if ($powershell.Streams.Error.Count -gt 0) {
                     $err = $powershell.Streams.Error[0]
-                    throw ($LocalizedData.SubstitutionExpressionError_F2 -f $Str,$err)
+                    throw ($LocalizedData.ExpressionNonTermErrors_F2 -f $Expression,$err)
                 }
             }
             finally {
@@ -293,29 +314,92 @@ function Invoke-Plaster {
             }
         }
 
-        function EvaluateCondition([string]$Expression) {
+        function InterpolateAttributeValue([string]$Value, [string]$Location) {
+            if ($null -eq $Value) {
+                return [string]::Empty
+            }
+            elseif ([string]::IsNullOrWhiteSpace($Value)) {
+                return $Value
+            }
+
             try {
-                $powershell = [PowerShell]::Create()
+                $res = @(ExecuteExpressionImpl "`"$Value`"")
+                [string]$res[0]
+            }
+            catch {
+                throw ($LocalizedData.InterpolationError_F3 -f $Value.Trim(),$Location,$_)
+            }
+        }
 
-                if ($null -eq $constrainedRunspace) {
-                    $constrainedRunspace = NewConstrainedRunspace
-                }
-                $powershell.Runspace = $constrainedRunspace
+        function EvaluateConditionAttribute([string]$Expression, [string]$Location) {
+            if ($null -eq $Expression) {
+                return [string]::Empty
+            }
+            elseif ([string]::IsNullOrWhiteSpace($Expression)) {
+                return $Expression
+            }
 
-                $powershell.AddScript($Expression) > $null
-                $res = $powershell.Invoke()
+            try {
+                $res = @(ExecuteExpressionImpl $Expression)
                 [bool]$res[0]
+            }
+            catch {
+                throw ($LocalizedData.ExpressionInvalidCondition_F3 -f $Expression,$Location,$_)
+            }
+        }
 
-                if ($powershell.Streams.Error.Count -gt 0) {
-                    $err = $powershell.Streams.Error[0]
-                    throw ($LocalizedData.InvalidConditionExpression_F2 -f $Str,$err)
-                }
+        function EvaluateExpression([string]$Expression, [string]$Location) {
+            if ($null -eq $Expression) {
+                return [string]::Empty
             }
-            finally {
-                if ($powershell) {
-                    $powershell.Dispose()
-                }
+            elseif ([string]::IsNullOrWhiteSpace($Expression)) {
+                return $Expression
             }
+
+            try {
+                $res = @(ExecuteExpressionImpl $Expression)
+                [string]$res[0]
+            }
+            catch {
+                throw ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
+            }
+        }
+
+        function EvaluateScript([string]$Script, [string]$Location) {
+            if ($null -eq $Script) {
+                return @([string]::Empty)
+            }
+            elseif ([string]::IsNullOrWhiteSpace($Script)) {
+                return $Script
+            }
+
+            try {
+                $res = @(ExecuteExpressionImpl $Script)
+                [string[]]$res
+            }
+            catch {
+                throw ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
+            }
+        }
+
+        function GetErrorLocationFileAttrVal([string]$ElementName, [string]$AttributeName) {
+            $LocalizedData.ExpressionErrorLocationFile_F2 -f $ElementName,$AttributeName
+        }
+
+        function GetErrorLocationModifyAttrVal([string]$AttributeName) {
+            $LocalizedData.ExpressionErrorLocationModify_F1 -f $AttributeName
+        }
+
+        function GetErrorLocationNewModManifestAttrVal([string]$AttributeName) {
+            $LocalizedData.ExpressionErrorLocationNewModManifest_F1 -f $AttributeName
+        }
+
+        function GetErrorLocationParameterAttrVal([string]$ParameterName, [string]$AttributeName) {
+            $LocalizedData.ExpressionErrorLocationParameter_F2 -f $ParameterName,$AttributeName
+        }
+
+        function GetErrorLocationRequireModuleAttrVal([string]$ModuleName, [string]$AttributeName) {
+            $LocalizedData.ExpressionErrorLocationRequireModule_F2 -f $ModuleName,$AttributeName
         }
 
         function ConvertToDestinationRelativePath($Path) {
@@ -438,15 +522,16 @@ function Invoke-Plaster {
             $value
         }
 
-        function PromptForChoice([ValidateNotNull()]$ChoiceNodes, [string]$prompt, [int[]]$defaults, [switch]$IsMultiChoice) {
+        function PromptForChoice([string]$ParameterName, [ValidateNotNull()]$ChoiceNodes, [string]$prompt,
+                                 [int[]]$defaults, [switch]$IsMultiChoice) {
             $choices = New-Object 'System.Collections.ObjectModel.Collection[System.Management.Automation.Host.ChoiceDescription]'
             $values = New-Object object[] $ChoiceNodes.Count
             $i = 0
 
             foreach ($choiceNode in $ChoiceNodes) {
-                $label = ExpandString $choiceNode.label
-                $help = ExpandString $choiceNode.help
-                $value = ExpandString $choiceNode.value
+                $label = InterpolateAttributeValue $choiceNode.label (GetErrorLocationParameterAttrVal $ParameterName label)
+                $help  = InterpolateAttributeValue $choiceNode.help  (GetErrorLocationParameterAttrVal $ParameterName help)
+                $value = InterpolateAttributeValue $choiceNode.value (GetErrorLocationParameterAttrVal $ParameterName value)
 
                 $choice = New-Object System.Management.Automation.Host.ChoiceDescription -Arg $label,$help
                 $choices.Add($choice)
@@ -511,8 +596,8 @@ function Invoke-Plaster {
             $name = $Node.name
             $type = $Node.type
             $store = $Node.store
-            $prompt = ExpandString $Node.prompt
-            $default = ExpandString $Node.default
+            $prompt = InterpolateAttributeValue $Node.prompt (GetErrorLocationParameterAttrVal $name prompt)
+            $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
 
             # Check if parameter was provided via a dynamic parameter.
             if ($boundParameters.ContainsKey($name)) {
@@ -603,7 +688,7 @@ function Invoke-Plaster {
                         $defaults = [int[]]($default -split ',')
 
                         # Prompt the user for choice or multichoice selection input.
-                        $selections = PromptForChoice $choices $prompt $defaults -IsMultiChoice:($type -eq 'multichoice')
+                        $selections = PromptForChoice $name $choices $prompt $defaults -IsMultiChoice:($type -eq 'multichoice')
                         $value = $selections.Values
                         $OFS = ","
                         $valueToStore = "$($selections.Indices)"
@@ -632,15 +717,15 @@ function Invoke-Plaster {
         }
 
         function ProcessMessage([ValidateNotNull()]$Node) {
-            $text = ExpandString $Node.InnerText
-            $nonewline = ExpandString $Node.nonewline
+            $text = InterpolateAttributeValue $Node.InnerText '<message>'
+            $nonewline = $Node.nonewline -eq 'true'
 
             # Eliminate whitespace before and after the text that just happens to get inserted because you want
             # the text on different lines than the start/end element tags.
             $trimmedText = $text -replace '^[ \t]*\n','' -replace '\n[ \t]*$',''
 
             $condition  = $Node.condition
-            if ($condition -and !(EvaluateCondition $condition)) {
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
                 $debugText = $trimmedText -replace '\r|\n',' '
                 $maxLength = [Math]::Min(40, $debugText.Length)
                 $PSCmdlet.WriteDebug("Skipping message '$($debugText.Substring(0, $maxLength))', condition evaluated to false.")
@@ -650,13 +735,21 @@ function Invoke-Plaster {
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
+        function CopyModuleManifestPropertyToHashtable([PSModuleInfo]$oldModuleManifest, [hashtable]$hashtable, [string[]]$Property) {
+            foreach ($prop in $Property) {
+                if ($oldModuleManifest.$prop) {
+                    $hashtable["$prop"] = $oldModuleManifest.$prop
+                }
+            }
+        }
+
         function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
-            $moduleVersion = ExpandString $Node.moduleVersion
-            $rootModule = ExpandString $Node.rootModule
-            $author = ExpandString $Node.author
-            $companyName = ExpandString $Node.companyName
-            $description = ExpandString $Node.description
-            $dstRelPath = ExpandString $Node.destination
+            $moduleVersion = InterpolateAttributeValue $Node.moduleVersion (GetErrorLocationNewModManifestAttrVal moduleVersion)
+            $rootModule = InterpolateAttributeValue $Node.rootModule (GetErrorLocationNewModManifestAttrVal rootModule)
+            $author = InterpolateAttributeValue $Node.author (GetErrorLocationNewModManifestAttrVal author)
+            $companyName = InterpolateAttributeValue $Node.companyName (GetErrorLocationNewModManifestAttrVal companyName)
+            $description = InterpolateAttributeValue $Node.description (GetErrorLocationNewModManifestAttrVal description)
+            $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationNewModManifestAttrVal destination)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -668,12 +761,12 @@ function Invoke-Plaster {
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
 
             $condition  = $Node.condition
-            if ($condition -and !(EvaluateCondition $condition)) {
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
                 $PSCmdlet.WriteDebug("Skipping module manifest generation for '$dstPath', condition evaluated to false.")
                 return
             }
 
-            $encoding = ExpandString $Node.encoding
+            $encoding = $Node.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }
@@ -687,6 +780,19 @@ function Invoke-Plaster {
                 }
 
                 $newModuleManifestParams = @{}
+
+                # If there is an existing module manifest, load it so we can reuse old values not specified by
+                # template.
+                if (Test-Path -LiteralPath $dstPath) {
+                    $oldModuleManifest = Test-ModuleManifest -Path $dstPath -ErrorAction SilentlyContinue
+                    if ($? -and $oldModuleManifest) {
+                        $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
+                                 'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
+                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess'
+
+                        CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
+                    }
+                }
 
                 if (![string]::IsNullOrWhiteSpace($moduleVersion)) {
                     $newModuleManifestParams['ModuleVersion'] = $moduleVersion
@@ -725,6 +831,10 @@ function Invoke-Plaster {
                     WriteContentWithEncoding -Path $tempFile -Content $content -Encoding $encoding
 
                     CopyFileWithConflictDetection $tempFile $dstPath
+
+                    if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                        $InvokePlasterInfo.OpenFiles += $dstPath
+                    }
                 }
                 finally {
                     if ($tempFile -and (Test-Path $tempFile)) {
@@ -738,6 +848,19 @@ function Invoke-Plaster {
         #
         # Begin ProcessFile helper methods
         #
+        function NewBackupFilename([string]$Path) {
+            $dir = [System.IO.Path]::GetDirectoryName($Path)
+            $filename = [System.IO.Path]::GetFileName($Path)
+            $backupPath = Join-Path -Path $dir -ChildPath "${filename}.bak"
+            $i = 1;
+            while (Test-Path -LiteralPath $backupPath) {
+                $backupPath = Join-Path -Path $dir -ChildPath "${filename}.bak$i"
+                $i++
+            }
+
+            $backupPath
+        }
+
         function AreFilesIdentical($Path1, $Path2) {
             $file1 = Get-Item -LiteralPath $Path1 -Force
             $file2 = Get-Item -LiteralPath $Path2 -Force
@@ -808,7 +931,7 @@ function Invoke-Plaster {
             $gciParams.Remove('File')
             $gciParams['Directory'] = $true
             $dirs = @(Microsoft.PowerShell.Management\Get-ChildItem @gciParams |
-                Where-Object {$_.GetFileSystemInfos().Length -eq 0})
+                          Where-Object {$_.GetFileSystemInfos().Length -eq 0})
             foreach ($dir in $dirs) {
                 $dirSrcPath = $dir.FullName
                 $relPath = $dirSrcPath.Substring($srcRelRootPathLength)
@@ -866,13 +989,21 @@ function Invoke-Plaster {
 
                 if (($operation -eq $LocalizedData.OpCreate) -or ($operation -eq $LocalizedData.OpUpdate)) {
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    if ($PassThru) {
+                        $InvokePlasterInfo.CreatedFiles += $DstPath
+                    }
                     $templateCreatedFiles[$DstPath] = $null
                 }
                 elseif ($Force -or $PSCmdlet.ShouldContinue(($LocalizedData.OverwriteFile_F1 -f $DstPath),
                                                              $LocalizedData.FileConflict,
                                                              [ref]$fileConflictConfirmYesToAll,
                                                              [ref]$fileConflictConfirmNoToAll)) {
+                    $backupFilename = NewBackupFilename $DstPath
+                    Copy-Item -LiteralPath $DstPath -Destination $backupFilename
                     Copy-Item -LiteralPath $SrcPath -Destination $DstPath
+                    if ($PassThru) {
+                        $InvokePlasterInfo.UpdatedFiles += $DstPath
+                    }
                     $templateCreatedFiles[$DstPath] = $null
                 }
             }
@@ -884,8 +1015,8 @@ function Invoke-Plaster {
 
         # Processes both the <file> and <templateFile> directives.
         function ProcessFile([ValidateNotNull()]$Node) {
-            $srcRelPath = ExpandString $Node.source
-            $dstRelPath = ExpandString $Node.destination
+            $srcRelPath = InterpolateAttributeValue $Node.source (GetErrorLocationFileAttrVal $Node.localName source)
+            $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationFileAttrVal $Node.localName destination)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -899,7 +1030,7 @@ function Invoke-Plaster {
             }
 
             $condition  = $Node.condition
-            if ($condition -and !(EvaluateCondition $condition)) {
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
                 $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
                 return
             }
@@ -908,7 +1039,7 @@ function Invoke-Plaster {
             # Only <templateFile> nodes expand templates and use the encoding attribute.
             $isTemplateFile = $Node.localName -eq 'templateFile'
             if ($isTemplateFile) {
-                $encoding = ExpandString $Node.encoding
+                $encoding = $Node.encoding
                 if (!$encoding) {
                     $encoding = $DefaultEncoding
                 }
@@ -928,6 +1059,8 @@ function Invoke-Plaster {
                 if (Test-Path -LiteralPath $srcPath -PathType Container) {
                     if (!(Test-Path -LiteralPath $dstPath)) {
                         if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
+                            WriteOperationStatus $LocalizedData.OpCreate `
+                                ($dstRelPath.TrimEnd(([char]'\'),([char]'/')) + [System.IO.Path]::DirectorySeparatorChar)
                             New-Item -Path $dstPath -ItemType Directory > $null
                         }
                     }
@@ -951,12 +1084,23 @@ function Invoke-Plaster {
                     $target = $LocalizedData.TempFileTarget_F1 -f (ConvertToDestinationRelativePath $dstPath)
                     if ($isTemplateFile -and $PSCmdlet.ShouldProcess($target, $LocalizedData.ShouldProcessExpandTemplate)) {
                         $content = Get-Content -LiteralPath $srcPath -Raw
+
+                        # Eval script expression delimiters
                         if ($content -and ($content.Count -gt 0)) {
-                            $pattern = '(<%=)(.*?)(%>)'
-                            $newContent = [regex]::Replace($content, $pattern, {
+                            $newContent = [regex]::Replace($content, '(<%=)(.*?)(%>)', {
                                 param($match)
                                 $expr = $match.groups[2].value
-                                $res = ExpandString $expr
+                                $res = EvaluateExpression $expr "templateFile '$srcRelPath'"
+                                $PSCmdlet.WriteDebug("Replacing '$expr' with '$res' in contents of template file '$srcPath'")
+                                $res
+                            },  @('IgnoreCase'))
+
+                            # Eval script block delimiters
+                            $newContent = [regex]::Replace($newContent, '(^<%)(.*?)(^%>)', {
+                                param($match)
+                                $expr = $match.groups[2].value
+                                $res = EvaluateScript $expr "templateFile '$srcRelPath'"
+                                $res = $res -join [System.Environment]::NewLine
                                 $PSCmdlet.WriteDebug("Replacing '$expr' with '$res' in contents of template file '$srcPath'")
                                 $res
                             },  @('IgnoreCase', 'SingleLine', 'MultiLine'))
@@ -972,6 +1116,10 @@ function Invoke-Plaster {
                     }
 
                     CopyFileWithConflictDetection $srcPath $dstPath
+
+                    if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                        $InvokePlasterInfo.OpenFiles += $dstPath
+                    }
                 }
                 finally {
                     if ($tempFile -and (Test-Path $tempFile)) {
@@ -983,7 +1131,7 @@ function Invoke-Plaster {
         }
 
         function ProcessModifyFile([ValidateNotNull()]$Node) {
-            $path = ExpandString $Node.path
+            $path = InterpolateAttributeValue $Node.path (GetErrorLocationModifyAttrVal path)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -998,7 +1146,7 @@ function Invoke-Plaster {
             VerifyPathIsUnderDestinationPath $filePath
 
             $condition = $Node.condition
-            if ($condition -and !(EvaluateCondition $condition)) {
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
                 $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) of '$filePath', condition evaluated to false.")
                 return
             }
@@ -1011,7 +1159,7 @@ function Invoke-Plaster {
             # Set a Plaster (non-parameter) variable in this and the constrained runspace.
             SetPlasterVariable -Name FileContent -Value $fileContent -IsParam $false
 
-            $encoding = ExpandString $Node.encoding
+            $encoding = $Node.encoding
             if (!$encoding) {
                 $encoding = $DefaultEncoding
             }
@@ -1030,7 +1178,7 @@ function Invoke-Plaster {
                     switch ($childNode.LocalName) {
                         'replace' {
                             $condition  = $childNode.condition
-                            if ($condition -and !(EvaluateCondition $condition)) {
+                            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)><$($childNode.LocalName)>'")) {
                                 $PSCmdlet.WriteDebug("Skipping $($Node.LocalName) $($childNode.LocalName) of '$filePath', condition evaluated to false.")
                                 continue
                             }
@@ -1043,7 +1191,7 @@ function Invoke-Plaster {
                             }
 
                             if ($childNode.original.expand -eq 'true') {
-                                $original = ExpandString $original
+                                $original = InterpolateAttributeValue $original (GetErrorLocationModifyAttrVal original)
                             }
 
                             if ($childNode.substitute -is [string]) {
@@ -1054,7 +1202,7 @@ function Invoke-Plaster {
                             }
 
                             if ($childNode.substitute.expand -eq 'true') {
-                                $substitute = ExpandString $substitute
+                                $substitute = InterpolateAttributeValue $substitute (GetErrorLocationModifyAttrVal substitute)
                             }
 
                             $fileContent = $fileContent -replace $original,$substitute
@@ -1083,6 +1231,10 @@ function Invoke-Plaster {
 
                         WriteContentWithEncoding -Path $tempFile -Content $PLASTER_FileContent -Encoding $encoding
                         CopyFileWithConflictDetection $tempFile $filePath
+
+                        if ($PassThru -and ($Node.openInEditor -eq 'true')) {
+                            $InvokePlasterInfo.OpenFiles += $filePath
+                        }
                     }
                     else {
                         WriteOperationStatus $LocalizedData.OpIdentical (ConvertToDestinationRelativePath $filePath)
@@ -1098,18 +1250,18 @@ function Invoke-Plaster {
         }
 
         function ProcessRequireModule([ValidateNotNull()]$Node) {
-            $name = ExpandString $Node.name
+            $name = $Node.name
 
-            $condition  = $Node.condition
-            if ($condition -and !(EvaluateCondition $condition)) {
+            $condition = $Node.condition
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
                 $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
                 return
             }
 
-            $message = ExpandString $Node.message
-            $minimumVersion = ExpandString $Node.minimumVersion
-            $maximumVersion = ExpandString $Node.maximumVersion
-            $requiredVersion = ExpandString $Node.requiredVersion
+            $message = InterpolateAttributeValue $Node.message (GetErrorLocationRequireModuleAttrVal $name message)
+            $minimumVersion = $Node.minimumVersion
+            $maximumVersion = $Node.maximumVersion
+            $requiredVersion = $Node.requiredVersion
 
             $getModuleParams = @{
                 ListAvailable = $true
@@ -1146,15 +1298,51 @@ function Invoke-Plaster {
                 $versionRequirements = " ($versionInfo)"
             }
 
+            # PowerShell v3 Get-Module command does not have the FullyQualifiedName parameter.
+            if ($PSVersionTable.PSVersion.Major -lt 4) {
+                $getModuleParams.Remove("FullyQualifiedName")
+                $getModuleParams["Name"] = $name
+            }
+
             $module = Get-Module @getModuleParams
 
-            if ($null -ne $module) {
-                WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
-            }
-            else {
+            $moduleDesc = if ($versionRequirements) { "${name}:$versionRequirements" } else { $name }
+
+            if ($null -eq $module) {
                 WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
                 if ($message) {
                     WriteOperationAdditionalStatus $message
+                }
+                if ($PassThru) {
+                    $InvokePlasterInfo.MissingModules += $moduleDesc
+                }
+            }
+            else {
+                if ($PSVersionTable.PSVersion.Major -gt 3) {
+                    WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+                }
+                else {
+                    # On V3, we have to the version matching with the results that Get-Module return.
+                    $installedVersion = $module | Sort-Object Version -Descending | Select-Object -First 1 | Foreach-Object Version
+                    if ($installedVersion.Build -eq -1) {
+                        $installedVersion = [System.Version]"${installedVersion}.0.0"
+                    }
+                    elseif ($installedVersion.Revision -eq -1) {
+                        $installedVersion = [System.Version]"${installedVersion}.0"
+                    }
+
+                    if (($requiredVersion -and ($installedVersion -ne $requiredVersion)) -or
+                        ($minimumVersion -and ($installedVersion -lt $minimumVersion)) -or
+                        ($maximumVersion -and ($installedVersion -gt $maximumVersion))) {
+
+                        WriteOperationStatus $LocalizedData.OpMissing ($LocalizedData.RequireModuleMissing_F2 -f $name,$versionRequirements)
+                        if ($PassThru) {
+                            $InvokePlasterInfo.MissingModules += $moduleDesc
+                        }
+                    }
+                    else {
+                        WriteOperationStatus $LocalizedData.OpVerify ($LocalizedData.RequireModuleVerified_F2 -f $name,$versionRequirements)
+                    }
                 }
             }
         }
@@ -1187,6 +1375,9 @@ function Invoke-Plaster {
                 $defaultValueStore | Export-Clixml -LiteralPath $defaultValueStorePath
             }
 
+            # Output the DestinationPath
+            $LocalizedData.DestPath_F1 -f $destinationAbsolutePath
+
             # Process content
             foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement]) { continue }
@@ -1199,6 +1390,11 @@ function Invoke-Plaster {
                     'requireModule'     { ProcessRequireModule $node; break }
                     default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
+            }
+
+            if ($PassThru) {
+                $InvokePlasterInfo.Success = $true
+                $InvokePlasterInfo
             }
         }
         finally {
@@ -1226,6 +1422,7 @@ function InitializePredefinedVariables([string]$TemplatePath, [string]$DestPath)
     Set-Variable -Name PLASTER_DestinationName -Value $destName -Scope Script
     Set-Variable -Name PLASTER_DirSepChar      -Value ([System.IO.Path]::DirectorySeparatorChar) -Scope Script
     Set-Variable -Name PLASTER_HostName        -Value $Host.Name -Scope Script
+    Set-Variable -Name PLASTER_Version         -Value $MyInvocation.MyCommand.Module.Version -Scope Script
 
     Set-Variable -Name PLASTER_Guid1 -Value ([Guid]::NewGuid()) -Scope Script
     Set-Variable -Name PLASTER_Guid2 -Value ([Guid]::NewGuid()) -Scope Script

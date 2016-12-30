@@ -2,6 +2,7 @@
 data LocalizedData {
     # culture="en-US"
     ConvertFrom-StringData @'
+    DestPath_F1=Destination path: {0}
     ErrorFailedToLoadStoreFile_F1=Failed to load the default value store file: '{0}'.
     ErrorProcessingDynamicParams_F1=Failed to create dynamic parameters from the template's manifest file.  Template-based dynamic parameters will not be available until the error is corrected.  The error was: {0}
     ErrorTemplatePathIsInvalid_F1=The TemplatePath parameter value must refer to an existing directory. The specified path '{0}' does not.
@@ -9,16 +10,28 @@ data LocalizedData {
     ErrorPathDoesNotExist_F1=Cannot find path '{0}' because it does not exist.
     ErrorPathMustBeRelativePath_F2=The path '{0}' specified in the {1} directive in the template manifest cannot be an absolute path.  Change the path to a relative path.
     ErrorPathMustBeUnderDestPath_F2=The path '{0}' must be under the specified DestinationPath '{1}'.
-    InvalidConditionExpression_F2=The condition expression '{0}' is invalid.  Error: {1}
+    ExpressionInvalid_F2=The expression '{0}' is invalid or threw an exception. Error: {1}
+    ExpressionNonTermErrors_F2=The expression '{0}' generated error output - {1}
+    ExpressionExecError_F2=PowerShell expression failed execution. Location: {0}. Error: {1}
+    ExpressionErrorLocationFile_F2=<{0}> attribute '{1}'
+    ExpressionErrorLocationModify_F1=<modify> attribute '{0}'
+    ExpressionErrorLocationNewModManifest_F1=<newModuleManifest> attribute '{0}'
+    ExpressionErrorLocationParameter_F2=<parameter> name='{0}', attribute '{1}'
+    ExpressionErrorLocationRequireModule_F2=<requireModule> name='{0}', attribute '{1}'
+    ExpressionInvalidCondition_F3=The Plaster manifest condition '{0}' failed. Location: {1}. Error: {2}
+    InterpolationError_F3=The Plaster manifest attribute value '{0}' failed string interpolation. Location: {1}. Error: {2}
     FileConflict=Plaster file conflict
     ManifestFileMissing_F1=The Plaster manifest file '{0}' was not found.
     ManifestMissingDocElement_F2=The Plaster manifest file '{0}' is missing the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
     ManifestMissingDocTargetNamespace_F2=The Plaster manifest file '{0}' is missing or has an invalid target namespace on the document element. It should be specified as <plasterManifest xmlns="{1}"></plasterManifest>.
-    ManifestSchemaInvalidChoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify a zero-based integer index that corresponds to the default choice.
-    ManifestSchemaInvalidMultichoiceDefault_F2=The default attribute value '{0}' for parameter '{1}' is not valid.  The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
-    ManifestSchemaInvalidRequireModuleAttrs_F1=The requireModule attribute 'requiredVersion' for module '{0}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
-    ManifestSchemaValidationError_F1=Plaster manifest schema error: {0}
-    ManifestSchemaVersionNotSupported_F1=The template's manifest schema version ({0}) requires a newer version of Plaster. Update the Plaster module and try again.
+    ManifestPlasterVersionNotSupported_F2=The template file '{0}' specifies a plasterVersion of {1} which is greater than the installed version of Plaster. Update the Plaster module and try again.
+    ManifestSchemaInvalidAttrValue_F5=Invalid '{0}' attribute value '{1}' on '{2}' element in file '{3}'. Error: {4}
+    ManifestSchemaInvalidCondition_F3=Invalid condition '{0}' in file '{1}'. Error: {2}
+    ManifestSchemaInvalidChoiceDefault_F3=Invalid default attribute value '{0}' for parameter '{1}' in file '{2}'. The default value must specify a zero-based integer index that corresponds to the default choice.
+    ManifestSchemaInvalidMultichoiceDefault_F3=Invalid default attribute value '{0}' for parameter '{1}' in file '{2}'. The default value must specify one or more zero-based integer indexes in a comma separated list that correspond to the default choices.
+    ManifestSchemaInvalidRequireModuleAttrs_F2=The requireModule attribute 'requiredVersion' for module '{0}' in file '{1}' cannot be used together with either the 'minimumVersion' or 'maximumVersion' attribute.
+    ManifestSchemaValidationError_F2=Plaster manifest schema error in file '{0}'. Error: {1}
+    ManifestSchemaVersionNotSupported_F2=The template's manifest schema version ({0}) in file '{1}' requires a newer version of Plaster. Update the Plaster module and try again.
     ManifestErrorReading_F1=Error reading Plaster manifest: {0}
     ManifestNotValid_F1=The Plaster manifest '{0}' is not valid.
     ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
@@ -44,7 +57,6 @@ data LocalizedData {
     ShouldProcessCreateDir=Create directory
     ShouldProcessExpandTemplate=Expand template file
     ShouldProcessNewModuleManifest=Create new module manifest
-    SubstitutionExpressionError_F2=The substitution expression '{0}' failed expansion.  Error: {1}
     TempFileOperation_F1={0} into temp file before copying to destination
     TempFileTarget_F1=temp file for '{0}'
     TestPlasterNoXmlSchemaValidationWarning=The version of .NET Core that PowerShell is running on does not support XML schema-based validation. Test-PlasterManifest will operate in "limited validation" mode primarily verifying the specified manifest file is well-formed XML. For full, XML schema-based validation, run this command on Windows PowerShell.
@@ -58,13 +70,15 @@ Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaste
 
 # Module variables
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-$LatestSupportedSchemaVersion = [System.Version]'0.4'
+$PlasterVersion = (Test-ModuleManifest -Path $PSScriptRoot\Plaster.psd1).Version
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+$LatestSupportedSchemaVersion = [System.Version]'1.1'
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $DefaultEncoding = 'Default'
 
-if ($IsWindows) {
+if (($PSVersionTable.PSVersion.Major -le 5) -or ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows) {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
     $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
 }
@@ -81,6 +95,7 @@ else {
 # Dot source the individual module command scripts.
 . $PSScriptRoot\NewPlasterManifest.ps1
 . $PSScriptRoot\TestPlasterManifest.ps1
+. $PSScriptRoot\GetPlasterTemplate.ps1
 . $PSScriptRoot\InvokePlaster.ps1
 
 Export-ModuleMember -Function *-*

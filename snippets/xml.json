@@ -1,0 +1,170 @@
+{
+/*
+     // Open the command palette, select "Preferences: Open User Snippets", select "XML" and copy these snippets into
+     // the user snippets file that is opened.
+     // Place your snippets for XML here. Each snippet is defined under a snippet name and has a prefix, body and
+     // description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+     // $1, $2 for tab stops, ${id} and ${id:label} and ${1:label} for variables. Variables with the same id are connected.
+     // Example:
+     "Print to console": {
+        "prefix": "log",
+        "body": [
+            "console.log('$1');",
+            "$2"
+        ],
+        "description": "Log output to console"
+    }
+*/
+    "Parameter - text": {
+        "prefix": "Plaster parameter - text",
+        "description": "Parameter of type text input",
+        "body": [
+            "        <parameter name='$1'",
+            "                   type='text'",
+            "                   prompt='$2'/>"
+        ]
+    },
+
+    "Parameter - text w/default": {
+        "prefix": "Plaster parameter - text w/default value",
+        "description": "Parameter of type text input that stores default value",
+        "body": [
+            "        <parameter name='$1'",
+            "                   type='text'",
+            "                   prompt='$2'",
+            "                   default='$3'/>"
+        ]
+    },
+
+    "Parameter - choice": {
+        "prefix": "Plaster parameter - choice",
+        "description": "Parameter of type choice input - user must pick one",
+        "body": [
+            "        <parameter name='$1'",
+            "                   type='choice'",
+            "                   prompt='Select from these choices:'",
+            "                   default='0'",
+            "                   store='text'>",
+            "            <choice label='Choice &amp;One'",
+            "                    help='Choice one.'",
+            "                    value='One'/>",
+            "            <choice label='Choice &amp;Two'",
+            "                    help='Choice Two.'",
+            "                    value='Two'/>",
+            "            <choice label='&amp;None'",
+            "                    help='None.'",
+            "                    value='None'/>",
+            "        </parameter>"
+        ]
+    },
+
+    "Parameter - multichoice": {
+        "prefix": "Plaster parameter - multichoice",
+        "description": "Parameter of type multichoice input - user may zero or more.",
+        "body": [
+            "        <parameter name='$1'",
+            "                   type='multichoice'",
+            "                   prompt='Select from these choices:'",
+            "                   default='0,2'",
+            "                   store='text'>",
+            "            <choice label='Choice &amp;One'",
+            "                    help='Choice one.'",
+            "                    value='One'/>",
+            "            <choice label='Choice &amp;Two'",
+            "                    help='Choice Two.'",
+            "                    value='Two'/>",
+            "            <choice label='Choice T&amp;hree'",
+            "                    help='Choice Three.'",
+            "                    value='Three'/>",
+            "        </parameter>"
+        ]
+    },
+
+    "Content - create empty dir": {
+        "prefix": "Plaster content - empty dir",
+        "description": "Content of type empty dir.",
+        "body": [
+            "        <file source=''",
+            "              destination='docs/en-US' />"
+        ]
+    },
+
+    "Content - file": {
+        "prefix": "Plaster content - file",
+        "description": "Content of type file - single file.",
+        "body": [
+            "        <file condition='$PLASTER_PARAM_Options -contains 'Git'",
+            "              source='_gitignore'",
+            "              destination='.gitignore' />"
+        ]
+    },
+    "Content - file wildcard": {
+        "prefix": "Plaster content - file wildcard",
+        "description": "Content of type file - recursive wildcard.",
+        "body": [
+            "        <file condition='$PLASTER_PARAM_Options -contains 'Git'",
+            "              source='Content/**'",
+            "              destination='' />"
+        ]
+    },
+
+    "Content - templateFile": {
+        "prefix": "Plaster content - templateFile",
+        "description": "Content of type templateFile.",
+        "body": [
+            "        <templateFile source='$1'",
+            "                      destination='$2'/>"
+        ]
+    },
+
+    "Content - modify": {
+        "prefix": "Plaster content - modify",
+        "description": "Modify the specified file already in the destination path.",
+        "body": [
+            "        <modify path='$1'",
+			"                encoding='UTF8'",
+            "                condition='$PLASTER_PARAM_Editor -eq \"VSCode\"'>",
+            "            <replace condition='$PLASTER_FileContent -notmatch \"// Author:\"'>",
+            "                <original>(?s)^(.*)</original>",
+            "                <substitute expand='true'>// Author: $PLASTER_PARAM_FullName`r`n`$1</substitute>",
+            "            </replace>",
+            "        </modify>"
+        ]
+    },
+
+    "Content - newModuleManifest": {
+        "prefix": "Plaster content - newModuleManifest",
+        "description": "Creates a PowerShell module manifest with specified data.",
+        "body": [
+            "        <newModuleManifest destination='src\\$PLASTER_PARAM_ModuleName.psd1'",
+            "                           moduleVersion='$PLASTER_PARAM_Version'",
+            "                           rootModule='${PLASTER_PARAM_ModuleName}.psm1'",
+            "                           author='$PLASTER_PARAM_FullName'",
+            "                           description='$PLASTER_PARAM_ModuleDesc'",
+            "                           encoding='UTF8-NoBOM'/>"
+        ]
+    },
+
+    "Content - requireModule": {
+        "prefix": "Plaster content - requuireModule",
+        "description": "Content of type requireModule.",
+        "body": [
+            "        <requireModule name='Pester'",
+            "                       condition='$PLASTER_PARAM_Options -contains \"Pester\"'",
+            "                       minimumVersion='3.4.0'",
+            "                       message='Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.`nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel.'/>"
+        ]
+    },
+
+    "Content - message": {
+        "prefix": "Plaster content - message",
+        "description": "Content of type message.",
+        "body": [
+            "        <message condition='$PLASTER_PARAM_Options -contains \"Pester\"'>",
+            "A Pester test has been created to validate the module's manifest file.  Add additional tests to the test directory.",
+            "You can run the Pester tests in your project by executing the 'test' task.  Press Ctrl+P, then type 'task test'.",
+            "",
+            "        </message>"
+        ]
+    }
+}

@@ -206,7 +206,7 @@ The available element types are:
 
 ### Content element: Common
 Currently, there is only one common attribute shared between all current content elements.
-- `condition` - Used to determine whether a directive is executed. If the condition evaluates to true, it will execute.
+- `condition` - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
 
 Some elements use the encoding attribute, while not a common attribute, has a common set of possible values:
 - `Default`
@@ -222,15 +222,14 @@ Some elements use the encoding attribute, while not a common attribute, has a co
 
 Element attribute values support the use of Plaster parameters, which are parameter values that can be expanded into file names, or other pieces of information the template deals with. These map to available parameters, licenses and other data that is provided in the template.
 
-TODO: Explain Plaster parameters and provide a list.
-
 ### Content element: File
 One or more files can be selected (using wild cards like `*`) with each file element. Attribute values support the inclusion of Plaster parameters to control (as an example) the location or the name of the resulting file.
 
 Available attributes for this content element:
-- `source`      - Specifies the relative path to the file in the template's root folder.
-- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied. Files can only be copied to a location under the destination folder.
-- `condition`
+- `source`       - Specifies the relative path to the file in the template's root folder.
+- `destination`  - Specifies the relative path, under the destination folder, to where the file will be copied. Files can only be copied to a location under the destination folder.
+- `condition`    - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor` - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
 
 A basic example of this content element would be:
 ```xml
@@ -260,10 +259,11 @@ Two more complex examples are:
 Specify one or more template files (using wild cards, as with the file element) to copy and expand under the destination folder. Expansion is done by looking through the file and expanding out any Plaster parameters that are found.
 
 Available attributes for this content element:
-- `source`      - Specifies the relative path to the file in the template's root folder.
-- `destination` - Specifies the relative path, under the destination folder, to where the file will be copied.
-- `encoding`    - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
-- `condition`
+- `source`       - Specifies the relative path to the file in the template's root folder.
+- `destination`  - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `encoding`     - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
+- `condition`    - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor` - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
 
 An example of using the template file element:
 
@@ -278,7 +278,7 @@ The message type is a pretty straightforward element with two potential attribut
 
 Available attributes for this content element:
 - `nonewline` - If true, suppresses output of a newline at the end of the message.
-- `condition`
+- `condition` - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
 
 Here is an example of the message element:
 ```xml
@@ -304,9 +304,10 @@ Available attributes for this content element are:
     - `substitute` - The replacement text to substitute in place of the original text.
         - `expand` - Whether to expand variables within the substitute text.
     - `condition`
-- `path`      - Specifies the relative path, under the destination folder, of the file to be modified.
-- `encoding`  - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
-- `condition`
+- `path`         - Specifies the relative path, under the destination folder, of the file to be modified.
+- `encoding`     - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
+- `condition`    - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor` - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
 
 Here is a simple example of the modify element, using a regular expressions:
 
@@ -333,7 +334,8 @@ Available attributes for this content element:
 - `moduleVersion` - Specifies the value of the ModuleVersion property.
 - `rootModule`    - Specifies the value of the RootModule property.
 - `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
-- `condition`
+- `condition`     - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor`  - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
 
 Here is an example of the `newModuleManifest` element:
 ```xml
@@ -354,7 +356,7 @@ Available attributes for this content element:
 - `maximumVersion`  - The required module's maximum version.
 - `requiredVersion` - Specifies a specific version of the module. This attribute cannot be used with either the `minimumVersion` or `maximumVersion` attributes. Use this attribute rarely as any update to the module that changes its version will result in this check failing.
 - `message`         - Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine. This message should be used to tell the user what functionality will not work without the specified module.
-- `condition`
+- `condition`       - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
 
 #### NOTE: All versions in this element should be specified in the three part MAJOR.MINOR.PATCH (Semver) format.
 
@@ -365,14 +367,32 @@ Available attributes for this content element:
 ```
 
 ## Attribute and Condition Evaluation
-Most of the XML attributes in a manifest can contain variables or expressions that evaluate to a string.
-The attribute's value is passed into a constrained runspace for evaluation and the resulting string is used for template processing.
-Note the XML attributes on the `<parameter>` directive are not processed this way because they are processed during `dynamicparam` execution.
+Many of the XML attributes in a manifest can contain variables or expressions that evaluate to a string.
+The attribute's value is passed into a constrained runspace in the context of a double quoted string for interpolation and the resulting string is used for template processing.
+Note the XML attributes on the `<parameter>` directive, except for the `default` and `prompt` attributes, are not processed this way because they are processed during `dynamicparam` execution.
 At that time, the constrained runspace in which these expressions are evaluated has not been created.
 
 Many of the directives in a Plaster manifest have a `condition` attribute.
 The contents of this condition attribute are evaluated in the same constrained runspace that attribute values are evaluated in.
 However, in the case of a `condition` attribute the resulting value is coerced to a [bool] which determines whether the associated directive is executed.
+
+## TemplateFile processing
+A file that is processed with the `<templateFile>` directive will be processed, replacing script expression delimiters and script block delimiters with PowerShell generated text.
+The script expression delimiter is `<%= %>`.  The contents of a script expression delimiter are executed and the results cast to a string and inserted into the file.
+
+The script block delimiter is:
+```
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        # Ensure the presence/absene of the resource."
+"        [ValidateSet('Present','Absent')]"
+"        [string]"
+"        `$Ensure = 'Present'"
+    }
+%>
+```
+Where both starting and closing delimiter must appear in column zero.
+The contents of a script block delimiter are executed and the results cast to a string array and inserted into the file.
 
 ## PowerShell constrained runspace
 
@@ -385,6 +405,7 @@ In addition to these variables, Plaster defines a set of built-in variables:
 - PLASTER_FileContent     - The contents of a file be modified via the `<modify>` directive.
 - PLASTER_DirSepChar      - The directory separator char for the platform.
 - PLASTER_HostName        - The PowerShell host name e.g. $Host.Name
+- PLASTER_Version         - The version of the Plaster module invoking the template.
 - PLASTER_Guid1           - Randomly generated GUID value
 - PLASTER_Guid2           - Randomly generated GUID value
 - PLASTER_Guid3           - Randomly generated GUID value
