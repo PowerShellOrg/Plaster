@@ -264,6 +264,9 @@ function Invoke-Plaster {
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
             $iss.Commands.Add($ssce)
 
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Out-String',([Microsoft.PowerShell.Commands.OutStringCommand]),$null
+            $iss.Commands.Add($ssce)
+
             $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
             $plasterVars = Get-Variable -Name PLASTER_*
             foreach ($var in $plasterVars) {
