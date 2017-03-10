@@ -91,7 +91,7 @@ function Invoke-Plaster {
 
                 $name = $node.name
                 $type = $node.type
-                $prompt = $node.prompt
+                $prompt = if ($node.prompt) { $node.prompt } else { $LocalizedData.MissingParameterPrompt_F1 -f $name }
 
                 if (!$name -or !$type) { continue }
 
@@ -619,6 +619,11 @@ function Invoke-Plaster {
                             Write-Warning ($LocalizedData.ErrorUnencryptingSecureString_F1 -f $name)
                         }
                     }
+                }
+
+                # If the prompt message failed to evaluate or was empty, supply a diagnostic prompt message
+                if (!$prompt) {
+                    $prompt = $LocalizedData.MissingParameterPrompt_F1 -f $name
                 }
 
                 # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists.

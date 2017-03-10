@@ -37,6 +37,7 @@ data LocalizedData {
     ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
     ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
     ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the Plaster manifest filename and then try again.
+    MissingParameterPrompt_F1=<Missing prompt value for parameter '{0}'>
     NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}
     OpConflict=Conflict
     OpCreate=Create
