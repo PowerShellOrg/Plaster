@@ -4,6 +4,14 @@
         {
             "type": "PowerShell",
             "request": "launch",
+            "name": "PowerShell Launch Pester Tests",
+            "script": "Invoke-Pester",
+            "args": [],
+            "cwd": "${workspaceRoot}/test"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
             "name": "PowerShell Launch (debugHarness.ps1)",
             "program": "${workspaceRoot}/debugHarness.ps1",
             "args": [],
@@ -16,6 +24,13 @@
             "program": "${file}",
             "args": [],
             "cwd": "${file}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "attach",
+            "name": "PowerShell Attach to Host Process",
+            "processId": "${command:PickPSHostProcess}",
+            "runspaceId": 1
         }
     ]
 }
