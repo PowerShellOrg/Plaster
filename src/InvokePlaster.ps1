@@ -268,7 +268,16 @@ function Invoke-Plaster {
             $iss.Commands.Add($ssce)
 
             $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
-            $plasterVars = Get-Variable -Name PLASTER_*
+            $plasterVars = Get-Variable -Name PLASTER_*,PSVersionTable
+            if (Test-Path Variable:\IsLinux) {
+                $plasterVars += Get-Variable -Name IsLinux
+            }
+            if (Test-Path Variable:\IsOSX) {
+                $plasterVars += Get-Variable -Name IsOSX
+            }
+            if (Test-Path Variable:\IsWindows) {
+                $plasterVars += Get-Variable -Name IsWindows
+            }
             foreach ($var in $plasterVars) {
                 $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
                             $var.Name,$var.Value,$var.Description,$scopedItemOptions
