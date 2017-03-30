@@ -1,5 +1,11 @@
 # Plaster Release History
 
+## 1.1.0
+### TBD
+- Added constrained runspace cmdlet: Out-String [#235](https://github.com/PowerShell/Plaster/issues/236).
+- Fixed prompt errors when prompt text null or empty [#236](https://github.com/PowerShell/Plaster/issues/236).
+- Added constrained runspace variables: PSVersionTable and on >= PS v6 IsLinux, IsOSX and IsWindows [#239](https://github.com/PowerShell/Plaster/issues/239).
+
 ## 1.0.1
 ### Friday, December 16, 2016
 
