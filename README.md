@@ -29,6 +29,10 @@ You can learn how to use Plaster and write your own templates by reading our doc
 - [Creating a Plaster Manifest](docs/en-US/about_Plaster_CreatingAManifest.help.md)
 - [Cmdlet Documentation](docs/en-US/Plaster.md)
 
+Or by checking out some blog posts on Plaster:
+
+- [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by David Christian - [@dchristian3188](https://github.com/dchristian3188)
+
 ## Maintainers
 
 - [Keith Hill](https://github.com/rkeithhill) - [@r_keith_hill](http://twitter.com/r_keith_hill)
