@@ -175,6 +175,11 @@
           <xs:documentation>The label for the choice that is presented in the user interface. The &amp; character must be respresented with the entity ref &amp;amp;</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="condition" type="ptd:condition">
+        <xs:annotation>
+          <xs:documentation>The condition which must be met for the choice to be shown. If it evaluates to true then it will be included in the list of choices.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="value" type="xs:string" use="required">
         <xs:annotation>
           <xs:documentation>The value that will get assigned the parameter if the user selects this choice.</xs:documentation>
@@ -213,6 +218,11 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="store" type="ptd:StoreFormatType"/>
+      <xs:attribute name="condition" type="ptd:condition">
+        <xs:annotation>
+          <xs:documentation>The condition which must be met for the parameter to be processed. If it evaluates to true then it will be processed.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
