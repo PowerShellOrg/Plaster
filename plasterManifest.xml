@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.1"
+  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TestManifest</name>
+    <id>b0ee1054-962c-450d-a6c2-28bd0c189b8f</id>
+    <version>0.0.1</version>
+    <title>Test Plaster Manifest</title>
+    <description>Create a new test Plaster Manifest</description>
+    <author>Zachary Loeber</author>
+    <tags>Testing, Plaster, Manifest</tags>
+  </metadata>
+  <parameters>
+    <parameter
+      name="ModuleName"
+      type="text"
+      prompt="Enter the name of the module. No space, underscores, or special characters are allowed" />
+    <parameter
+      name="ModuleDescription"
+      type="text"
+      prompt="Enter a description of your module" />
+    <parameter
+      name="ModuleAuthor"
+      type="text"
+      prompt="Enter a module author" />
+    <parameter
+      name="ModuleWebsite"
+      type="text"
+      prompt="Enter a project website (ie. https://www.github.com/&lt;author&gt;/&lt;modulename&gt;)" />
+    <parameter
+      name="ModuleVersion"
+      type="text"
+      prompt="Enter the version number of the module"
+      default="0.0.1" />
+    <parameter
+      name="ModuleTags"
+      type="text"
+      prompt="Comma separate list of tags that describe this module. This is required for the PowerShell Gallery" />
+    <parameter
+      name="AdditionalModulePaths"
+      type="text"
+      prompt="Comma separate list of paths that will be included with the final module release (ie. .\libs,.\data)"
+      default=" " />
+    <parameter
+      name="PublicFunctionSource"
+      type="text"
+      prompt="Public functions path. This path contains all exportable script code functions for your module"
+      default="public" />
+    <parameter
+      name="PrivateFunctionSource"
+      type="text"
+      prompt="Private functions path. This path contains all script code not exposed by your module"
+      default="private" />
+    <parameter
+      name="OtherModuleSource"
+      type="text"
+      prompt="Other module source path. This includes module pre and post load scripts"
+      default="other" />
+    <parameter
+      name="BaseReleaseFolder"
+      type="text"
+      prompt="Releases directory"
+      default="release" />
+    <parameter
+      name="ScratchFolder"
+      type="text"
+      prompt="Scratch path - this is where all our scratch work occurs. It will be cleared out at every run."
+      default="temp" />
+    <parameter
+      name="NugetAPIKey"
+      type="text"
+      prompt="Enter a PowerShell Gallery (aka Nuget) API key. Without this you will not be able to upload your module to the Gallery"
+      default=" " />
+    <parameter
+      name="OptionAnalyzeCode"
+      type="choice"
+      prompt="Use PSScriptAnalyzer in the module build process (Recommended for Gallery uploading)?"
+      default="0"
+      store="text">
+      <choice
+        label="&amp;Yes"
+        help="Enable script analysis"
+        value="True" />
+      <choice
+        label="&amp;No"
+        help="Disable script analysis"
+        value="False" />
+    </parameter>
+    <parameter
+      name="OptionCombineFiles"
+      type="choice"
+      prompt="Combine scripts into one psm1 in the module build process (Recommended for Gallery uploading)?"
+      default="0"
+      store="text">
+      <choice
+        label="&amp;Yes"
+        help="Combine source files"
+        value="True" />
+      <choice
+        label="&amp;No"
+        help="Do not combine source files"
+        value="False" />
+    </parameter>
+    <parameter
+      name="OptionSanitizeSensitiveTerms"
+      type="choice"
+      prompt="Scan for sensitive terms (like your user id or company domain) in the module build process (Recommended for Gallery uploading)?"
+      default="0"
+      store="text">
+      <choice
+        label="&amp;Yes"
+        help="Sanitize sensitive terms"
+        value="True" />
+      <choice
+        label="&amp;No"
+        help="Do not sanitize sensitive terms"
+        value="False" />
+    </parameter>
+  </parameters>
+  <content>test</content>
+</plasterManifest>

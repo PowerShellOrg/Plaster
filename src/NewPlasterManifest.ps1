@@ -47,7 +47,15 @@ function New-PlasterManifest {
 
         [Parameter()]
         [switch]
-        $AddContent
+        $AddContent,
+
+        [Parameter()]
+        [string]
+        $Parameters,
+
+        [Parameter()]
+        [string]
+        $Content
     )
 
     begin {
@@ -104,13 +112,23 @@ function New-PlasterManifest {
 
                 $srcAttr = $manifest.CreateAttribute("source")
                 $srcAttr.Value = $filename
-                $fileElem.Attributes.Append($srcAttr) > $null
+                $null = $fileElem.Attributes.Append($srcAttr)
 
                 $dstAttr = $manifest.CreateAttribute("destination")
                 $dstAttr.Value = $filename
-                $fileElem.Attributes.Append($dstAttr) > $null
+                $null = $fileElem.Attributes.Append($dstAttr)
 
-                $manifest.plasterManifest["content"].AppendChild($fileElem) > $null
+                $null = $manifest.plasterManifest["content"].AppendChild($fileElem)
+            }
+        }
+        else {
+            # If we passed some parameter xml then assign it
+            if (-not [string]::IsNullOrEmpty($Parameters)) {
+                $null = $manifest.plasterManifest["parameters"].InnerXML = $Parameters
+            }
+            # If we passed some content xml then assign it
+            if (-not [string]::IsNullOrEmpty($Content)) {
+                $null = $manifest.plasterManifest["content"].InnerXML = $Content
             }
         }
 

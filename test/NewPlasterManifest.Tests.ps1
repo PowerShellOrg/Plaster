@@ -142,6 +142,77 @@ Describe 'New-PlasterManifest Command Tests' {
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
+
+        It 'Parameters and Content parameters work' {
+            CleanDir $OutDir
+
+            $expectedManifest = @"
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="$LatestSchemaVersion"
+  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TemplateName</name>
+    <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
+    <version>1.0.0</version>
+    <title>TemplateName</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+    <parameter
+      name="ModuleName"
+      type="text"
+      prompt="Enter the name of the module. No space, underscores, or special characters are allowed" />
+    <parameter
+      name="ModuleDescription"
+      type="text"
+      prompt="Enter a description of your module" />
+    <parameter
+      name="ModuleAuthor"
+      type="text"
+      prompt="Enter a module author" />
+    <parameter
+      name="ModuleWebsite"
+      type="text"
+      prompt="Enter a project website (ie. https://www.github.com/&lt;author&gt;/&lt;modulename&gt;)" />
+    <parameter
+      name="ModuleVersion"
+      type="text"
+      prompt="Enter the version number of the module"
+      default="0.0.1" />
+  </parameters>
+  <content>
+    <file
+      source="Recurse\empty.txt"
+      destination="Recurse\empty.txt" />
+    <file
+      source="Recurse\foo.txt"
+      destination="Recurse\foo.txt" />
+    <file
+      source="Recurse\a\bar.txt"
+      destination="Recurse\a\bar.txt" />
+    <file
+      source="Recurse\a\b\baz.txt"
+      destination="Recurse\a\b\baz.txt" /> <file
+      source="Recurse\a\c\test.ini"
+      destination="Recurse\a\c\test.ini" /><file
+      source="Recurse\a\c\d\gilead.txt"
+      destination="Recurse\a\c\d\gilead.txt" /></content>
+</plasterManifest>
+"@
+
+$ParametersParam = '<parameter name="ModuleName" type="text" prompt="Enter the name of the module. No space, underscores, or special characters are allowed" /><parameter name="ModuleDescription" type="text" prompt="Enter a description of your module" /><parameter name="ModuleAuthor" type="text" prompt="Enter a module author" /><parameter name="ModuleWebsite" type="text" prompt="Enter a project website (ie. https://www.github.com/&lt;author&gt;/&lt;modulename&gt;)" /><parameter name="ModuleVersion" type="text" prompt="Enter the version number of the module" default="0.0.1" />'
+$ContentParam = '<file source="Recurse\empty.txt" destination="Recurse\empty.txt" /><file source="Recurse\foo.txt" destination="Recurse\foo.txt" /><file source="Recurse\a\bar.txt" destination="Recurse\a\bar.txt" /><file source="Recurse\a\b\baz.txt" destination="Recurse\a\b\baz.txt" /> <file source="Recurse\a\c\test.ini" destination="Recurse\a\c\test.ini" /><file source="Recurse\a\c\d\gilead.txt" destination="Recurse\a\c\d\gilead.txt" />'
+
+            $plasterPath = "$OutDir\plasterManifest.xml"
+            Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
+                                -TemplateType project -Content $ContentParam -Parameters $ParametersParam
+            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            CompareManifestContent $expectedManifest $plasterPath
+        }
     }
 
     Context 'Parameter tests' {
