@@ -203,8 +203,20 @@ Describe 'New-PlasterManifest Command Tests' {
 </plasterManifest>
 "@
 
-$ParametersParam = '<parameter name="ModuleName" type="text" prompt="Enter the name of the module. No space, underscores, or special characters are allowed" /><parameter name="ModuleDescription" type="text" prompt="Enter a description of your module" /><parameter name="ModuleAuthor" type="text" prompt="Enter a module author" /><parameter name="ModuleWebsite" type="text" prompt="Enter a project website (ie. https://www.github.com/&lt;author&gt;/&lt;modulename&gt;)" /><parameter name="ModuleVersion" type="text" prompt="Enter the version number of the module" default="0.0.1" />'
-$ContentParam = '<file source="Recurse\empty.txt" destination="Recurse\empty.txt" /><file source="Recurse\foo.txt" destination="Recurse\foo.txt" /><file source="Recurse\a\bar.txt" destination="Recurse\a\bar.txt" /><file source="Recurse\a\b\baz.txt" destination="Recurse\a\b\baz.txt" /> <file source="Recurse\a\c\test.ini" destination="Recurse\a\c\test.ini" /><file source="Recurse\a\c\d\gilead.txt" destination="Recurse\a\c\d\gilead.txt" />'
+            $ParametersParam = @(
+            '<parameter name="ModuleName" type="text" prompt="Enter the name of the module. No space, underscores, or special characters are allowed" />',
+            '<parameter name="ModuleDescription" type="text" prompt="Enter a description of your module" />',
+            '<parameter name="ModuleAuthor" type="text" prompt="Enter a module author" />'
+            )
+
+            $ContentParam = @(
+            '<file source="Recurse\empty.txt" destination="Recurse\empty.txt" />',
+            '<file source="Recurse\foo.txt" destination="Recurse\foo.txt" />',
+            '<file source="Recurse\a\bar.txt" destination="Recurse\a\bar.txt" />',
+            '<file source="Recurse\a\b\baz.txt" destination="Recurse\a\b\baz.txt" />',
+            '<file source="Recurse\a\c\test.ini" destination="Recurse\a\c\test.ini" />',
+            '<file source="Recurse\a\c\d\gilead.txt" destination="Recurse\a\c\d\gilead.txt" />'
+            )
 
             $plasterPath = "$OutDir\plasterManifest.xml"
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse

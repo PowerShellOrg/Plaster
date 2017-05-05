@@ -50,11 +50,11 @@ function New-PlasterManifest {
         $AddContent,
 
         [Parameter()]
-        [string]
+        [string[]]
         $Parameters,
 
         [Parameter()]
-        [string]
+        [string[]]
         $Content
     )
 
@@ -124,11 +124,11 @@ function New-PlasterManifest {
         else {
             # If we passed some parameter xml then assign it
             if (-not [string]::IsNullOrEmpty($Parameters)) {
-                $null = $manifest.plasterManifest["parameters"].InnerXML = $Parameters
+                $null = $manifest.plasterManifest["parameters"].InnerXML = ($Parameters -join '')
             }
             # If we passed some content xml then assign it
             if (-not [string]::IsNullOrEmpty($Content)) {
-                $null = $manifest.plasterManifest["content"].InnerXML = $Content
+                $null = $manifest.plasterManifest["content"].InnerXML = ($Content -join '')
             }
         }
 
