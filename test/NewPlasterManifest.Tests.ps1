@@ -173,15 +173,6 @@ Describe 'New-PlasterManifest Command Tests' {
       name="ModuleAuthor"
       type="text"
       prompt="Enter a module author" />
-    <parameter
-      name="ModuleWebsite"
-      type="text"
-      prompt="Enter a project website (ie. https://www.github.com/&lt;author&gt;/&lt;modulename&gt;)" />
-    <parameter
-      name="ModuleVersion"
-      type="text"
-      prompt="Enter the version number of the module"
-      default="0.0.1" />
   </parameters>
   <content>
     <file
@@ -220,8 +211,7 @@ Describe 'New-PlasterManifest Command Tests' {
 
             $plasterPath = "$OutDir\plasterManifest.xml"
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
-            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
-                                -TemplateType project -Content $ContentParam -Parameters $ParametersParam
+            New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName 'TemplateName' -TemplateType 'project' -Content $ContentParam -Parameters $ParametersParam
             Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
