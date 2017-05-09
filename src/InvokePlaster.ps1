@@ -786,15 +786,28 @@ function Invoke-Plaster {
             # Pull all the new-modulemanifest parameters to account for future version changes and such
             $CmdParams = (Get-Command New-ModuleManifest).Parameters
 
-            # Some ignored parameters that we either overwrite or will not be splatting
-            $IgnoredManifestVals = @('Path', 'PrivateData', 'PassThru')
+            # Some ignored parameters that we either overwrite (like Path) or will not be splatting (the adv function variables)
+            $IgnoredManifestVals = @(
+                'Path',
+                'PrivateData',
+                'PassThru',
+                'Verbose',
+                'Debug',
+                'ErrorAction',
+                'WarningAction',
+                'InformationAction',
+                'ErrorVariable',
+                'WarningVariable',
+                'InformationVariable',
+                'OutVariable',
+                'OutBuffer',
+                'PipelineVariable',
+                'WhatIf',
+                'Confirm'
+            )
 
             # Get all non-advanced function parameters that new-modulemanifest uses
-            $ValidModuleManifestParams = $CmdParams.keys | ForEach-Object {
-                if (($CmdParams[$_].Attributes.TypeId.Name -notcontains 'AliasAttribute') -and ($IgnoredManifestVals -notcontains $_)) {
-                    $_
-                }
-            }
+            $ValidModuleManifestParams = $CmdParams.keys | Where-Object {($IgnoredManifestVals -notcontains $_)}
 
             # Create a hash of parameter types so we know how to process module manifest entries (as arrays or strings)
             $paramTypes = @{}
