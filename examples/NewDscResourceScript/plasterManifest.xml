@@ -4,7 +4,7 @@
         <id>d1e2e756-d4cb-4aea-83c7-c03f2f8fed31</id>
         <name>NewDscResourceScriptFile</name>
         <title>New DSC Resource Script File</title>
-        <description>Scaffolds a script file with the three required DSC resource functions.</description>
+        <description>Scaffolds a module file with the three required DSC resource functions.</description>
         <version>1.0.0</version>
         <tags>DSC, Resource, DSCResource</tags>
     </metadata>
@@ -25,18 +25,44 @@
                     help="Select this option to add an Ensure parameter."
                     value="Yes"/>
         </parameter>
+
+        <parameter name='IsSingleInstance'
+                   type='choice'
+                   prompt='Single Instance Resource?'
+                   default='0'>
+            <choice label='&amp;No'
+                    help='Select this option if it is not a Single Instance resource.'
+                    value='No'/>
+            <choice label='&amp;Yes'
+                    help='Select this option if it is a Single Instance resource.'
+                    value='Yes'/>
+        </parameter>
+
+        <parameter name='RebootRequired'
+                   type='choice'
+                   prompt='Requires a reboot when Set is done?'
+                   default='0'>
+            <choice label='&amp;No'
+                    help='Select this option if a reboot is not required.'
+                    value='No'/>
+            <choice label='&amp;Yes'
+                    help='Select this option if a reboot is required.'
+                    value='Yes'/>
+        </parameter>
     </parameters>
 
     <content>
         <message>&#10;&#10;Scaffolding your PowerShell DSC Resource Script...&#10;&#10;&#10;</message>
 
         <templateFile source='resource.ps1.txt'
-                      destination='${PLASTER_PARAM_TargetResourceName}.ps1'/>
+                      destination='${PLASTER_PARAM_TargetResourceName}.psm1'/>
+        <templateFile source='resource.schema.mof.txt'
+                      destination='${PLASTER_PARAM_TargetResourceName}.schema.mof'/>
 
         <message>
 
-Your new PowerShell DSC Resource script file '${PLASTER_DestinationPath}${PLASTER_DirSepChar}${PLASTER_PARAM_TargetResourceName}.ps1' has been created.
-
+Your new PowerShell DSC Resource module file '${PLASTER_DestinationPath}${PLASTER_DirSepChar}${PLASTER_PARAM_TargetResourceName}.psm1' has been created.
+Your new PowerShell DSC Resource schema file '${PLASTER_DestinationPath}${PLASTER_DirSepChar}${PLASTER_PARAM_TargetResourceName}.schema.mof' has been created.
         </message>
     </content>
 </plasterManifest>
