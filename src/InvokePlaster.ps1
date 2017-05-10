@@ -820,7 +820,8 @@ function Invoke-Plaster {
                 $PSCmdlet.WriteDebug("Determining how to handle the modulemanifest property - $ModProp.")
                 $PropVal = InterpolateAttributeValue $Node.$ModProp (GetErrorLocationNewModManifestAttrVal $ModProp)
                 # We are only concerned about the values which align with a new-modulemanifest parameter
-                if (![string]::IsNullOrWhiteSpace($PropVal) -and ($ValidModuleManifestParams -contains $ModProp)) {
+                if ($PropVal -and ($ValidModuleManifestParams -contains $ModProp)) {
+                #if (![string]::IsNullOrWhiteSpace($PropVal) -and ($ValidModuleManifestParams -contains $ModProp)) {
                     # take action based on the type of parameter being splatted
                     switch ($ParamTypes[$ModProp]) {
                         'System.Array' {
