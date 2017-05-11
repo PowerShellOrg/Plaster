@@ -11,7 +11,8 @@ function Get-TargetResource {
          if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
 "        [string] `$Ensure,"
 ""
-         } else {
+         }
+         else {
 "        [string] `$Ensure"
          }
     }
@@ -51,7 +52,8 @@ function Set-TargetResource {
          if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
 "        [string] `$Ensure,"
 ""
-         } else {
+         }
+         else {
 "        [string] `$Ensure"
          }
     }
@@ -89,7 +91,8 @@ function Test-TargetResource {
          if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
 "        [string] `$Ensure,"
 ""
-         } else {
+         }
+         else {
 "        [string] `$Ensure"
          }
     }
