@@ -41,7 +41,7 @@ The `metadata` section contains information about the Plaster manifest itself an
 - `id`          - The ID is the unique identifier used for the storing users
 parameter data and makes sure that the store doesn't get used with another
 template. This field is automatically generated if not given a value.
-- `version`     - Version of the manifest. Defaults to 0.1.0.
+- `version`     - Version of the manifest. Defaults to 1.0.0.
 - `title`       - Manifest name used in menu lists. Defaults to `name`.
 - `description` - Manifest description summary.
 - `tags`        - Tags used to describe the purpose of the template.
