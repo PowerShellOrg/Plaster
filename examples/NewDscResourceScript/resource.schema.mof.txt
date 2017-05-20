@@ -1,0 +1,14 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("<%=$PLASTER_PARAM_TargetResourceName%>")]
+class <%=$PLASTER_PARAM_TargetResourceName%> : OMI_BaseResource
+{
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"    [Required, ValueMap{`"Present`",`"Absent`"}, Values{`"Present`",`"Absent`"}] String Ensure`;"
+    }
+    if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"    [Key, ValueMap{`"Yes`"}, Values{`"Yes`"}] String IsSingleInstance`;"
+    }
+%>
+};
+

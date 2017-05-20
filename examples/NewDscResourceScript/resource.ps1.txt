@@ -1,57 +1,107 @@
-# The Get-<%=$PLASTER_PARAM_TargetResourceName%> function fetches the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
+# The Get-TargetResource function fetches the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
 # in the parameters for the target machine.
-function Get-<%=$PLASTER_PARAM_TargetResourceName%> {
+function Get-TargetResource {
     [OutputType([Hashtable])]
     param (
 <%
     if ($PLASTER_PARAM_Ensure -eq 'Yes') {
 "        # Ensure the presence/absene of the resource."
+"        [Parameter(Mandatory)]"
 "        [ValidateSet('Present','Absent')]"
-"        [string]"
-"        `$Ensure = 'Present'"
+         if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        [string] `$Ensure,"
+""
+         }
+         else {
+"        [string] `$Ensure"
+         }
+    }
+
+    if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        # Ensure the resource is SingleInstance."
+"        [Parameter(Mandatory)]"
+"        [ValidateSet('Yes')]"
+"        [string] `$IsSingleInstance"
     }
 %>
     )
 
     # Return a hashtable of name/value pairs representing the target resource instance.
     @{
-
+<%
+    if ($PLASTER_PARAM_Ensure -eq 'Yes') {
+"        Ensure = `$Ensure"
+    }
+    if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        IsSingleInstance = 'Yes'"
+    }
+%>
     }
 }
 
-# The Set-<%=$PLASTER_PARAM_TargetResourceName%> function is used to create, delete or configure a <%=$PLASTER_PARAM_TargetResourceName%> resource
+# The Set-TargetResource function is used to create, delete or configure a <%=$PLASTER_PARAM_TargetResourceName%> resource
 # instance for the target machine.
-function Set-<%=$PLASTER_PARAM_TargetResourceName%> {
-    [CmdletBinding(SupportsShouldProcess=$true)]
+function Set-TargetResource {
+    [CmdletBinding()]
     param (
 <%
     if ($PLASTER_PARAM_Ensure -eq 'Yes') {
 "        # Ensure the presence/absene of the resource."
+"        [Parameter(Mandatory)]"
 "        [ValidateSet('Present','Absent')]"
-"        [string]"
-"        `$Ensure = 'Present'"
+         if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        [string] `$Ensure,"
+""
+         }
+         else {
+"        [string] `$Ensure"
+         }
+    }
+
+    if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        # Ensure the resource is SingleInstance."
+"        [Parameter(Mandatory)]"
+"        [ValidateSet('Yes')]"
+"        [string] `$IsSingleInstance"
     }
 %>
     )
 
-    # Set the target resource instance based on parameters passed into function.
-    if ($PSCmdlet.ShouldProcess("<%=$PLASTER_PARAM_TargetResourceName%>", "Set Resource")) {
+<%
 
+    if ($PLASTER_PARAM_RebootRequired -eq 'Yes') {
+"    # Signals LCM that a reboot is required"
+"    `$global:DSCMachineStatus = `$true"
     }
+%>
+
 }
 
-# The Test-<%=$PLASTER_PARAM_TargetResourceName%> function tests the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
+# The Test-TargetResource function tests the status of the <%=$PLASTER_PARAM_TargetResourceName%> resource instance specified
 # in the parameters for the target machine.
-function Test-<%=$PLASTER_PARAM_TargetResourceName%> {
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param (
 <%
     if ($PLASTER_PARAM_Ensure -eq 'Yes') {
 "        # Ensure the presence/absene of the resource."
+"        [Parameter(Mandatory)]"
 "        [ValidateSet('Present','Absent')]"
-"        [string]"
-"        `$Ensure = 'Present'"
+         if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        [string] `$Ensure,"
+""
+         }
+         else {
+"        [string] `$Ensure"
+         }
+    }
+
+    if ($PLASTER_PARAM_IsSingleInstance -eq 'Yes') {
+"        # Ensure the resource is SingleInstance."
+"        [Parameter(Mandatory)]"
+"        [ValidateSet('Yes')]"
+"        [string] `$IsSingleInstance"
     }
 %>
     )
@@ -63,4 +113,4 @@ function Test-<%=$PLASTER_PARAM_TargetResourceName%> {
     $result
 }
 
-Export-ModuleMember -Function Get-<%=$PLASTER_PARAM_TargetResourceName%>, Set-<%=$PLASTER_PARAM_TargetResourceName%>, Test-<%=$PLASTER_PARAM_TargetResourceName%>
+Export-ModuleMember -Function Get-TargetResource, Set-TargetResource, Test-TargetResource
