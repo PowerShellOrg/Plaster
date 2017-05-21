@@ -448,6 +448,111 @@
                       <xs:documentation>Specifies the value of the RootModule property.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
+                  <xs:attribute name="copyright" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the copyright for this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="tags" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the module tags.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="projectUri" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the project website.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="licenseUri" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the license website.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="iconUri" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the icon website.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="nestedModules" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies nested modules.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="requiredModules" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies required modules.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="typesToProcess" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Types to process for this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="formatsToProcess" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Formats to process for this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="scriptsToProcess" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Scripts to process for this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="requiredAssemblies" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Assemblies required for this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="fileList" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Files included in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="moduleList" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Modules included in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="functionsToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Functions exported in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="aliasesToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Aliases exported in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="variablesToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Variables exported in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="cmdletsToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Cmdlets exported in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="dscResourcesToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>DSC resources exported in this module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="compatiblePSEditions" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Compatible PowerShell editions.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="helpInfoURI" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Help information website.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="defaultCommandPrefix" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Default command prefix for exported commands.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                   <xs:attribute name="openInEditor" type="ptd:openInEditor"/>

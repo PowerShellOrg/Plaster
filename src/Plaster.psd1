@@ -52,9 +52,17 @@
     FunctionsToExport = @(
         'Invoke-Plaster'
         'New-PlasterManifest'
-        'Get-PlasterTemplate',
+        'Get-PlasterTemplate'
         'Test-PlasterManifest'
-        )
+        'Write-PlasterParameter'
+        'Write-PlasterManifestContent'
+        'Write-PlasterManifestContentRequireModule'
+        'Write-PlasterManifestContentNewModuleManifest'
+        'Write-PlasterManifestContentModify'
+        'Write-PlasterManifestContentMessage'
+        'Write-PlasterManifestContentTemplateFile'
+        'Write-PlasterManifestContentFile'
+    )
 
     # HelpInfo URI of this module
     # HelpInfoURI = ''
