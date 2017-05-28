@@ -767,6 +767,9 @@ function Invoke-Plaster {
             $companyName = InterpolateAttributeValue $Node.companyName (GetErrorLocationNewModManifestAttrVal companyName)
             $description = InterpolateAttributeValue $Node.description (GetErrorLocationNewModManifestAttrVal description)
             $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationNewModManifestAttrVal destination)
+            $PowerShellVersion = InterpolateAttributeValue $Node.PowerShellVersion (GetErrorLocationNewModManifestAttrVal PowerShellVersion)
+            $nestedModules = InterpolateAttributeValue $Node.NestedModules (GetErrorLocationNewModManifestAttrVal NestedModules)
+            $dscResourcesToExport = InterpolateAttributeValue $Node.DscResourcesToExport (GetErrorLocationNewModManifestAttrVal DscResourcesToExport)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -805,7 +808,8 @@ function Invoke-Plaster {
                     if ($? -and $oldModuleManifest) {
                         $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
                                  'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
-                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess'
+                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess', 'NestedModules',
+                                 'PowerShellVersion'
 
                         CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
                     }
@@ -825,6 +829,15 @@ function Invoke-Plaster {
                 }
                 if (![string]::IsNullOrWhiteSpace($description)) {
                     $newModuleManifestParams['Description'] = $description
+                }
+                if (![string]::IsNullOrWhiteSpace($psVersion)) {
+                    $newModuleManifestParams['PowerShellVersion'] = $PowerShellVersion
+                }
+                if (![string]::IsNullOrWhiteSpace($nestedModules)) {
+                    $newModuleManifestParams['NestedModules'] = $nestedModules
+                }
+                if (![string]::IsNullOrWhiteSpace($dscResourcesToExport)) {
+                    $newModuleManifestParams['DscResourcesToExport'] = $dscResourcesToExport
                 }
 
                 $tempFile = $null

@@ -327,15 +327,18 @@ Here is a simple example of the modify element, using a regular expressions:
 This element allows you to create a module manifest using the data that has been input to Plaster through Plaster parameters.
 
 Available attributes for this content element:
-- `destination`   - Specifies the relative path, under the destination folder, to where the file will be copied.
-- `author`        - Specifies the value of the Author property.
-- `companyName`   - Specifies the value of the CompanyName property.
-- `description`   - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
-- `moduleVersion` - Specifies the value of the ModuleVersion property.
-- `rootModule`    - Specifies the value of the RootModule property.
-- `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
-- `condition`     - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
-- `openInEditor`  - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
+- `destination`          - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `author`               - Specifies the value of the Author property.
+- `companyName`          - Specifies the value of the CompanyName property.
+- `description`          - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
+- `moduleVersion`        - Specifies the value of the ModuleVersion property.
+- `rootModule`           - Specifies the value of the RootModule property.
+- `encoding`             - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
+- `condition`            - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor`         - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
+- `powerShellVersion`    - Specifies the minimum PowerShell version required to load the module.
+- `nestedModules`        - Specifies a nested Module.
+- `dscResourcesToExport` - Specifies a DSC resource to export.
 
 Here is an example of the `newModuleManifest` element:
 ```xml
@@ -344,7 +347,8 @@ Here is an example of the `newModuleManifest` element:
                    rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                    author='$PLASTER_PARAM_FullName'
                    description='$PLASTER_PARAM_ModuleDesc'
-                   encoding='UTF8-NoBOM'/>
+                   encoding='UTF8-NoBOM'
+                   powershellVersion='5.1'/>
 ```
 
 ### Content element: RequireModule

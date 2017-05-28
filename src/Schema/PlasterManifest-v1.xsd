@@ -451,6 +451,21 @@
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                   <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
+                  <xs:attribute name="powerShellVersion" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the minimum PowerShell version required to load the module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="nestedModules" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies a nested Module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="dscResourcesToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies a DSC resource to export.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
                 </xs:complexType>
               </xs:element>
 
