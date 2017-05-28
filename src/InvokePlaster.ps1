@@ -767,7 +767,7 @@ function Invoke-Plaster {
             $companyName = InterpolateAttributeValue $Node.companyName (GetErrorLocationNewModManifestAttrVal companyName)
             $description = InterpolateAttributeValue $Node.description (GetErrorLocationNewModManifestAttrVal description)
             $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationNewModManifestAttrVal destination)
-            $psVersion = InterpolateAttributeValue $Node.PowerShellVersion (GetErrorLocationNewModManifestAttrVal PowerShellVersion)
+            $PowerShellVersion = InterpolateAttributeValue $Node.PowerShellVersion (GetErrorLocationNewModManifestAttrVal PowerShellVersion)
             $nestedModules = InterpolateAttributeValue $Node.NestedModules (GetErrorLocationNewModManifestAttrVal NestedModules)
             $dscResourcesToExport = InterpolateAttributeValue $Node.DscResourcesToExport (GetErrorLocationNewModManifestAttrVal DscResourcesToExport)
 
@@ -831,7 +831,7 @@ function Invoke-Plaster {
                     $newModuleManifestParams['Description'] = $description
                 }
                 if (![string]::IsNullOrWhiteSpace($psVersion)) {
-                    $newModuleManifestParams['PowerShellVersion'] = $psVersion
+                    $newModuleManifestParams['PowerShellVersion'] = $PowerShellVersion
                 }
                 if (![string]::IsNullOrWhiteSpace($nestedModules)) {
                     $newModuleManifestParams['NestedModules'] = $nestedModules
