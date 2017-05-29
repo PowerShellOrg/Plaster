@@ -177,7 +177,7 @@
       </xs:attribute>
       <xs:attribute name="condition" type="ptd:condition">
         <xs:annotation>
-          <xs:documentation>The condition which must be met for the choice to be shown. If it evaluates to true then it will be included in the list of choices.</xs:documentation>
+          <xs:documentation>The condition which must be met for the choice to be shown. If it evaluates to true then it will be included in the list of choices. This condition will NOT be evaluated during dynamic parameter creation (so it will always be part of the validateset for the parameter at the command line invocation of the template).</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="value" type="xs:string" use="required">
@@ -220,7 +220,7 @@
       <xs:attribute name="store" type="ptd:StoreFormatType"/>
       <xs:attribute name="condition" type="ptd:condition">
         <xs:annotation>
-          <xs:documentation>The condition which must be met for the parameter to be processed. If it evaluates to true then it will be processed.</xs:documentation>
+          <xs:documentation>The condition which must be met for the parameter to be processed. If it evaluates to true then it will be processed. This condition will NOT be evaluated during dynamic parameter creation (so it will always be an available parameter at the invoke-plaster command line invocation of the template).</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>
