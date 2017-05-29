@@ -186,11 +186,14 @@ Describe 'New-PlasterManifest Command Tests' {
       destination="Recurse\a\bar.txt" />
     <file
       source="Recurse\a\b\baz.txt"
-      destination="Recurse\a\b\baz.txt" /> <file
+      destination="Recurse\a\b\baz.txt" />
+    <file
       source="Recurse\a\c\test.ini"
-      destination="Recurse\a\c\test.ini" /><file
+      destination="Recurse\a\c\test.ini" />
+    <file
       source="Recurse\a\c\d\gilead.txt"
-      destination="Recurse\a\c\d\gilead.txt" /></content>
+      destination="Recurse\a\c\d\gilead.txt" />
+  </content>
 </plasterManifest>
 "@
 
