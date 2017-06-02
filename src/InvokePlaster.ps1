@@ -830,7 +830,7 @@ function Invoke-Plaster {
                 if (![string]::IsNullOrWhiteSpace($description)) {
                     $newModuleManifestParams['Description'] = $description
                 }
-                if (![string]::IsNullOrWhiteSpace($psVersion)) {
+                if (![string]::IsNullOrWhiteSpace($PowerShellVersion)) {
                     $newModuleManifestParams['PowerShellVersion'] = $PowerShellVersion
                 }
                 if (![string]::IsNullOrWhiteSpace($nestedModules)) {
