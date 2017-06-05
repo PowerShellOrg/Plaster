@@ -608,6 +608,13 @@ function Invoke-Plaster {
             $name = $Node.name
             $type = $Node.type
             $store = $Node.store
+
+            $condition = $Node.condition
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
+                $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
+                return
+            }
+
             $prompt = InterpolateAttributeValue $Node.prompt (GetErrorLocationParameterAttrVal $name prompt)
             $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
 
