@@ -9,11 +9,11 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-	"version": "2.0.0",
+    "version": "2.0.0",
 
     // Start PowerShell
     "windows": {
-        "command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe",
+        "command": "C:\\Windows\\sysnative\\WindowsPowerShell\\v1.0\\powershell.exe",
         "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
     },
     "linux": {
@@ -25,8 +25,8 @@
         "args": [ "-NoProfile" ]
     },
 
-	// Show the output window always
-	"showOutput": "always",
+    // Show the output window always
+    "showOutput": "always",
 
     // Associate with test task runner
     "tasks": [
@@ -91,27 +91,10 @@
             "isTestCommand": true,
             "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking Pester'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
                 "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
             ],
-            "problemMatcher": [
-                {
-                    "owner": "powershell",
-                    "fileLocation": ["absolute"],
-                    "severity": "error",
-                    "pattern": [
-                        {
-                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
-                            "message": 1
-                        },
-                        {
-                            "regexp": "^\\s+at\\s+[^,]+,\\s*(.*?):\\s+line\\s+(\\d+)$",
-                            "file": 1,
-                            "line": 2
-                        }
-                    ]
-                }
-            ]
+            "problemMatcher": "$pester"
         }
 	]
 }
