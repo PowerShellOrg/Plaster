@@ -583,6 +583,7 @@ function Invoke-Plaster {
                 [string]$Name,
 
                 [Parameter(Mandatory=$true)]
+                [AllowNull()]
                 $Value,
 
                 [Parameter()]
@@ -611,7 +612,9 @@ function Invoke-Plaster {
 
             $condition = $Node.condition
             if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
-                $PSCmdlet.WriteDebug("Skipping $($Node.localName) for module '$name', condition evaluated to false.")
+                # Define the parameter so later conditions can use it but its value will be $null
+                SetPlasterVariable -Name $name -Value $null -IsParam $true
+                $PSCmdlet.WriteDebug("Skipping parameter $($Node.localName), condition evaluated to false.")
                 return
             }
 
