@@ -13,13 +13,16 @@
 
 	// Start PowerShell
     "windows": {
-        "command": "${env:windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe"
+        "command": "${env:windir}\\sysnative\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
     },
     "linux": {
-        "command": "/usr/bin/powershell"
+        "command": "/usr/bin/powershell",
+        "args": [ "-NoProfile" ]
     },
     "osx": {
-        "command": "/usr/local/bin/powershell"
+        "command": "/usr/local/bin/powershell",
+        "args": [ "-NoProfile" ]
     },
 
 	// The command is a shell script
@@ -27,10 +30,6 @@
 
 	// Show the output window always
 	"showOutput": "always",
-
-    "args": [
-        "-NoProfile", "-ExecutionPolicy", "Bypass"
-    ],
 
     // Associate with test task runner
     "tasks": [
