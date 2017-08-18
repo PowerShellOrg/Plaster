@@ -1,0 +1,16 @@
+<gs:GlobalizationServices xmlns:gs="urn:longhornGlobalizationUnattend">
+	<gs:UserList>
+<% if ($PLASTER_PARAM_ALLUSERS -eq 'Y') {
+         '<gs:User UserID="Current" CopySettingsToDefaultUserAcct="true" CopySettingsToSystemAcct="true"/>'
+	 } else {
+	     '<gs:User UserID="Current" CopySettingsToDefaultUserAcct="true" CopySettingsToSystemAcct="true"/>'
+	}		 
+%>
+	</gs:UserList>
+ <gs:UserLocale> 
+	<gs:Locale Name="<%= $PLASTER_PARAM_NewUserLocale %>" SetAsCurrent="true"/> 
+ </gs:UserLocale>
+
+ <!-- Non Unicode programs !-->
+<gs:SystemLocale Name="<%= $PLASTER_PARAM_NewUserLocale %>" />
+</gs:GlobalizationServices>

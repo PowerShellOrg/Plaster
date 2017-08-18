@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>ChangeUserLocale</name>
+    <id>69256d67-478e-407a-ae38-09ff268f484f</id>
+    <version>1.0.0</version>
+    <title>Change User Locale</title>
+    <description>Create files to change user locales</description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+     <parameter name="NewUserLocale" type="text" prompt="New User Locale"  default='en-GB' />
+	<parameter name="AllUsers" type="choice" prompt="Do you want a script that sets locale for all users?" default='0'>
+    <choice label="&amp;All Users" help="For all users" value="Yes" />
+    <choice label="&amp;Current User" help="For current user" value="No" />
+	</parameter>
+  </parameters>
+  <content>
+  	 <templateFile source='Locale_template.xml' destination='setlocale.xml'/>
+	 <file source='setlocale.cmd' destination='setlocale.cmd'/>	 
+
+  </content>
+</plasterManifest>
