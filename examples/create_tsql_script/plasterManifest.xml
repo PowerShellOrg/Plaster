@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>ChangeErrorRecycleLog</name>
+    <id>7e3013a7-1685-4598-b526-9704710fee67</id>
+    <version>1.0.0</version>
+    <title>Change Error Recycle Log</title>
+    <description>Create T-SQL Script to change number of kept logs in SQL</description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+  <parameter name="InstanceName" type="text" prompt="SQL Server instance name?"  default='SQLSERVER\INSTANCE' />
+  <parameter name="NumberLogs" type="text" prompt="Number Of Logs?"  default='14' />
+  
+  </parameters>
+  <content>
+   <templateFile source='SetNumberOfLogs.sql' destination='$($PLASTER_PARAM_INSTANCENAME -replace (&apos;\\&apos;,&apos;_&apos;))_SetNumberOfLogs.sql'/>
+  </content>
+</plasterManifest>

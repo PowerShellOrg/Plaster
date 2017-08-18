@@ -21,7 +21,7 @@ edition of the parameters and content tags
 - use of expression to replace the locale chosen in the template file
 - use of the if powershell construct to generate ad-hoc line based on choices
 
-To run this example, cd to the NewModuleTemplate folder and execute:
+To run this example, cd to the folder and execute:
 ```powershell
 Import-Module ..\..\src\Plaster.psd1
 Invoke-Plaster -TemplatePath . -Destination ..\Admin-Locale
