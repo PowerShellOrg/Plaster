@@ -13,7 +13,8 @@
 
     // Start PowerShell
     "windows": {
-        "command": "${env:windir}\\sysnative\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "command": "${env:windir}/System32/WindowsPowerShell/v1.0/powershell.exe",
+        //"command": "${env:ProgramFiles}/PowerShell/6.0.0/powershell.exe",
         "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
     },
     "linux": {
@@ -25,18 +26,14 @@
         "args": [ "-NoProfile" ]
     },
 
-	// Show the output window always
-	"showOutput": "always",
-
     // Associate with test task runner
     "tasks": [
         {
             "taskName": "Test",
             "suppressTaskName": true,
             "isTestCommand": true,
-            "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking Pester...'; $ProgressPreference = 'SilentlyContinue'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Write-Host 'Invoking Pester...'; $ProgressPreference = 'SilentlyContinue'; Invoke-Pester -Script test -PesterOption @{IncludeVSCodeMarker=$true};",
                 "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
             ],
             "problemMatcher": "$pester"
