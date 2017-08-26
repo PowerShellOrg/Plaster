@@ -1263,7 +1263,7 @@ function Invoke-Plaster {
                     # but if nothing was changed, I'd prefer not to generate a temp file, copy the unmodified contents
                     # into that temp file with hopefully the right encoding and then potentially overwrite the original file
                     # (different encoding will make the files look different) with the same contents but different encoding.
-                    # If the intent of the <modify> was simple to change an existing file's encoding then the directive will
+                    # If the intent of the <modify> was simply to change an existing file's encoding then the directive will
                     # need to make a whitespace change to the file.
                     if ($modified) {
                         $tempFile = [System.IO.Path]::GetTempFileName()
