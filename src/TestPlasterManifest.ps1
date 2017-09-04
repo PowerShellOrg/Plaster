@@ -14,7 +14,7 @@ function Test-PlasterManifest {
     )
 
     begin {
-        $schemaPath = [io.path]::combine($PSScriptRoot, "Schema", "PlasterManifest-v1.xsd")
+        $schemaPath = [System.IO.Path]::Combine($PSScriptRoot, "Schema", "PlasterManifest-v1.xsd")
 
         # Schema validation is not available on .NET Core - at the moment.
         if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
