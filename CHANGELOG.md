@@ -1,12 +1,20 @@
 # Plaster Release History
 
-## 1.1.0
+## 1.1.0 - 2017-09-08
+### Fixed
+- Fixed prompt errors when prompt text null or empty [#236](https://github.com/PowerShell/Plaster/issues/236).
+- Fixed New Module Script template's Test task which fails to run on x64 Visual Studio Code.
+- Fixed Test-PlasterManifest on non-Windows running .NET Core 2.0 failed with path using \ instead of /.
+  Thanks to [@elmundio87](https://github.com/elmundio87) via PR [#282](https://github.com/PowerShell/Plaster/pull/282)
 ### Added
 - Added constrained runspace cmdlet: Out-String [#235](https://github.com/PowerShell/Plaster/issues/236).
 - Added constrained runspace variables: PSVersionTable and on >= PS v6 IsLinux, IsOSX and IsWindows [#239](https://github.com/PowerShell/Plaster/issues/239).
-- The parameter element now supports a condition attribute so that prompting for parameters can be conditional based on environmental factors (such as OS) or answers to previous parameter prompts.  This allows you to build a "dynamic" set of prompts.
-### Fixed
-- Fixed prompt errors when prompt text null or empty [#236](https://github.com/PowerShell/Plaster/issues/236).
+- The parameter element now supports a condition attribute so that prompting for parameters can be
+  conditional based on environmental factors (such as OS) or answers to previous parameter prompts.
+  This allows template authors to build a "dynamic" set of prompts.
+### Changed
+- Simplified New Module Script template user choices i.e. removed prompt for adding Pester test.
+  The test is now always added.
 
 ## 1.0.1 - 2016-12-16
 ### Fixed
