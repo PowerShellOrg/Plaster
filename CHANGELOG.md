@@ -12,6 +12,7 @@
 - The parameter element now supports a condition attribute so that prompting for parameters can be
   conditional based on environmental factors (such as OS) or answers to previous parameter prompts.
   This allows template authors to build a "dynamic" set of prompts.
+- Added constrained runspace cmdlet: Compare-Object [#287](https://github.com/PowerShell/Plaster/issues/236).
 ### Changed
 - Simplified New Module Script template user choices i.e. removed prompt for adding Pester test.
   The test is now always added.
