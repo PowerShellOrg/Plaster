@@ -431,6 +431,7 @@ In addition, the following commands are available:
 - Get-Module
 - Get-Variable
 - Test-Path
+- Compare-Object
 
 # EXAMPLES
 You can create a base Plaster manifest by running the New-PlasterManifest command.
