@@ -19,7 +19,7 @@
         <parameter name='Version'
                    type='text'
                    prompt='Enter the version number of the module'
-                   default='1.0.0'/>
+                   default='0.0.1'/>
 
         <parameter name='Editor'
                    type='choice'
