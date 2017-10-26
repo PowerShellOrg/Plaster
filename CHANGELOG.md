@@ -1,5 +1,12 @@
 # Plaster Release History
 
+## 1.1.1 - 2017-10-26
+
+### Fixed
+
+- Added $IsMacOS variable to constrained runspace [#291](https://github.com/PowerShell/Plaster/issues/291).
+- Added missing .cat file from 1.1.0 release [#292](https://github.com/PowerShell/Plaster/issues/292).
+
 ## 1.1.0 - 2017-10-25
 
 ### Fixed

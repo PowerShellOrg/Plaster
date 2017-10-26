@@ -6,7 +6,7 @@
     GUID = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
 
     # Version number of this module.
-    ModuleVersion = '1.1.0'
+    ModuleVersion = '1.1.1'
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a
     # PSData hashtable with additional module metadata used by PowerShell.
@@ -55,7 +55,7 @@
         'Get-PlasterTemplate',
         'Test-PlasterManifest'
         )
-    
+
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport = @()
 
