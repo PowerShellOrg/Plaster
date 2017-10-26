@@ -278,6 +278,9 @@ function Invoke-Plaster {
             if (Test-Path Variable:\IsOSX) {
                 $plasterVars += Get-Variable -Name IsOSX
             }
+            if (Test-Path Variable:\IsMacOS) {
+                $plasterVars += Get-Variable -Name IsMacOS
+            }
             if (Test-Path Variable:\IsWindows) {
                 $plasterVars += Get-Variable -Name IsWindows
             }
