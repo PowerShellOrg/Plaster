@@ -26,7 +26,7 @@ Describe 'Condition Attribute Evaluation Tests' {
             Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return false (file doesn't exist) which will not copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Should BeNullOrEmpty
+            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
 
         It 'Determines existing file is in destination path' {
@@ -54,7 +54,7 @@ Describe 'Condition Attribute Evaluation Tests' {
             New-Item $OutDir\bar.txt -ItemType File > $null
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should BeExactly foo.txt
+            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
     }
 
@@ -83,7 +83,7 @@ Describe 'Condition Attribute Evaluation Tests' {
             Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should BeExactly foo.txt
+            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Get-Variable command is available' {
@@ -110,7 +110,7 @@ Describe 'Condition Attribute Evaluation Tests' {
             Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should BeExactly foo.txt
+            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Compare-Object command is available' {
@@ -137,7 +137,7 @@ Describe 'Condition Attribute Evaluation Tests' {
             Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should BeExactly foo.txt
+            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
     }
 }

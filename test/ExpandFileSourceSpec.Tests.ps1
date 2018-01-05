@@ -29,7 +29,7 @@ Describe 'File Directive ExpandFileSource Tests' {
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Name
             $dst = Get-ChildItem $OutDir\RecurseOut -Recurse -File -Name
-            Compare-Object $src $dst | Should BeNullOrEmpty
+            Compare-Object $src $dst | Should -BeNullOrEmpty
         }
 
         It 'It copies empty directories' {
@@ -59,7 +59,7 @@ Describe 'File Directive ExpandFileSource Tests' {
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -Directory -Name
             $dst = Get-ChildItem $OutDir\RecurseOut -Recurse -Directory -Name
-            Compare-Object $src $dst | Should BeNullOrEmpty
+            Compare-Object $src $dst | Should -BeNullOrEmpty
         }
     }
 
@@ -92,7 +92,7 @@ Describe 'File Directive ExpandFileSource Tests' {
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Filter *.txt -Name
             $dst = Get-ChildItem $OutDir\RecurseOut -Recurse -File -Filter *.txt -Name
-            $dst | Should Be "empty.txt", "foo.txt"
+            $dst | Should -Be "empty.txt", "foo.txt"
         }
     }
 
@@ -125,7 +125,7 @@ Describe 'File Directive ExpandFileSource Tests' {
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Filter *.txt -Name
             $dst = Get-ChildItem $OutDir\RecurseOut -Recurse -File -Filter *.txt -Name
-            Compare-Object $src $dst | Should BeNullOrEmpty
+            Compare-Object $src $dst | Should -BeNullOrEmpty
         }
     }
 }

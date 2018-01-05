@@ -6,7 +6,7 @@ function CompareManifestContent($expectedManifest, $actualManifestPath) {
     # Compare the manifests while accounting for possible newline incompatiblity
     $expectedManifest = $expectedManifest -replace "`r`n", "`n"
     $actualManifest = (Get-Content $plasterPath -Raw) -replace "`r`n", "`n"
-    $actualManifest | Should BeExactly $expectedManifest
+    $actualManifest | Should -BeExactly $expectedManifest
 }
 
 Describe 'New-PlasterManifest Command Tests' {
@@ -34,7 +34,7 @@ Describe 'New-PlasterManifest Command Tests' {
 "@
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName -TemplateType item
-            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            Test-PlasterManifest -Path $plasterPath | Should -Not -BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
 
@@ -62,7 +62,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
                                 -TemplateType project -Description "This is <cool> & awesome."
-            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            Test-PlasterManifest -Path $plasterPath | Should -Not -BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
 
@@ -90,7 +90,7 @@ Describe 'New-PlasterManifest Command Tests' {
             $plasterPath = "$OutDir\plasterManifest.xml"
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
                                 -TemplateType item -Tags "Bag&Tag", Foo, Bar, "Baz boy"
-            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            Test-PlasterManifest -Path $plasterPath | Should -Not -BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
 
@@ -139,7 +139,7 @@ Describe 'New-PlasterManifest Command Tests' {
             Copy-Item $PSScriptRoot\Recurse $OutDir -Recurse
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
                                 -TemplateType project -AddContent
-            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            Test-PlasterManifest -Path $plasterPath | Should -Not -BeNullOrEmpty
             CompareManifestContent $expectedManifest $plasterPath
         }
     }
@@ -153,7 +153,7 @@ Describe 'New-PlasterManifest Command Tests' {
             }
             New-PlasterManifest -Path $plasterPath -Id '1a1b0933-78b2-4a3e-bf48-492591e69521' -TemplateName TemplateName `
                                 -TemplateType item
-            Test-PlasterManifest -Path $plasterPath | Should Not BeNullOrEmpty
+            Test-PlasterManifest -Path $plasterPath | Should -Not -BeNullOrEmpty
         }
     }
 }

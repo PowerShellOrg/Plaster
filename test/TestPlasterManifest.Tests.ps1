@@ -25,8 +25,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            Test-PlasterManifest -Path $PlasterManifestPath -OutVariable xmldoc | Should Not BeNullOrEmpty
-            $xmldoc.plasterManifest.plasterVersion | Should Be $plasterModule.Version
+            Test-PlasterManifest -Path $PlasterManifestPath -OutVariable xmldoc | Should -Not -BeNullOrEmpty
+            $xmldoc.plasterManifest.plasterVersion | Should -Be $plasterModule.Version
         }
 
         It 'Errors on manifest plasterVersion greater than the current Plaster version.' {
@@ -50,8 +50,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should BeNullOrEmpty
-            $TestErr.Exception.Message -match "specifies a plasterVersion of 9999\.0" | Should Be $true
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+            $TestErr.Exception.Message -match "specifies a plasterVersion of 9999\.0" | Should -Be $true
         }
     }
 
@@ -77,8 +77,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should BeNullOrEmpty
-            $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should Be $true
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+            $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should -Be $true
         }
 
         It 'Errors on manifest major version equal but minor version greater than supported' {
@@ -102,8 +102,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should BeNullOrEmpty
-            $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should Be $true
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+            $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should -Be $true
         }
 
         It 'Works on manifest major version equal to latest version' {
@@ -127,8 +127,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should Not BeNullOrEmpty
-            $TestErr | Should BeNullOrEmpty
+            Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+            $TestErr | Should -BeNullOrEmpty
         }
 
         It 'Works on manifest major version equal but minor version is less than latest minor version' {
@@ -154,8 +154,8 @@ Describe 'Test-PlasterManifest Command Tests' {
 
             try {
                 $plasterModule.Invoke({$script:LatestSupportedSchemaVersion = New-Object System.Version $LatestSupportedSchemaVersion.Major,($LatestSupportedSchemaVersion.Minor+1)})
-                Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should Not BeNullOrEmpty
-                $TestErr | Should BeNullOrEmpty
+                Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+                $TestErr | Should -BeNullOrEmpty
             }
             finally {
                 $plasterModule.Invoke({$script:LatestSupportedSchemaVersion = $SchemaVersion})
@@ -200,10 +200,10 @@ Describe 'Test-PlasterManifest Command Tests' {
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
             $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
-            $TestErr | Should Not BeNullOrEmpty
-            $verboseRecord | Should Not BeNullOrEmpty
-            $verboseRecord.Message | Should Match "attribute value 'None'"
-            $verboseRecord.Message | Should Match "a zero-based"
+            $TestErr | Should -Not -BeNullOrEmpty
+            $verboseRecord | Should -Not -BeNullOrEmpty
+            $verboseRecord.Message | Should -Match "attribute value 'None'"
+            $verboseRecord.Message | Should -Match "a zero-based"
         }
 
         It 'Detects invalid default value for multichoice parameters' {
@@ -253,10 +253,10 @@ Describe 'Test-PlasterManifest Command Tests' {
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
             $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
-            $TestErr | Should Not BeNullOrEmpty
-            $verboseRecord | Should Not BeNullOrEmpty
-            $verboseRecord.Message | Should Match "attribute value 'Git,psake'"
-            $verboseRecord.Message | Should Match "one or more zero-based"
+            $TestErr | Should -Not -BeNullOrEmpty
+            $verboseRecord | Should -Not -BeNullOrEmpty
+            $verboseRecord.Message | Should -Match "attribute value 'Git,psake'"
+            $verboseRecord.Message | Should -Match "one or more zero-based"
         }
 
         It 'Detects invalid condition attribute value' {
@@ -285,9 +285,9 @@ Describe 'Test-PlasterManifest Command Tests' {
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
             $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
-            $TestErr | Should Not BeNullOrEmpty
-            $verboseRecord | Should Not BeNullOrEmpty
-            $verboseRecord.Message | Should Match "Invalid condition '`"foo`" -eq `"bar'"
+            $TestErr | Should -Not -BeNullOrEmpty
+            $verboseRecord | Should -Not -BeNullOrEmpty
+            $verboseRecord.Message | Should -Match "Invalid condition '`"foo`" -eq `"bar'"
         }
 
         It 'Detects invalid content attribute value' {
@@ -315,9 +315,9 @@ Describe 'Test-PlasterManifest Command Tests' {
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
             $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
-            $TestErr | Should Not BeNullOrEmpty
-            $verboseRecord | Should Not BeNullOrEmpty
-            $verboseRecord.Message | Should Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
+            $TestErr | Should -Not -BeNullOrEmpty
+            $verboseRecord | Should -Not -BeNullOrEmpty
+            $verboseRecord.Message | Should -Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
         }
     }
 }
