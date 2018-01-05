@@ -91,7 +91,7 @@ function Invoke-Plaster {
 
                 $name = $node.name
                 $type = $node.type
-                $prompt = $node.prompt
+                $prompt = if ($node.prompt) { $node.prompt } else { $LocalizedData.MissingParameterPrompt_F1 -f $name }
 
                 if (!$name -or !$type) { continue }
 
@@ -264,8 +264,26 @@ function Invoke-Plaster {
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Test-Path',([Microsoft.PowerShell.Commands.TestPathCommand]),$null
             $iss.Commands.Add($ssce)
 
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Out-String',([Microsoft.PowerShell.Commands.OutStringCommand]),$null
+            $iss.Commands.Add($ssce)
+
+            $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry 'Compare-Object',([Microsoft.PowerShell.Commands.CompareObjectCommand]),$null
+            $iss.Commands.Add($ssce)
+
             $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
-            $plasterVars = Get-Variable -Name PLASTER_*
+            $plasterVars = Get-Variable -Name PLASTER_*,PSVersionTable
+            if (Test-Path Variable:\IsLinux) {
+                $plasterVars += Get-Variable -Name IsLinux
+            }
+            if (Test-Path Variable:\IsOSX) {
+                $plasterVars += Get-Variable -Name IsOSX
+            }
+            if (Test-Path Variable:\IsMacOS) {
+                $plasterVars += Get-Variable -Name IsMacOS
+            }
+            if (Test-Path Variable:\IsWindows) {
+                $plasterVars += Get-Variable -Name IsWindows
+            }
             foreach ($var in $plasterVars) {
                 $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
                             $var.Name,$var.Value,$var.Description,$scopedItemOptions
@@ -571,6 +589,7 @@ function Invoke-Plaster {
                 [string]$Name,
 
                 [Parameter(Mandatory=$true)]
+                [AllowNull()]
                 $Value,
 
                 [Parameter()]
@@ -596,6 +615,15 @@ function Invoke-Plaster {
             $name = $Node.name
             $type = $Node.type
             $store = $Node.store
+
+            $condition = $Node.condition
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
+                # Define the parameter so later conditions can use it but its value will be $null
+                SetPlasterVariable -Name $name -Value $null -IsParam $true
+                $PSCmdlet.WriteDebug("Skipping parameter $($Node.localName), condition evaluated to false.")
+                return
+            }
+
             $prompt = InterpolateAttributeValue $Node.prompt (GetErrorLocationParameterAttrVal $name prompt)
             $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
 
@@ -619,6 +647,11 @@ function Invoke-Plaster {
                             Write-Warning ($LocalizedData.ErrorUnencryptingSecureString_F1 -f $name)
                         }
                     }
+                }
+
+                # If the prompt message failed to evaluate or was empty, supply a diagnostic prompt message
+                if (!$prompt) {
+                    $prompt = $LocalizedData.MissingParameterPrompt_F1 -f $name
                 }
 
                 # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists.
@@ -750,6 +783,9 @@ function Invoke-Plaster {
             $companyName = InterpolateAttributeValue $Node.companyName (GetErrorLocationNewModManifestAttrVal companyName)
             $description = InterpolateAttributeValue $Node.description (GetErrorLocationNewModManifestAttrVal description)
             $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationNewModManifestAttrVal destination)
+            $powerShellVersion = InterpolateAttributeValue $Node.powerShellVersion (GetErrorLocationNewModManifestAttrVal powerShellVersion)
+            $nestedModules = InterpolateAttributeValue $Node.NestedModules (GetErrorLocationNewModManifestAttrVal NestedModules)
+            $dscResourcesToExport = InterpolateAttributeValue $Node.DscResourcesToExport (GetErrorLocationNewModManifestAttrVal DscResourcesToExport)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -788,7 +824,8 @@ function Invoke-Plaster {
                     if ($? -and $oldModuleManifest) {
                         $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
                                  'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
-                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess'
+                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess', 'NestedModules',
+                                 'PowerShellVersion'
 
                         CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
                     }
@@ -808,6 +845,15 @@ function Invoke-Plaster {
                 }
                 if (![string]::IsNullOrWhiteSpace($description)) {
                     $newModuleManifestParams['Description'] = $description
+                }
+                if (![string]::IsNullOrWhiteSpace($powerShellVersion)) {
+                    $newModuleManifestParams['PowerShellVersion'] = $powerShellVersion
+                }
+                if (![string]::IsNullOrWhiteSpace($nestedModules)) {
+                    $newModuleManifestParams['NestedModules'] = $nestedModules
+                }
+                if (![string]::IsNullOrWhiteSpace($dscResourcesToExport)) {
+                    $newModuleManifestParams['DscResourcesToExport'] = $dscResourcesToExport
                 }
 
                 $tempFile = $null
@@ -1223,7 +1269,7 @@ function Invoke-Plaster {
                     # but if nothing was changed, I'd prefer not to generate a temp file, copy the unmodified contents
                     # into that temp file with hopefully the right encoding and then potentially overwrite the original file
                     # (different encoding will make the files look different) with the same contents but different encoding.
-                    # If the intent of the <modify> was simple to change an existing file's encoding then the directive will
+                    # If the intent of the <modify> was simply to change an existing file's encoding then the directive will
                     # need to make a whitespace change to the file.
                     if ($modified) {
                         $tempFile = [System.IO.Path]::GetTempFileName()

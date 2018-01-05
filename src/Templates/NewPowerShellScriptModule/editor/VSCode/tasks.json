@@ -9,28 +9,22 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-	"version": "0.1.0",
+	"version": "2.0.0",
 
-	// Start PowerShell
+    // Start PowerShell
     "windows": {
-        "command": "${env.windir}\\sysnative\\windowspowershell\\v1.0\\PowerShell.exe"
+        "command": "${env:windir}/System32/WindowsPowerShell/v1.0/powershell.exe",
+        //"command": "${env:ProgramFiles}/PowerShell/6.0.0/powershell.exe",
+        "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
     },
     "linux": {
-        "command": "/usr/bin/powershell"
+        "command": "/usr/bin/powershell",
+        "args": [ "-NoProfile" ]
     },
     "osx": {
-        "command": "/usr/local/bin/powershell"
+        "command": "/usr/local/bin/powershell",
+        "args": [ "-NoProfile" ]
     },
-
-	// The command is a shell script
-	"isShellCommand": true,
-
-	// Show the output window always
-	"showOutput": "always",
-
-    "args": [
-        "-NoProfile", "-ExecutionPolicy", "Bypass"
-    ],
 
     // Associate with test task runner
     "tasks": [
@@ -38,29 +32,11 @@
             "taskName": "Test",
             "suppressTaskName": true,
             "isTestCommand": true,
-            "showOutput": "always",
             "args": [
-                "Write-Host 'Invoking Pester'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};",
+                "Write-Host 'Invoking Pester...'; $ProgressPreference = 'SilentlyContinue'; Invoke-Pester -Script test -PesterOption @{IncludeVSCodeMarker=$true};",
                 "Invoke-Command { Write-Host 'Completed Test task in task runner.' }"
             ],
-            "problemMatcher": [
-                {
-                    "owner": "powershell",
-                    "fileLocation": ["absolute"],
-                    "severity": "error",
-                    "pattern": [
-                        {
-                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
-                            "message": 1
-                        },
-                        {
-                            "regexp": "^\\s+at\\s+[^,]+,\\s*(.*?):\\s+line\\s+(\\d+)$",
-                            "file": 1,
-                            "line": 2
-                        }
-                    ]
-                }
-            ]
+            "problemMatcher": "$pester"
         }
 	]
 }

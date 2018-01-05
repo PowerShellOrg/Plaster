@@ -4,18 +4,39 @@
         {
             "type": "PowerShell",
             "request": "launch",
-            "name": "PowerShell Launch (debugHarness.ps1)",
-            "program": "${workspaceRoot}/debugHarness.ps1",
+            "name": "PowerShell Interactive Session",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch debugHarness.ps1",
+            "script": "${workspaceRoot}/debugHarness.ps1",
             "args": [],
             "cwd": "${workspaceRoot}"
         },
         {
             "type": "PowerShell",
             "request": "launch",
-            "name": "PowerShell Launch (current file)",
-            "program": "${file}",
+            "name": "PowerShell Launch Current File",
+            "script": "${file}",
             "args": [],
             "cwd": "${file}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Pester Tests",
+            "script": "Invoke-Pester",
+            "args": [],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "attach",
+            "name": "PowerShell Attach to Host Process",
+            "processId": "${command:PickPSHostProcess}",
+            "runspaceId": 1
         }
     ]
 }

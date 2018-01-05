@@ -5,24 +5,24 @@
      http://www.xfront.com/Versioning.pdf
      -->
 <xs:schema
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
-	targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
-	elementFormDefault="qualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ptd="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+  targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+  elementFormDefault="qualified"
   attributeFormDefault="unqualified"
   version="1.1"
   xml:lang="en"
-	xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
-		vs:friendlyname="Plaster Manifest Schema"
-		vs:ishtmlschema="false">
+  xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
+    vs:friendlyname="Plaster Manifest Schema"
+    vs:ishtmlschema="false">
 
-	<xs:annotation>
-		<xs:documentation>
+  <xs:annotation>
+    <xs:documentation>
       Schema for a Plaster manifest file that is used to define
       the metadata, parameters and content of a template.  For information of
       the Plaster project see http://github.com/PowerShell/Plaster.
     </xs:documentation>
-	</xs:annotation>
+  </xs:annotation>
 
 
   <!-- **************************************************************** -->
@@ -59,8 +59,8 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="text"/>
-			<xs:enumeration value="user-fullname"/>
-			<xs:enumeration value="user-email"/>
+      <xs:enumeration value="user-fullname"/>
+      <xs:enumeration value="user-email"/>
       <xs:enumeration value="choice"/>
       <xs:enumeration value="multichoice"/>
     </xs:restriction>
@@ -213,6 +213,11 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="store" type="ptd:StoreFormatType"/>
+      <xs:attribute name="condition" type="ptd:condition">
+        <xs:annotation>
+          <xs:documentation>The condition which must be met for the parameter to be processed. If it evaluates to true then it will be processed. This condition will NOT be evaluated during dynamic parameter creation (so it will always be an available parameter at the invoke-plaster command line invocation of the template).</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -258,8 +263,8 @@
     <xs:annotation>
       <xs:documentation>The top-level element for a Plaster template manifest.</xs:documentation>
     </xs:annotation>
-		<xs:complexType>
-			<xs:sequence>
+    <xs:complexType>
+      <xs:sequence>
 
         <xs:element name="metadata" minOccurs="1" maxOccurs="1">
           <xs:annotation>
@@ -451,6 +456,21 @@
                   <xs:attribute name="condition" type="ptd:condition"/>
                   <xs:attribute name="encoding" type="ptd:encoding" default="Default"/>
                   <xs:attribute name="openInEditor" type="ptd:openInEditor"/>
+                  <xs:attribute name="powerShellVersion" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies the minimum PowerShell version required to load the module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="nestedModules" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies a nested Module.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="dscResourcesToExport" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Specifies a DSC resource to export.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
                 </xs:complexType>
               </xs:element>
 
@@ -498,7 +518,7 @@
             </xs:choice>
           </xs:complexType>
         </xs:element>
-    	</xs:sequence>
+      </xs:sequence>
 
       <xs:attribute name="schemaVersion" type="ptd:SchemaVersionType" use="required">
         <xs:annotation>

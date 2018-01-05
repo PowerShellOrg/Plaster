@@ -41,7 +41,7 @@ The `metadata` section contains information about the Plaster manifest itself an
 - `id`          - The ID is the unique identifier used for the storing users
 parameter data and makes sure that the store doesn't get used with another
 template. This field is automatically generated if not given a value.
-- `version`     - Version of the manifest. Defaults to 0.1.0.
+- `version`     - Version of the manifest. Defaults to 1.0.0.
 - `title`       - Manifest name used in menu lists. Defaults to `name`.
 - `description` - Manifest description summary.
 - `tags`        - Tags used to describe the purpose of the template.
@@ -74,6 +74,7 @@ Data for these parameters can be taken either as parameters to `Invoke-Plaster`,
 - `name`    - The name of the parameter. This is used as the identity to refer to and store the parameter value.
 - `type`    - the type of parameter, currently supported values are `text`, `choice`, `multichoice`, `user-fullname` and `user-email`.
 - `default` - The default value of the parameter, displayed in the UI inside parentheses. This is an optional attribute to assist users of your template. Default values for the `user-fullname` and `user-email` parameter types are retrieved from the user's .gitconfig if no stored value is available.
+- `condition` - A condition which, when evaluated to be True, allows for the interactive prompt to be displayed at the console for this parameter. If not specified, the interactive prompt is always displayed. It is important to note that this condition will *NOT* be evaluated during dynamic parameter creation. As such, it is possible for data to still be passed for this parameter via the command line invocation of invoke-plaster regardless of how this condition evaluates.
 - `store`   - Specifies the store type of the value. This is optional, as not all input data should necessarily be stored. Stored values will then be used as the default value the next time the template is run with `Invoke-Plaster`. The supported values are the same as the available parameter types and determines whether the stored value will be text, or encrypted. Stored data is saved to a user profile folder and the filename is a function of the template name and version (`Name-Version-ID.clixml`).
 
 Locations for the template input store differ based on operating system. Here is the list of possible locations and when they will be used:
@@ -327,15 +328,18 @@ Here is a simple example of the modify element, using a regular expressions:
 This element allows you to create a module manifest using the data that has been input to Plaster through Plaster parameters.
 
 Available attributes for this content element:
-- `destination`   - Specifies the relative path, under the destination folder, to where the file will be copied.
-- `author`        - Specifies the value of the Author property.
-- `companyName`   - Specifies the value of the CompanyName property.
-- `description`   - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
-- `moduleVersion` - Specifies the value of the ModuleVersion property.
-- `rootModule`    - Specifies the value of the RootModule property.
-- `encoding`      - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
-- `condition`     - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
-- `openInEditor`  - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
+- `destination`          - Specifies the relative path, under the destination folder, to where the file will be copied.
+- `author`               - Specifies the value of the Author property.
+- `companyName`          - Specifies the value of the CompanyName property.
+- `description`          - Specifies the value of the Description property. Note: this field is required for module submissions to the PowerShell Gallery.
+- `moduleVersion`        - Specifies the value of the ModuleVersion property.
+- `rootModule`           - Specifies the value of the RootModule property.
+- `encoding`             - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, the current file encoding will be used.
+- `condition`            - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
+- `openInEditor`         - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
+- `powerShellVersion`    - Specifies the minimum PowerShell version required to load the module.
+- `nestedModules`        - Specifies a nested Module.
+- `dscResourcesToExport` - Specifies a DSC resource to export.
 
 Here is an example of the `newModuleManifest` element:
 ```xml
@@ -344,7 +348,8 @@ Here is an example of the `newModuleManifest` element:
                    rootModule='${PLASTER_PARAM_ModuleName}.psm1'
                    author='$PLASTER_PARAM_FullName'
                    description='$PLASTER_PARAM_ModuleDesc'
-                   encoding='UTF8-NoBOM'/>
+                   encoding='UTF8-NoBOM'
+                   powershellVersion='5.1'/>
 ```
 
 ### Content element: RequireModule
@@ -426,6 +431,7 @@ In addition, the following commands are available:
 - Get-Module
 - Get-Variable
 - Test-Path
+- Compare-Object
 
 # EXAMPLES
 You can create a base Plaster manifest by running the New-PlasterManifest command.
