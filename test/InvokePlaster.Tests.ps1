@@ -29,7 +29,7 @@ Describe 'Invoke-Plaster Tests' {
 
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $DestPath -NoLogo 6> $null
 
-            Test-Path -LiteralPath $DestPath\foo.txt | Should Be $true
+            Test-Path -LiteralPath $DestPath\foo.txt | Should -Be $true
         }
 
         It 'Does not process conditional parameters that eval to false' {
@@ -62,7 +62,7 @@ Describe 'Invoke-Plaster Tests' {
 
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $DestPath -NoLogo 6> $null
 
-            Test-Path -LiteralPath $DestPath\foo.txt | Should Be $true
+            Test-Path -LiteralPath $DestPath\foo.txt | Should -Be $true
         }
 
         It 'PassThru generates object' {
@@ -92,14 +92,14 @@ Describe 'Invoke-Plaster Tests' {
 
             $res = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $DestPath -NoLogo -PassThru 6> $null
 
-            $res.Success | Should Be $true
-            $res.TemplateType | Should Be 'Project'
-            $res.TemplatePath -eq $TemplateDir | Should Be $true
-            $res.DestinationPath -eq $DestPath | Should Be $true
-            @($res.CreatedFiles)[0] | Should Be "$DestPath\foo.txt"
-            $res.UpdatedFiles.Count | Should Be 0
-            $res.MissingModules.Count | Should Be 0
-            @($res.OpenFiles)[0] | Should Be "$DestPath\foo.txt"
+            $res.Success | Should -Be $true
+            $res.TemplateType | Should -Be 'Project'
+            $res.TemplatePath -eq $TemplateDir | Should -Be $true
+            $res.DestinationPath -eq $DestPath | Should -Be $true
+            @($res.CreatedFiles)[0] | Should -Be "$DestPath\foo.txt"
+            $res.UpdatedFiles.Count | Should -Be 0
+            $res.MissingModules.Count | Should -Be 0
+            @($res.OpenFiles)[0] | Should -Be "$DestPath\foo.txt"
         }
     }
 }

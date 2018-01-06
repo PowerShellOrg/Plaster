@@ -27,7 +27,7 @@ Describe 'TemplateFile Directive Tests' {
 
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
 
-            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should BeExactly 0
+            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
         }
 
         It 'It does not crash when prompt evaluates to empty' {
@@ -58,7 +58,7 @@ Describe 'TemplateFile Directive Tests' {
 
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -Directory foo -NoLogo 6> $null
 
-            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should BeExactly 0
+            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
         }
     }
 }
