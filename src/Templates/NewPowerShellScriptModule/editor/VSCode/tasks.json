@@ -32,9 +32,7 @@
             "type": "shell",
             "group": "test",
             "command": "Invoke-Pester -Script test -PesterOption @{IncludeVSCodeMarker=$true}",
-            "problemMatcher": [
-                "$pester"
-            ]
+            "problemMatcher": [ "$pester" ]
         }
     ]
 }
