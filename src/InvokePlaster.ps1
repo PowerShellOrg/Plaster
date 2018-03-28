@@ -768,13 +768,79 @@ function Invoke-Plaster {
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
-        function CopyModuleManifestPropertyToHashtable([PSModuleInfo]$oldModuleManifest, [hashtable]$hashtable, [string[]]$Property) {
-            foreach ($prop in $Property) {
-                if ($oldModuleManifest.$prop) {
-                    $hashtable["$prop"] = $oldModuleManifest.$prop
+        function CopyModuleManifestPropertyToHashtable([PSModuleInfo]$oldModuleManifest, [hashtable]$hashtable) {
+            # Hashtable of PSModuleInfo Type to New-ModuleManifest Property name mappings
+            $property = @{'ExportedAliases'='AliasesToExport'
+                          'Author'='Author'
+                          'CLRVersion'='CLRVersion'
+                          'ExportedCmdlets'='CmdletsToExport'
+                          'CompanyName'='CompanyName'
+                          'Copyright'='Copyright'
+                          'Prefix'='DefaultCommandPrefix'
+                          'Description'='Description'
+                          'DotNetFrameworkVersion'='DotNetFrameworkVersion'
+                          'ExportedDscResources'='DscResourcesToExport'
+                          'FileList'='FileList'
+                          'ExportedFormatFiles'='FormatsToProcess'
+                          'ExportedFunctions'='FunctionsToExport'
+                          'Guid'='Guid'
+                          'HelpInfoUri'='HelpInfoUri'
+                          'IconUri'='IconUri'
+                          'LicenseUri'='LicenseUri'
+                          'ModuleList'='ModuleList'
+                          'Version'='ModuleVersion'
+                          'NestedModules'='NestedModules'
+                          'PowerShellHostName'='PowerShellHostName'
+                          'PowerShellHostVersion'='PowerShellHostVersion'
+                          'PowerShellVersion'='PowerShellVersion'
+                          'ProcessorArchitecture'='ProcessorArchitecture'
+                          'ProjectUri'='ProjectUri'
+                          'ReleaseNotes'='ReleaseNotes'
+                          'RequiredAssemblies'='RequiredAssemblies'
+                          'RequiredModules'='RequiredModules'
+                          'RootModule'='RootModule'
+                          'Scripts'='ScriptsToProcess'
+                          'Tags'='Tags'
+                          'ExportedTypefiles'='TypesToProcess'
+                          'ExportedVariables'='VariablesToExport'
+                         }
+            foreach ($prop in $Property.GetEnumerator()) {
+            if ($oldModuleManifest.$($prop.Name)) {
+
+                # Process properties based on their type
+                switch (($oldModuleManifest.$($prop.Name).GetType()).Name) {
+                    'Dictionary`2' {
+                        $Result=$oldModuleManifest.$($prop.Name).Keys
+
+                        # Remove DefaultCommandPrefix from keynames if Present
+                        If ($oldModuleManifest.Prefix) {
+                            $ResultWithoutPrefix=@()
+                            Foreach ($ResultEntry in $Result) {
+                                $ResultWithoutPrefix+=([RegEx]$oldModuleManifest.Prefix).Replace($ResultEntry,'',1)
+                            }
+                            $Result=$ResultWithoutPrefix
+                        }
+                    }
+                    'ReadOnlyCollection`1' {
+                        $Result=$oldModuleManifest.$($prop.Name).Name
+                    }
+                    'Guid' {
+                        # Skip adding GUID property to hashtable if it is '0'
+                        If ($oldModuleManifest.$($prop.Name) -eq '00000000-0000-0000-0000-000000000000') {
+                            Continue PropertyLoop
+                        }
+                        Else {
+                            $Result=$oldModuleManifest.$($prop.Name)
+                        }
                 }
+                    default {
+                        $Result=$oldModuleManifest.$($prop.Name)
+                    }
+                }
+                $hashtable[$prop.Value] = $Result
             }
         }
+    }
 
         function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
             $moduleVersion = InterpolateAttributeValue $Node.moduleVersion (GetErrorLocationNewModManifestAttrVal moduleVersion)
@@ -822,12 +888,7 @@ function Invoke-Plaster {
                 if (Test-Path -LiteralPath $dstPath) {
                     $oldModuleManifest = Test-ModuleManifest -Path $dstPath -ErrorAction SilentlyContinue
                     if ($? -and $oldModuleManifest) {
-                        $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
-                                 'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
-                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess', 'NestedModules',
-                                 'PowerShellVersion'
-
-                        CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
+                        CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams
                     }
                 }
 
