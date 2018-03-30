@@ -1134,7 +1134,7 @@ function Invoke-Plaster {
                         # Eval script expression delimiters
                         if ($content -and ($content.Count -gt 0)) {
                             # Sets the Variable to the currently used template
-                            Set-Variable -Name PLASTER_TemplateSource -Value $srcPath -Scope Script
+                            Set-Variable -Name PLASTER_TemplateFileSource -Value $srcPath -Scope Script
                             $newContent = [regex]::Replace($content, '(<%=)(.*?)(%>)', {
                                 param($match)
                                 $expr = $match.groups[2].value
@@ -1514,14 +1514,3 @@ function GetPlasterManifestPathForCulture([string]$TemplatePath, [ValidateNotNul
 
     $null
 }
-
-
-# Dot source the individual module command scripts.
-. .\NewPlasterManifest.ps1
-. .\TestPlasterManifest.ps1
-. .\GetPlasterTemplate.ps1
-# . .\InvokePlaster.ps1
-. .\WritePlasterParameter.ps1
-. .\WritePlasterManifestContent.ps1
-
-Invoke-Plaster c:\GitWork\Clones\GitHub\¬Tom\ModuleBuild\release\ModuleBuild\plaster\ModuleBuild\ c:\Temp\--\-PSModul\ModuleBuildTest2\
