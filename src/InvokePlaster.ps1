@@ -804,7 +804,7 @@ function Invoke-Plaster {
                           'ExportedTypefiles'='TypesToProcess'
                           'ExportedVariables'='VariablesToExport'
                          }
-            foreach ($prop in $Property.GetEnumerator()) {
+            :PropertyLoop foreach ($prop in $Property.GetEnumerator()) {
             if ($oldModuleManifest.$($prop.Name)) {
 
                 # Process properties based on their type
