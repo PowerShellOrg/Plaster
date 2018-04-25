@@ -17,11 +17,11 @@
         "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
     },
     "linux": {
-        "command": "/usr/bin/powershell",
+        "command": "/usr/bin/pwsh",
         "args": [ "-NoProfile" ]
     },
     "osx": {
-        "command": "/usr/local/bin/powershell",
+        "command": "/usr/local/bin/pwsh",
         "args": [ "-NoProfile" ]
     },
 
