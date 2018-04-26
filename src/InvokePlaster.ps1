@@ -768,14 +768,6 @@ function Invoke-Plaster {
             Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
         }
 
-        function CopyModuleManifestPropertyToHashtable([PSModuleInfo]$oldModuleManifest, [hashtable]$hashtable, [string[]]$Property) {
-            foreach ($prop in $Property) {
-                if ($oldModuleManifest.$prop) {
-                    $hashtable["$prop"] = $oldModuleManifest.$prop
-                }
-            }
-        }
-
         function ProcessNewModuleManifest([ValidateNotNull()]$Node) {
             $moduleVersion = InterpolateAttributeValue $Node.moduleVersion (GetErrorLocationNewModManifestAttrVal moduleVersion)
             $rootModule = InterpolateAttributeValue $Node.rootModule (GetErrorLocationNewModManifestAttrVal rootModule)
@@ -820,14 +812,11 @@ function Invoke-Plaster {
                 # If there is an existing module manifest, load it so we can reuse old values not specified by
                 # template.
                 if (Test-Path -LiteralPath $dstPath) {
-                    $oldModuleManifest = Test-ModuleManifest -Path $dstPath -ErrorAction SilentlyContinue
-                    if ($? -and $oldModuleManifest) {
-                        $props = 'Guid', 'Description', 'DefaultCommandPrefix', 'RootModule', 'AliasesToExport',
-                                 'CmdletsToExport', 'DscResourcesToExport', 'VariablesToExport',
-                                 'FormatsToProcess', 'TypesToProcess', 'ScriptsToProcess', 'NestedModules',
-                                 'PowerShellVersion'
-
-                        CopyModuleManifestPropertyToHashtable $oldModuleManifest $newModuleManifestParams $props
+                    $manifestFileName = Split-Path $dstPath -leaf
+                    $newModuleManifestParams = Import-LocalizedData -BaseDirectory $manifestDir -FileName $manifestFileName
+                    if ($newModuleManifestParams.PrivateData) {
+                        $newModuleManifestParams += $newModuleManifestParams.PrivateData.psdata
+                        $newModuleManifestParams.Remove('PrivateData')
                     }
                 }
 
