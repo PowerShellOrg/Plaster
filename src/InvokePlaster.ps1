@@ -812,10 +812,10 @@ function Invoke-Plaster {
                 # If there is an existing module manifest, load it so we can reuse old values not specified by
                 # template.
                 if (Test-Path -LiteralPath $dstPath) {
-                    $manifestFileName=Split-Path $dstPath -leaf
+                    $manifestFileName = Split-Path $dstPath -leaf
                     $newModuleManifestParams = Import-LocalizedData -BaseDirectory $manifestDir -FileName $manifestFileName
                     if ($newModuleManifestParams.PrivateData) {
-                        $newModuleManifestParams+=$newModuleManifestParams.PrivateData.psdata
+                        $newModuleManifestParams += $newModuleManifestParams.PrivateData.psdata
                         $newModuleManifestParams.Remove('PrivateData')
                     }
                 }
