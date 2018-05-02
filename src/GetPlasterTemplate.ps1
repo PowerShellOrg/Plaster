@@ -31,6 +31,7 @@ function Get-PlasterTemplate {
             $metadata = $manifestXml["plasterManifest"]["metadata"]
 
             $manifestObj = [PSCustomObject]@{
+                Name = $metadata["name"].InnerText
                 Title = $metadata["title"].InnerText
                 Author = $metadata["author"].InnerText
                 Version = New-Object -TypeName "System.Version" -ArgumentList $metadata["version"].InnerText
