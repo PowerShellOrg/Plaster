@@ -12,12 +12,19 @@ function Get-PlasterTemplate {
 
         [Parameter(Position=1,
         ParameterSetName="Path",
-        HelpMessage="Return templates that match the name. Supports wildcards.")]
+        HelpMessage="Will return templates that match the name.")]
         [Parameter(Position=1,
         ParameterSetName="IncludedTemplates",
-        HelpMessage="Return templates that match the name. Supports wildcards.")]
+        HelpMessage="Will return templates that match the name.")]
         [string]
         $Name = "*",
+
+        [Parameter(ParameterSetName="Path",
+        HelpMessage="Will return templates that match the tag.")]
+        [Parameter(ParameterSetName="IncludedTemplates",
+        HelpMessage="Will return templates that match the tag.")]
+        [string]
+        $Tag = "*",
 
         [Parameter(ParameterSetName="Path",
                    HelpMessage="Indicates that this cmdlet gets the items in the specified locations and in all child items of the locations.")]
@@ -34,7 +41,7 @@ function Get-PlasterTemplate {
     )
 
     process {
-        function CreateTemplateObjectFromManifest([System.IO.FileInfo]$manifestPath, [string]$name) {
+        function CreateTemplateObjectFromManifest([System.IO.FileInfo]$manifestPath, [string]$name, [string]$tag) {
 
             $manifestXml = Test-PlasterManifest -Path $manifestPath
             $metadata = $manifestXml["plasterManifest"]["metadata"]
@@ -50,13 +57,14 @@ function Get-PlasterTemplate {
             }
 
             $manifestObj.PSTypeNames.Insert(0, "Microsoft.PowerShell.Plaster.PlasterTemplate")
-            return $manifestObj | Where-Object Name -like $name
+            Add-Member -MemberType ScriptMethod -InputObject $manifestObj -Name "InvokePlaster" -Value {Invoke-Plaster -TemplatePath $this.TemplatePath}
+            return $manifestObj | Where-Object Name -like $name | Where-Object Tags -like $tag
         }
 
-        function GetManifestsUnderPath([string]$rootPath, [bool]$recurse, [string]$name) {
+        function GetManifestsUnderPath([string]$rootPath, [bool]$recurse, [string]$name, [string]$tag) {
             $manifestPaths = Get-ChildItem -Path $rootPath -Include "plasterManifest.xml" -Recurse:$recurse
             foreach ($manifestPath in $manifestPaths) {
-                CreateTemplateObjectFromManifest $manifestPath $Name -ErrorAction SilentlyContinue
+                CreateTemplateObjectFromManifest $manifestPath $name $tag -ErrorAction SilentlyContinue
             }
         }
 
@@ -69,16 +77,16 @@ function Get-PlasterTemplate {
 
                 # Use Test-PlasterManifest to load the manifest file
                 Write-Verbose "Attempting to get Plaster template at path: $Path"
-                CreateTemplateObjectFromManifest $Path $Name
+                CreateTemplateObjectFromManifest $Path $Name $Tag
             }
             else {
                 Write-Verbose "Attempting to get Plaster templates recursively under path: $Path"
-                GetManifestsUnderPath $Path $Recurse.IsPresent $name
+                GetManifestsUnderPath $Path $Recurse.IsPresent $Name $Tag
             }
         }
         else {
             # Return all templates included with Plaster
-            GetManifestsUnderPath "$PSScriptRoot\Templates" $true $Name
+            GetManifestsUnderPath "$PSScriptRoot\Templates" $true $Name $Tag
 
             if ($IncludeInstalledModules.IsPresent) {
                 # Search for templates in module path
@@ -93,7 +101,7 @@ function Get-PlasterTemplate {
                                 $templatePath,
                                 "plasterManifest.xml")
 
-                        CreateTemplateObjectFromManifest $expandedTemplatePath $Name -ErrorAction SilentlyContinue
+                        CreateTemplateObjectFromManifest $expandedTemplatePath $Name $Tag -ErrorAction SilentlyContinue
                     }
                 }
             }

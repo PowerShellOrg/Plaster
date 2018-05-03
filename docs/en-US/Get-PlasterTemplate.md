@@ -14,12 +14,12 @@ cmdlet.
 
 ### Path
 ```
-Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [-Recurse] [<CommonParameters>]
+Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [[-Tag] <String>] [-Recurse] [<CommonParameters>]
 ```
 
 ### IncludedTemplates
 ```
-Get-PlasterTemplate [-IncludeInstalledModules] [[-Name] <String>] [<CommonParameters>]
+Get-PlasterTemplate [-IncludeInstalledModules] [[-Name] <String>] [[-Tag] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -28,6 +28,7 @@ the set of templates that are shipped with Plaster.  Specifying no arguments wil
 cause only the built-in Plaster templates to be returned.  Using the -IncludeInstalledModules
 switch will also search the PSModulePath for PowerShell modules that advertise
 Plaster templates that they include. Using the -Name parameter limits the results based on name.
+Using the -Tag parameter limits the results based on the template tags.
 
 
 The objects returned from this cmdlet will provide details about each individual
@@ -87,6 +88,18 @@ PS C:\> Invoke-Plaster -TemplatePath $templates[0].TemplatePath -DestinationPath
 This will get a list of Plaster templates, both built-in and included with installed
 modules, where the name matches 'new*'.
 It will then use the first template found to create a new module at the specified path.
+
+### Example 6
+```
+PS C:\> $templates = Get-PlasterTemplate -IncludeInstalledModules -tag module*
+
+PS C:\> $templates[0].InvokePlaster()
+```
+
+This will get a list of Plaster templates, both built-in and included with installed
+modules, where the name matches 'module*'.
+It will then use the first template found to create a new module at the specified path
+using the InvokePlaster script method that is available on the returned object.
 ## PARAMETERS
 
 ### -IncludeInstalledModules
@@ -125,6 +138,21 @@ Indicates that this cmdlet gets the items in the specified locations and in all 
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: Path
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Name
+Limits the templates returned to those that match the template name. Wildcard characters are permitted.
+
+```yaml
+Type: String
 Parameter Sets: Path, IncludedTemplates
 Aliases:
 
@@ -135,17 +163,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
-Limits the templates returned to those that match the template name. Wildcard characters are permitted.
+### -Tag
+Limits the templates returned to those that match the template tags. Wildcard characters are permitted.
 
 ```yaml
 Type: String
-Parameter Sets: Path
+Parameter Sets: Path, IncludedTemplates
 Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: *
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,6 +199,10 @@ This output object provides the following properties:
 - Description: Text describing the template and what it creates
 - Tags: A list of tag strings which categorize the template
 - TemplatePath: The template's folder path in the filesystem
+
+This output object provides the following methods:
+
+- InvokePlaster(): Runs Invoke-Plaster against the template
 
 ## NOTES
 
