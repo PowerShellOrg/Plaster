@@ -418,7 +418,7 @@ In addition to these variables, Plaster defines a set of built-in variables:
 - PLASTER_Guid5           - Randomly generated GUID value
 - PLASTER_Date            - Date in short date string format e.g. 10/31/2016
 - PLASTER_Time            - Time in short time string format e.g. 5:11 PM
-- PLASTER_Year            - The four digit yearf
+- PLASTER_Year            - The four digit year
 
 In this constrained runspace, you have access to the Environment and FileSystem providers.
 In addition, the following commands are available:
