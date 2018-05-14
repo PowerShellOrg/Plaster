@@ -11,18 +11,20 @@ function Get-PlasterTemplate {
         $Path,
 
         [Parameter(Position=1,
-        ParameterSetName="Path",
-        HelpMessage="Will return templates that match the name.")]
+                   ParameterSetName="Path",
+                   HelpMessage="Will return templates that match the name.")]
         [Parameter(Position=1,
-        ParameterSetName="IncludedTemplates",
-        HelpMessage="Will return templates that match the name.")]
+                   ParameterSetName="IncludedTemplates",
+                   HelpMessage="Will return templates that match the name.")]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Name = "*",
 
         [Parameter(ParameterSetName="Path",
-        HelpMessage="Will return templates that match the tag.")]
+                   HelpMessage="Will return templates that match the tag.")]
         [Parameter(ParameterSetName="IncludedTemplates",
-        HelpMessage="Will return templates that match the tag.")]
+                   HelpMessage="Will return templates that match the tag.")]
+        [ValidateNotNullOrEmpty()]
         [string]
         $Tag = "*",
 
