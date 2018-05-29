@@ -1,5 +1,7 @@
 # Plaster Release History
 
+## 1.1.2 - (Unreleased)
+
 ## 1.1.1 - 2017-10-26
 
 ### Fixed
