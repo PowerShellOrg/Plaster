@@ -1,33 +1,41 @@
+# Use the PowerShell extension setting `powershell.scriptAnalysis.settingsPath` to get the current workspace
+# to use this PSScriptAnalyzerSettings.psd1 file to configure code analysis in Visual Studio Code.
+# This setting is configured in the workspace's `.vscode\settings.json`.
+#
+# For more information on PSScriptAnalyzer settings see:
+# https://github.com/PowerShell/PSScriptAnalyzer/blob/master/README.md#settings-support-in-scriptanalyzer
+#
+# You can see the predefined PSScriptAnalyzer settings here:
+# https://github.com/PowerShell/PSScriptAnalyzer/tree/master/Engine/Settings
 @{
-    # Use Severity when you want to limit the generated diagnostic records to a
-    # subset of: Error, Warning and Information.
+    # Only diagnostic records of the specified severity will be generated.
     # Uncomment the following line if you only want Errors and Warnings but
     # not Information diagnostic records.
     #Severity = @('Error','Warning')
 
-    # Use IncludeRules when you want to run only a subset of the default rule set.
-    #IncludeRules = @('PSAvoidDefaultValueSwitchParameter',
-    #                 'PSMissingModuleManifestField',
-    #                 'PSReservedCmdletChar',
-    #                 'PSReservedParams',
-    #                 'PSShouldProcess',
-    #                 'PSUseApprovedVerbs',
-    #                 'PSUseDeclaredVarsMoreThanAssigments')
+    # Analyze **only** the following rules. Use IncludeRules when you want
+    # to invoke only a small subset of the default rules.
+    IncludeRules = @('PSAvoidDefaultValueSwitchParameter',
+                     'PSMisleadingBacktick',
+                     'PSMissingModuleManifestField',
+                     'PSReservedCmdletChar',
+                     'PSReservedParams',
+                     'PSShouldProcess',
+                     'PSUseApprovedVerbs',
+                     'PSAvoidUsingCmdletAliases',
+                     'PSUseDeclaredVarsMoreThanAssignments')
 
-    # Use ExcludeRules when you want to run most of the default set of rules except
-    # for a few rules you wish to "exclude".  Note: if a rule is in both IncludeRules
-    # and ExcludeRules, the rule will be excluded.
-    #ExcludeRules = @('PSAvoidUsingWriteHost','PSMissingModuleManifestField')
+    # Do not analyze the following rules. Use ExcludeRules when you have
+    # commented out the IncludeRules settings above and want to include all
+    # the default rules except for those you exclude below.
+    # Note: if a rule is in both IncludeRules and ExcludeRules, the rule
+    # will be excluded.
+    #ExcludeRules = @('PSAvoidUsingWriteHost')
 
-    # You can use the following entry to supply parameters to rules that take parameters.
-    # For instance, the PSAvoidUsingCmdletAliases rule takes a whitelist for aliases you
-    # want to allow.
+    # You can use rule configuration to configure rules that support it:
     #Rules = @{
-    #    Do not flag 'cd' alias.
-    #    PSAvoidUsingCmdletAliases = @{Whitelist = @('cd')}
-
-    #    Check if your script uses cmdlets that are compatible on PowerShell Core,
-    #    version 6.0.0-alpha, on Linux.
-    #    PSUseCompatibleCmdlets = @{Compatibility = @("core-6.0.0-alpha-linux")}
+    #    PSAvoidUsingCmdletAliases = @{
+    #        Whitelist = @("cd")
+    #    }
     #}
 }
