@@ -2,6 +2,15 @@
 
 ## 1.1.4 - (Unreleased)
 
+## Fixed
+
+- Write destination path with Write-Host so it doesn't add extra output when -PassThru specified
+  [#326](https://github.com/PowerShell/Plaster/issues/326).
+
+## Changed
+
+- Updated PSScriptAnalyzerSettings.psd1 template file to sync w/latest in vscode-powershell examples.
+
 ## 1.1.1 - 2017-10-26
 
 ### Fixed

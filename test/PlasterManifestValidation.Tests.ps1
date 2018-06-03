@@ -234,7 +234,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
         }
 
         It 'Throws on newModuleManifest destination that is absolute path' {
@@ -260,7 +260,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
         }
 
         It 'Throws on templateFile destination that is absolute path' {
@@ -283,7 +283,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
         }
 
         It 'Throws on modify relativePath outside of DestinationPath' {
@@ -312,7 +312,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
         }
 
         It 'Throws on newModuleManifest relativePath outside of DestinationPath' {
@@ -338,7 +338,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
         }
 
         It 'Throws on templateFile relativePath outside of DestinationPath' {
@@ -361,7 +361,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
         }
     }
 }

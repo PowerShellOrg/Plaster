@@ -23,7 +23,6 @@ $PlasterParams = @{
     DestinationPath = $OutDir
     ModuleName = 'FooUtils'
     Version = '1.2.0'
-    AddTest = 'Yes'
     Editor = 'VSCode'
     PassThru = $true
 }
@@ -49,4 +48,7 @@ $PlasterParams = @{
 #     PassThru = $true
 # }
 
-Invoke-Plaster @PlasterParams -Force
+$obj = Invoke-Plaster @PlasterParams -Force
+
+"PassThru object is:"
+$obj
