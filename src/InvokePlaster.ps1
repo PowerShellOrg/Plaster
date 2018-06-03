@@ -1411,7 +1411,7 @@ function Invoke-Plaster {
             }
 
             # Output the DestinationPath
-            $LocalizedData.DestPath_F1 -f $destinationAbsolutePath
+            Write-Host ($LocalizedData.DestPath_F1 -f $destinationAbsolutePath)
 
             # Process content
             foreach ($node in $manifest.plasterManifest.content.ChildNodes) {

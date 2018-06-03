@@ -38,7 +38,7 @@
     CompanyName = 'Microsoft Corporation'
 
     # Copyright statement for this module
-    Copyright = '(c) Microsoft Corporation 2016. All rights reserved.'
+    Copyright = '(c) Microsoft Corporation 2016-2018. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'Plaster scaffolds PowerShell projects and files.'
