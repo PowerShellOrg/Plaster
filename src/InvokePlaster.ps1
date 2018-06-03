@@ -786,7 +786,7 @@ function Invoke-Plaster {
             $powerShellVersion = InterpolateAttributeValue $Node.powerShellVersion (GetErrorLocationNewModManifestAttrVal powerShellVersion)
             $nestedModules = InterpolateAttributeValue $Node.NestedModules (GetErrorLocationNewModManifestAttrVal NestedModules)
             $dscResourcesToExport = InterpolateAttributeValue $Node.DscResourcesToExport (GetErrorLocationNewModManifestAttrVal DscResourcesToExport)
-			$copyRight = InterpolateAttributeValue $Node.copyright (GetErrorLocationNewModManifestAttrVal copyright)
+            $copyright = InterpolateAttributeValue $Node.copyright (GetErrorLocationNewModManifestAttrVal copyright)
 
             # We could choose to not check this if the condition eval'd to false
             # but I think it is better to let the template author know they've broken the
@@ -844,6 +844,9 @@ function Invoke-Plaster {
                 if (![string]::IsNullOrWhiteSpace($companyName)) {
                     $newModuleManifestParams['CompanyName'] = $companyName
                 }
+                if (![string]::IsNullOrWhiteSpace($copyright)) {
+                    $newModuleManifestParams['Copyright'] = $copyright
+                }
                 if (![string]::IsNullOrWhiteSpace($description)) {
                     $newModuleManifestParams['Description'] = $description
                 }
@@ -856,9 +859,7 @@ function Invoke-Plaster {
                 if (![string]::IsNullOrWhiteSpace($dscResourcesToExport)) {
                     $newModuleManifestParams['DscResourcesToExport'] = $dscResourcesToExport
                 }
-				if (![string]::IsNullOrWhiteSpace($copyRight)) {
-                    $newModuleManifestParams['copyRight'] = $copyRight
-                }
+
                 $tempFile = $null
 
                 try {
