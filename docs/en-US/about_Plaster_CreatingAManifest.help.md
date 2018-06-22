@@ -349,7 +349,7 @@ Here is an example of the `newModuleManifest` element:
                    author='$PLASTER_PARAM_FullName'
                    description='$PLASTER_PARAM_ModuleDesc'
                    encoding='UTF8-NoBOM'
-                   powershellVersion='5.1'/>
+                   powerShellVersion='5.1'/>
 ```
 
 ### Content element: RequireModule
