@@ -10,7 +10,7 @@
   targetNamespace="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
   elementFormDefault="qualified"
   attributeFormDefault="unqualified"
-  version="1.1"
+  version="1.2"
   xml:lang="en"
   xmlns:vs="http://schemas.microsoft.com/Visual-Studio-Intellisense"
     vs:friendlyname="Plaster Manifest Schema"
@@ -436,6 +436,11 @@
                   <xs:attribute name="companyName" type="xs:string">
                     <xs:annotation>
                       <xs:documentation>Specifies the value of the CompanyName property.</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="copyright" type="xs:string">
+                   <xs:annotation>
+                      <xs:documentation>Specifies the value of the Copyright property.</xs:documentation>
                     </xs:annotation>
                   </xs:attribute>
                   <xs:attribute name="description" type="xs:string">
