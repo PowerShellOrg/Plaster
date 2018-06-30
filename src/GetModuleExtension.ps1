@@ -5,7 +5,7 @@ function Get-ModuleExtension {
         $ModuleName,
 
         [Version]
-        $ModuleVersion
+        $ModuleVersion,
         
         [Switch]
         $AllVersions
