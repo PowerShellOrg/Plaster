@@ -8,12 +8,12 @@ function Get-ModuleExtension {
         $ModuleVersion,
         
         [Switch]
-        $AllVersions
+        $ListAvailable
     )
 
     #Only get the latest version of each module
     $modules = Get-Module -ListAvailable 
-    if (!$AllVersions) {
+    if (!$ListAvailable) {
         $modules = $modules | 
             Group-Object Name | 
             Foreach-Object {
