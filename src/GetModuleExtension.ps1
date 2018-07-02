@@ -13,7 +13,7 @@ function Get-ModuleExtension {
 
     #Only get the latest version of each module
     $modules = Get-Module -ListAvailable 
-    if (-not $AllVersions) {
+    if (!$AllVersions) {
         $modules = $modules | 
             Group-Object Name | 
             Foreach-Object {
