@@ -5,10 +5,24 @@ function Get-ModuleExtension {
         $ModuleName,
 
         [Version]
-        $ModuleVersion
+        $ModuleVersion,
+        
+        [Switch]
+        $ListAvailable
     )
 
-    $modules = Get-Module -ListAvailable
+    #Only get the latest version of each module
+    $modules = Get-Module -ListAvailable 
+    if (!$ListAvailable) {
+        $modules = $modules | 
+            Group-Object Name | 
+            Foreach-Object {
+                $_.group | 
+                    Sort-Object Version | 
+                    Select-Object -Last 1
+            }
+    }
+        
     Write-Verbose "`nFound $($modules.Length) installed modules to scan for extensions."
 
     function ParseVersion($versionString) {
