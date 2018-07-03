@@ -41,7 +41,7 @@ function Get-PlasterTemplate {
         [Alias("IncludeModules")]
         $IncludeInstalledModules,
         
-        [Parameter(ParameterSetName="Path",
+        [Parameter(ParameterSetName="IncludedTemplates",
                    HelpMessage="If specified, searches for Plaster templates inside of all installed module versions.")]
         [switch]
         $ListAvailable
