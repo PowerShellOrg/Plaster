@@ -36,13 +36,13 @@ function Get-PlasterTemplate {
         [Parameter(Position=0,
                    Mandatory=$true,
                    ParameterSetName="IncludedTemplates",
-                   HelpMessage="Initiates a search for Plaster templates inside of installed modules. By default, this retrieves from the latest version available for each module.")]
+                   HelpMessage="Initiates a search for latest version Plaster templates inside of installed modules.")]
         [switch]
         [Alias("IncludeModules")]
         $IncludeInstalledModules,
         
         [Parameter(ParameterSetName="Path",
-                   HelpMessage="If specified, searches for Plaster templates inside of all installed module versions. This may return multiple templates for each module.")]
+                   HelpMessage="If specified, searches for Plaster templates inside of all installed module versions.")]
         [switch]
         $ListAvailable
     )
