@@ -19,15 +19,18 @@ Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [[-Tag] <String>] [-Re
 
 ### IncludedTemplates
 ```
-Get-PlasterTemplate [-IncludeInstalledModules] [[-Name] <String>] [[-Tag] <String>] [<CommonParameters>]
+Get-PlasterTemplate [-IncludeInstalledModules] [-ListAvailable] [[-Name] <String>] [[-Tag] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Retrieves a list of available Plaster templates from the specified path or from
 the set of templates that are shipped with Plaster.  Specifying no arguments will
 cause only the built-in Plaster templates to be returned.  Using the -IncludeInstalledModules
 switch will also search the PSModulePath for PowerShell modules that advertise
-Plaster templates that they include. Using the -Name parameter limits the results based on name.
+Plaster templates that they include. By default, this retrieves the latest version available
+for each module. Using the -ListAvailable parameter will return all templates from all module
+versions installed on this computer. Using the -Name parameter limits the results based on name.
 Using the -Tag parameter limits the results based on the template tags.
 
 
