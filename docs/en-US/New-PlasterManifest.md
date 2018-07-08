@@ -1,5 +1,6 @@
 ---
 external help file: Plaster-help.xml
+Module Name: Plaster
 online version: https://github.com/PowerShell/Plaster/blob/master/docs/en-US/New-PlasterManifest.md
 schema: 2.0.0
 ---
@@ -77,7 +78,7 @@ manifest's content element.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -92,7 +93,7 @@ Specifies the author of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 8
@@ -127,7 +128,7 @@ tests, building with psake and publishing to the PowerShell Gallery."
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 6
@@ -149,7 +150,7 @@ template.
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 3
@@ -170,7 +171,7 @@ The default, if no value is provided is to create plasterManifest.xml in the cur
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 0
@@ -186,7 +187,7 @@ Users can search for templates based on these tags.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 7
@@ -205,7 +206,7 @@ The name is limited to the characters: aA-zZ0-9_-.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
 Position: 1
@@ -223,7 +224,7 @@ empty workspace or if it adds an item to an existing workspace.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 Accepted values: Item, Project
 
 Required: True
@@ -239,7 +240,7 @@ Specifies the version of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 4
@@ -257,7 +258,7 @@ A typical title might be "New DSC Resource" or "New PowerShell Module".
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: 5

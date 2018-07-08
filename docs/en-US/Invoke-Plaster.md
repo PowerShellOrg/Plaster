@@ -1,5 +1,6 @@
 ---
 external help file: Plaster-help.xml
+Module Name: Plaster
 online version: https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Invoke-Plaster.md
 schema: 2.0.0
 ---
@@ -65,7 +66,7 @@ If the directory does not exist, it will be created.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
 Position: 1
@@ -82,7 +83,7 @@ prompt and allow the template to overwrite existing files.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -97,7 +98,7 @@ Suppresses the display of the Plaster logo.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -119,7 +120,7 @@ Returns an InvokePlasterInfo object with the following fields:
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
@@ -134,7 +135,7 @@ Specifies the path to the template directory.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
 Position: 0
