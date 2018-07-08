@@ -1,5 +1,6 @@
 ---
 external help file: Plaster-help.xml
+Module Name: Plaster
 online version: https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Get-PlasterTemplate.md
 schema: 2.0.0
 ---
@@ -14,16 +15,16 @@ cmdlet.
 
 ### Path
 ```
-Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [[-Tag] <String>] [-Recurse] [<CommonParameters>]
+Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [-Tag <String>] [-Recurse] [<CommonParameters>]
 ```
 
 ### IncludedTemplates
 ```
-Get-PlasterTemplate [-IncludeInstalledModules] [-ListAvailable] [[-Name] <String>] [[-Tag] <String>] [<CommonParameters>]
+Get-PlasterTemplate [[-Name] <String>] [-Tag <String>] [-IncludeInstalledModules] [-ListAvailable]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-
 Retrieves a list of available Plaster templates from the specified path or from
 the set of templates that are shipped with Plaster.  Specifying no arguments will
 cause only the built-in Plaster templates to be returned.  Using the -IncludeInstalledModules
@@ -103,6 +104,7 @@ This will get a list of Plaster templates, both built-in and included with insta
 modules, where the name matches 'module*'.
 It will then use the first template found to create a new module at the specified path
 using the InvokePlaster script method that is available on the returned object.
+
 ## PARAMETERS
 
 ### -IncludeInstalledModules
@@ -120,6 +122,34 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ListAvailable
+If specified, searches for Plaster templates inside of all installed module versions.```yaml
+Type: SwitchParameter
+Parameter Sets: IncludedTemplates
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Name
+Limits the templates returned to those that match the template name. Wildcard characters are permitted.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: 1
+Default value: *
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Path
 Specifies a path to a folder containing a Plaster template or multiple template folders.
 Can also be a path to plasterManifest.xml.
@@ -127,7 +157,7 @@ Can also be a path to plasterManifest.xml.
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases:
+Aliases: 
 
 Required: False
 Position: 0
@@ -142,26 +172,11 @@ Indicates that this cmdlet gets the items in the specified locations and in all 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Path
-Aliases:
+Aliases: 
 
 Required: False
 Position: Named
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-Limits the templates returned to those that match the template name. Wildcard characters are permitted.
-
-```yaml
-Type: String
-Parameter Sets: Path, IncludedTemplates
-Aliases:
-
-Required: False
-Position: 1
-Default value: *
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,8 +186,8 @@ Limits the templates returned to those that match the template tags. Wildcard ch
 
 ```yaml
 Type: String
-Parameter Sets: Path, IncludedTemplates
-Aliases:
+Parameter Sets: (All)
+Aliases: 
 
 Required: False
 Position: Named

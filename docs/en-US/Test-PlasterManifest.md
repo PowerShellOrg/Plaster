@@ -1,5 +1,6 @@
 ---
 external help file: Plaster-help.xml
+Module Name: Plaster
 online version: https://github.com/PowerShell/Plaster/blob/master/docs/en-US/Test-PlasterManifest.md
 schema: 2.0.0
 ---
