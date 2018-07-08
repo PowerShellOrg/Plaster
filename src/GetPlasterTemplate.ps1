@@ -36,10 +36,15 @@ function Get-PlasterTemplate {
         [Parameter(Position=0,
                    Mandatory=$true,
                    ParameterSetName="IncludedTemplates",
-                   HelpMessage="Initiates a search for Plaster templates inside of installed modules.")]
+                   HelpMessage="Initiates a search for latest version Plaster templates inside of installed modules.")]
         [switch]
         [Alias("IncludeModules")]
-        $IncludeInstalledModules
+        $IncludeInstalledModules,
+        
+        [Parameter(ParameterSetName="IncludedTemplates",
+                   HelpMessage="If specified, searches for Plaster templates inside of all installed module versions.")]
+        [switch]
+        $ListAvailable
     )
 
     process {
@@ -92,7 +97,13 @@ function Get-PlasterTemplate {
 
             if ($IncludeInstalledModules.IsPresent) {
                 # Search for templates in module path
-                $extensions = Get-ModuleExtension -ModuleName Plaster -ModuleVersion $PlasterVersion
+                $GetModuleExtensionParams = @{
+                    ModuleName = "Plaster"
+                    ModuleVersion = $PlasterVersion
+                    ListAvailable = $ListAvailable
+                }
+                
+                $extensions = Get-ModuleExtension @GetModuleExtensionParams
 
                 foreach ($extension in $extensions) {
                     # Scan all module paths registered in the module
