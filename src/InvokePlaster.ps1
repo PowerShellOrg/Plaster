@@ -23,7 +23,7 @@ function Invoke-Plaster {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSShouldProcess', '', Scope='Function', Target='ProcessRequireModule')]
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        [Parameter(Position = 0, Mandatory = $true)]
+        [Parameter(Position = 0, Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
@@ -154,7 +154,9 @@ function Invoke-Plaster {
             Write-Host ((" " * (50 - $versionString.Length)) + $versionString)
             Write-Host ("=" * 50)
         }
+    }
 
+    process {
         $boundParameters = $PSBoundParameters
         $constrainedRunspace = $null
         $templateCreatedFiles = @{}
