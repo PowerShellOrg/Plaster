@@ -1057,21 +1057,21 @@ function Invoke-Plaster {
             $srcRelPath = InterpolateAttributeValue $Node.source (GetErrorLocationFileAttrVal $Node.localName source)
             $dstRelPath = InterpolateAttributeValue $Node.destination (GetErrorLocationFileAttrVal $Node.localName destination)
 
-            # We could choose to not check this if the condition eval'd to false
-            # but I think it is better to let the template author know they've broken the
-            # rules for any of the file directives (not just the ones they're testing/enabled).
+            $condition  = $Node.condition
+            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
+                $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
+                return
+            }
+
+            # Only validate paths for conditions that evaluate to true.
+            # The path may not be valid if it evaluates to false depending
+            # on whether or not conditional parameters are used in the template.
             if ([System.IO.Path]::IsPathRooted($srcRelPath)) {
                 throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $srcRelPath,$Node.LocalName)
             }
 
             if ([System.IO.Path]::IsPathRooted($dstRelPath)) {
                 throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
-            }
-
-            $condition  = $Node.condition
-            if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
-                $PSCmdlet.WriteDebug("Skipping $($Node.localName) '$srcRelPath' -> '$dstRelPath', condition evaluated to false.")
-                return
             }
 
             # Check if node is the specialized, <templateFile> node.
