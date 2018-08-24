@@ -4,7 +4,7 @@ function New-PlasterManifest {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Path = "$pwd\plasterManifest.xml",
+        $Path = $(Join-Path -Path $pwd -ChildPath 'plasterManifest.xml'),
 
         [Parameter(Mandatory=$true)]
         [ValidatePattern('^[0-9a-zA-Z_-]+$')]
@@ -104,13 +104,13 @@ function New-PlasterManifest {
 
                 $srcAttr = $manifest.CreateAttribute("source")
                 $srcAttr.Value = $filename
-                $fileElem.Attributes.Append($srcAttr) > $null
+                $null = $fileElem.Attributes.Append($srcAttr)
 
                 $dstAttr = $manifest.CreateAttribute("destination")
                 $dstAttr.Value = $filename
-                $fileElem.Attributes.Append($dstAttr) > $null
+                $null = $fileElem.Attributes.Append($dstAttr)
 
-                $manifest.plasterManifest["content"].AppendChild($fileElem) > $null
+                $null = $manifest.plasterManifest["content"].AppendChild($fileElem)
             }
         }
 
