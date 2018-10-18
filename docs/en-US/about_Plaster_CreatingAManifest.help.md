@@ -442,7 +442,7 @@ See the included `NewModule` or `NewDscResourceScript` `plasterManifest.xml` for
 You can find additional information about Plaster at the [GitHub page](https://github.com/PowerShell/Plaster)
 
 # TROUBLESHOOTING NOTE
-This topic is not yet complete and Plaster is not yet v1.
+This topic is not yet complete.
 
 # SEE ALSO
 - https://github.com/PowerShell/Plaster
