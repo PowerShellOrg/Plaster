@@ -420,6 +420,15 @@ function Invoke-Plaster {
             $LocalizedData.ExpressionErrorLocationRequireModule_F2 -f $ModuleName,$AttributeName
         }
 
+        function GetPSSnippetFunction([String]$FilePath) {
+            # Test if Path Exists
+            if (!(Test-Path $substitute -PathType Leaf)) {
+                throw ($LocalizedData.ErrorPathDoesNotExist_F1 -f $FilePath)
+            }
+            # Load File
+            return Get-Content -LiteralPath $substitute -Raw
+        }
+
         function ConvertToDestinationRelativePath($Path) {
             $fullDestPath = $DestinationPath
             if (![System.IO.Path]::IsPathRooted($fullDestPath)) {
@@ -1240,11 +1249,18 @@ function Invoke-Plaster {
                                 $substitute = $childNode.substitute.InnerText
                             }
 
-                            if ($childNode.substitute.expand -eq 'true') {
+                            if ($childNode.substitute.isFile -eq 'true') {
+                                $substitute = GetPSSnippetFunction $substitute
+                            } elseif ($childNode.substitute.expand -eq 'true') {
                                 $substitute = InterpolateAttributeValue $substitute (GetErrorLocationModifyAttrVal substitute)
                             }
 
-                            $fileContent = $fileContent -replace $original,$substitute
+                            # Perform Literal Replacement on FileContent (since it will have regex characters)
+                            if ($childNode.substitute.isFile) {
+                                $fileContent = $fileContent.Replace($original,$substitute)
+                            } else {
+                                $fileContent = $fileContent -replace $original,$substitute
+                            }
 
                             # Update the Plaster (non-parameter) variable's value in this and the constrained runspace.
                             SetPlasterVariable -Name FileContent -Value $fileContent -IsParam $false

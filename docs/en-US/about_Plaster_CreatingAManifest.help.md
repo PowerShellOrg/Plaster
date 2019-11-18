@@ -304,6 +304,7 @@ Available attributes for this content element are:
         - `expand` - Whether to expand variables within the original for match.
     - `substitute` - The replacement text to substitute in place of the original text.
         - `expand` - Whether to expand variables within the substitute text.
+        - `isFile` - Specifies `substitute` to be a relative filename. Reads file content. Cannot be used with `expand`.
     - `condition`
 - `path`         - Specifies the relative path, under the destination folder, of the file to be modified.
 - `encoding`     - Specifies the encoding of the file, see `Content Element: Common` for possible values. If you do not specify an encoding, ASCII encoding will be used.
