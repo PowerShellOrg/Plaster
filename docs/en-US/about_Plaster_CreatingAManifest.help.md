@@ -116,7 +116,7 @@ Enter the version number for the module (0.1.0):
 ```
 
 ### Parameter Type: Choice
-In interactive mode, the `choice` parameter type asks for a single choice from the available options. This choice type also provides a help option '`?`' used to display the help text:
+In interactive mode, the `choice` parameter type asks for a single choice from the available options. Place the ampersand in front of the character in the `label` that is best suitable as a "keyboard accelerator" for the given choice. This choice type also provides a help option '`?`' used to display the help text:
 
 ```xml
 <parameter name='License' type='choice' default='2' store='text' prompt='Select a license for your module'>
@@ -143,7 +143,7 @@ N - No license specified.
 ```
 
 ### Parameter Type: Multi Choice
-The `multichoice` parameter asks for one or more of the available options (supplied as a comma separated list of choices). This choice type also provides a help option '`?`' used to display the help text:
+The `multichoice` parameter asks for one or more of the available options (supplied as a comma separated list of choices). Place the ampersand in front of the character in the `label` that is best suitable as a "keyboard accelerator" for the given choice. This choice type also provides a help option '`?`' used to display the help text:
 ```xml
 <parameter name='Options' type='multichoice' default='0,1,2' store='text' prompt='Select desired options'>
   <choice label='&amp;Pester test support'
