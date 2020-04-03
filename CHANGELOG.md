@@ -10,6 +10,7 @@
 ## Changed
 
 - Updated PSScriptAnalyzerSettings.psd1 template file to sync w/latest in vscode-powershell examples.
+- Text parameter with default value where condition evaluates to false returns default value.
 
 ## 1.1.1 - 2017-10-26
 
