@@ -47,7 +47,16 @@ function New-PlasterManifest {
 
         [Parameter()]
         [switch]
-        $AddContent
+        $AddContent,
+        
+        [Parameter()]
+        [PSObject]
+        $AddContentFromObject,
+
+        [Parameter()]
+        [PSObject]
+        $AddParametersFromObject
+
     )
 
     begin {
@@ -114,6 +123,43 @@ function New-PlasterManifest {
             }
         }
 
+        if ($AddParametersFromObject) {
+            foreach ($Parameter in $AddParameters) {
+                $ParameterElem = $manifest.CreateElement('Parameter', $TargetNamespace)
+
+                ForEach ($ParamNum in $(1..$($Parameter.count))) {
+                    if ($([PSObject]$Parameter.keys)[$($ParamNum - 1)] -eq 'choices') {
+                        $Choices = $($([PSObject]$Parameter.values)[$($ParamNum - 1)])
+                        ForEach ($Choice in $choices) {
+                            $ChoiceElem = $manifest.CreateElement('choice', $TargetNamespace)
+                            ForEach ($ChoiceNum in $(1..$($choice.count))) { 
+                                $ChoiceAtrr = $manifest.CreateAttribute($($([PSObject]$Choice.keys)[$($ChoiceNum - 1)]))
+                                $ChoiceAtrr.value = $($([PSObject]$Choice.values)[$($ChoiceNum - 1)])
+                                $ChoiceElem.Attributes.Append($ChoiceAtrr) > $null
+                            }                            
+                            $ParameterElem.AppendChild($ChoiceElem) > $Null
+                        }
+                    } Else {
+                        $ParamAttr = $manifest.CreateAttribute($([PSObject]$Parameter.keys)[$($ParamNum - 1)])
+                        $ParamAttr.value = $([PSObject]$Parameter.values)[$($ParamNum - 1)]
+                        $ParameterElem.Attributes.Append($ParamAttr) > $null
+                    }
+                }
+                $manifest.plasterManifest["parameters"].AppendChild($ParameterElem) > $Null
+            }
+        }
+
+        if ($AddContentFromObject) {
+            foreach ($content in $AddContent) {
+                $contentElem = $manifest.CreateElement($($content['Type']), $TargetNamespace)
+                ForEach ($ContentNum in $(1..$($content.count))) {
+                    $ContentAttr = $manifest.CreateAttribute($([PSObject]$content.keys)[$($ContentNum - 1)])
+                    $ContentAttr.value = $([PSObject]$content.values)[$($ContentNum - 1)]
+                    $ContentElem.Attributes.Append($ContentAttr) > $null
+                }
+                $manifest.plasterManifest["content"].AppendChild($ContentElem) > $Null
+            }
+        }            
         # This configures the XmlWriter to put attributes on a new line
         $xmlWriterSettings = New-Object System.Xml.XmlWriterSettings
         $xmlWriterSettings.Indent = $true
