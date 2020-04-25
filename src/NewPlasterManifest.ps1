@@ -124,7 +124,8 @@ function New-PlasterManifest {
         }
 
         if ($AddParametersFromObject) {
-            foreach ($Parameter in $AddParameters) {
+            foreach ($Parameter in $AddParametersFromObject) {
+                Write-Verbose " a "
                 $ParameterElem = $manifest.CreateElement('Parameter', $TargetNamespace)
 
                 ForEach ($ParamNum in $(1..$($Parameter.count))) {
@@ -150,7 +151,7 @@ function New-PlasterManifest {
         }
 
         if ($AddContentFromObject) {
-            foreach ($content in $AddContent) {
+            foreach ($content in $AddContentFromObject) {
                 $contentElem = $manifest.CreateElement($($content['Type']), $TargetNamespace)
                 ForEach ($ContentNum in $(1..$($content.count))) {
                     $ContentAttr = $manifest.CreateAttribute($([PSObject]$content.keys)[$($ContentNum - 1)])
