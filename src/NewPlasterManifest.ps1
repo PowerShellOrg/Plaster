@@ -125,7 +125,6 @@ function New-PlasterManifest {
 
         if ($AddParametersFromObject) {
             foreach ($Parameter in $AddParametersFromObject) {
-                Write-Verbose " a "
                 $ParameterElem = $manifest.CreateElement('Parameter', $TargetNamespace)
 
                 ForEach ($ParamNum in $(1..$($Parameter.count))) {
