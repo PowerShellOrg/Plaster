@@ -101,5 +101,12 @@ Describe 'Invoke-Plaster Tests' {
             $res.MissingModules.Count | Should -Be 0
             @($res.OpenFiles)[0] | Should -Be "$DestPath\foo.txt"
         }
+
+        It 'Throws an error when an invalid manifest path is given' {
+            CleanDir $TemplateDir
+            CleanDir $OutDir
+
+            {Invoke-Plaster -TemplatePath . -DestinationPath . -NoLogo} | Should -Throw
+        }
     }
 }

@@ -70,7 +70,7 @@ function Invoke-Plaster {
             # grabbing the parameter's value which is static.
             $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
             if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
-                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
             }
 
             # Load manifest file using culture lookup
@@ -79,7 +79,7 @@ function Invoke-Plaster {
                 return
             }
 
-            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop -WarningAction Ignore
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -103,8 +103,11 @@ function Invoke-Plaster {
 
                 switch -regex ($type) {
                     'text|user-fullname|user-email' {
-                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
-                                     -ArgumentList ($name, [string], $attributeCollection)
+                        $newObjArgs = @{
+                            TypeName = 'System.Management.Automation.RuntimeDefinedParameter'
+                            ArgumentList = $name, [string], $attributeCollection
+                        }
+                        $param = New-Object @newObjArgs
                         break
                     }
 
@@ -120,12 +123,15 @@ function Invoke-Plaster {
                         $validateSetAttr = New-Object System.Management.Automation.ValidateSetAttribute $setValues
                         $attributeCollection.Add($validateSetAttr)
                         $type = if ($type -eq 'multichoice') { [string[]] } else { [string] }
-                        $param = New-Object System.Management.Automation.RuntimeDefinedParameter `
-                                     -ArgumentList ($name, $type, $attributeCollection)
+                        $newObjArgs = @{
+                            TypeName = 'System.Management.Automation.RuntimeDefinedParameter'
+                            ArgumentList = $name, $type, $attributeCollection
+                        }
+                        $param = New-Object @newObjArgs
                         break
                     }
 
-                    default { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type,$name) }
+                    default { Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.UnrecognizedParameterType_F2 -f $type,$name) }
                 }
 
                 $paramDictionary.Add($name, $param)
@@ -168,7 +174,7 @@ function Invoke-Plaster {
         # Verify TemplatePath parameter value is valid.
         $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
         if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
-            throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
+            Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
         }
 
         # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest
@@ -178,19 +184,23 @@ function Invoke-Plaster {
                 $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
             }
 
+            if ($null -eq $manifestPath) {
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
+            }
+
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
-                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop -WarningAction Ignore
                 $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
             }
             else {
-                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
             }
         }
 
         # If the destination path doesn't exist, create it.
         $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
         if (!(Test-Path -LiteralPath $destinationAbsolutePath)) {
-            New-Item $destinationAbsolutePath -ItemType Directory > $null
+            $null = New-Item $destinationAbsolutePath -ItemType Directory
         }
 
         # Prepare output object if user has specified the -PassThru parameter.
@@ -285,8 +295,12 @@ function Invoke-Plaster {
                 $plasterVars += Get-Variable -Name IsWindows
             }
             foreach ($var in $plasterVars) {
-                $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
-                            $var.Name,$var.Value,$var.Description,$scopedItemOptions
+                $newObjArgs = @{
+                    TypeName = 'System.Management.Automation.Runspaces.SessionStateVariableEntry'
+                    ArgumentList = ($var.Name,$var.Value,$var.Description,$scopedItemOptions)
+                }
+                $ssve = New-Object @newObjArgs
+
                 $iss.Variables.Add($ssve)
             }
 
@@ -296,7 +310,7 @@ function Invoke-Plaster {
             $runspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateRunspace($iss)
             $runspace.Open()
             if ($destinationAbsolutePath) {
-                $runspace.SessionStateProxy.Path.SetLocation($destinationAbsolutePath) > $null
+                $null =  $runspace.SessionStateProxy.Path.SetLocation($destinationAbsolutePath)
             }
             $runspace
         }
@@ -311,18 +325,18 @@ function Invoke-Plaster {
                 $powershell.Runspace = $constrainedRunspace
 
                 try {
-                    $powershell.AddScript($Expression) > $null
+                    $null = $powershell.AddScript($Expression)
                     $res = $powershell.Invoke()
                     $res
                 }
                 catch {
-                    throw ($LocalizedData.ExpressionInvalid_F2 -f $Expression,$_)
+                    Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ExpressionInvalid_F2 -f $Expression,$_)
                 }
 
                 # Check for non-terminating errors.
                 if ($powershell.Streams.Error.Count -gt 0) {
                     $err = $powershell.Streams.Error[0]
-                    throw ($LocalizedData.ExpressionNonTermErrors_F2 -f $Expression,$err)
+                    Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ExpressionNonTermErrors_F2 -f $Expression,$err)
                 }
             }
             finally {
@@ -345,7 +359,7 @@ function Invoke-Plaster {
                 [string]$res[0]
             }
             catch {
-                throw ($LocalizedData.InterpolationError_F3 -f $Value.Trim(),$Location,$_)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.InterpolationError_F3 -f $Value.Trim(),$Location,$_)
             }
         }
 
@@ -362,7 +376,7 @@ function Invoke-Plaster {
                 [bool]$res[0]
             }
             catch {
-                throw ($LocalizedData.ExpressionInvalidCondition_F3 -f $Expression,$Location,$_)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ExpressionInvalidCondition_F3 -f $Expression,$Location,$_)
             }
         }
 
@@ -379,7 +393,7 @@ function Invoke-Plaster {
                 [string]$res[0]
             }
             catch {
-                throw ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
             }
         }
 
@@ -396,7 +410,7 @@ function Invoke-Plaster {
                 [string[]]$res
             }
             catch {
-                throw ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ExpressionExecError_F2 -f $Location,$_)
             }
         }
 
@@ -428,7 +442,7 @@ function Invoke-Plaster {
 
             $fullPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($Path)
             if (!$fullPath.StartsWith($fullDestPath, 'OrdinalIgnoreCase')) {
-                throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $fullPath, $fullDestPath)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $fullPath, $fullDestPath)
             }
 
             $fullPath.Substring($fullDestPath.Length).TrimStart('\','/')
@@ -445,7 +459,7 @@ function Invoke-Plaster {
             }
 
             if (!$FullPath.StartsWith($fullDestPath, [StringComparison]::OrdinalIgnoreCase)) {
-                throw ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $FullPath, $fullDestPath)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeUnderDestPath_F2 -f $FullPath, $fullDestPath)
             }
         }
 
@@ -500,7 +514,7 @@ function Invoke-Plaster {
         function WriteOperationAdditionalStatus([string[]]$Message) {
             $maxLen = GetMaxOperationLabelLength
             foreach ($msg in $Message) {
-                $lines = $msg -split "`n"
+                $lines = $msg -split [System.Environment]::NewLine
                 foreach ($line in $lines) {
                     Write-Host ("{0,$maxLen} {1}" -f "",$line)
                 }
@@ -567,7 +581,7 @@ function Invoke-Plaster {
             }
             else {
                 if ($defaults.Count -gt 1) {
-                    throw ($LocalizedData.ParameterTypeChoiceMultipleDefault_F1 -f $ChoiceNodes.ParentNode.name)
+                    Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ParameterTypeChoiceMultipleDefault_F1 -f $ChoiceNodes.ParentNode.name)
                 }
 
                 $selection = $Host.UI.PromptForChoice('', $prompt, $choices, $defaults[0])
@@ -726,7 +740,7 @@ function Invoke-Plaster {
                         $OFS = ","
                         $valueToStore = "$($selections.Indices)"
                     }
-                    default  { throw ($LocalizedData.UnrecognizedParameterType_F2 -f $type, $Node.LocalName) }
+                    default  { Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.UnrecognizedParameterType_F2 -f $type, $Node.LocalName) }
                 }
 
                 # If parameter specifies that user's input be stored as the default value,
@@ -784,7 +798,7 @@ function Invoke-Plaster {
             # but I think it is better to let the template author know they've broken the
             # rules for any of the file directives (not just the ones they're testing/enabled).
             if ([System.IO.Path]::IsPathRooted($dstRelPath)) {
-                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
             }
 
             $dstPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $dstRelPath))
@@ -805,7 +819,7 @@ function Invoke-Plaster {
                 if (!(Test-Path $manifestDir)) {
                     VerifyPathIsUnderDestinationPath $manifestDir
                     Write-Verbose ($LocalizedData.NewModManifest_CreatingDir_F1 -f $manifestDir)
-                    New-Item $manifestDir -ItemType Directory > $null
+                    $null = New-Item $manifestDir -ItemType Directory
                 }
 
                 $newModuleManifestParams = @{}
@@ -1067,11 +1081,11 @@ function Invoke-Plaster {
             # The path may not be valid if it evaluates to false depending
             # on whether or not conditional parameters are used in the template.
             if ([System.IO.Path]::IsPathRooted($srcRelPath)) {
-                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $srcRelPath,$Node.LocalName)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $srcRelPath,$Node.LocalName)
             }
 
             if ([System.IO.Path]::IsPathRooted($dstRelPath)) {
-                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $dstRelPath,$Node.LocalName)
             }
 
             # Check if node is the specialized, <templateFile> node.
@@ -1098,9 +1112,12 @@ function Invoke-Plaster {
                 if (Test-Path -LiteralPath $srcPath -PathType Container) {
                     if (!(Test-Path -LiteralPath $dstPath)) {
                         if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
-                            WriteOperationStatus $LocalizedData.OpCreate `
-                                ($dstRelPath.TrimEnd(([char]'\'),([char]'/')) + [System.IO.Path]::DirectorySeparatorChar)
-                            New-Item -Path $dstPath -ItemType Directory > $null
+                            $writeOpStatus = @{
+                                operation = $LocalizedData.OpCreate
+                                message = ($dstRelPath.TrimEnd(([char]'\'),([char]'/')) + [System.IO.Path]::DirectorySeparatorChar)
+                            }
+                            WriteOperationStatus @writeOpStatus
+                            $null = New-Item -Path $dstPath -ItemType Directory
                         }
                     }
 
@@ -1111,7 +1128,7 @@ function Invoke-Plaster {
                 $parentDir = Split-Path $dstPath -Parent
                 if (!(Test-Path -LiteralPath $parentDir)) {
                     if ($PSCmdlet.ShouldProcess($parentDir, $LocalizedData.ShouldProcessCreateDir)) {
-                        New-Item -Path $parentDir -ItemType Directory > $null
+                        $null = New-Item -Path $parentDir -ItemType Directory
                     }
                 }
 
@@ -1176,7 +1193,7 @@ function Invoke-Plaster {
             # but I think it is better to let the template author know they've broken the
             # rules for any of the file directives (not just the ones they're testing/enabled).
             if ([System.IO.Path]::IsPathRooted($path)) {
-                throw ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $path,$Node.LocalName)
+                Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.ErrorPathMustBeRelativePath_F2 -f $path,$Node.LocalName)
             }
 
             $filePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath((Join-Path $DestinationPath $path))
@@ -1251,7 +1268,7 @@ function Invoke-Plaster {
 
                             $modified = $true
                         }
-                        default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $childNode.LocalName) }
+                        default { Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.UnrecognizedContentElement_F1 -f $childNode.LocalName) }
                     }
                 }
 
@@ -1394,20 +1411,20 @@ function Invoke-Plaster {
                 if ($node -isnot [System.Xml.XmlElement]) { continue }
                 switch ($node.LocalName) {
                     'parameter'  { ProcessParameter $node }
-                    default      { throw ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
+                    default      { Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.UnrecognizedParametersElement_F1 -f $node.LocalName) }
                 }
             }
 
             # Outputs the processed template parameters to the debug stream
             $parameters = Get-Variable -Name PLASTER_* | Out-String
-            $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
+            $PSCmdlet.WriteDebug("Parameter values are:$([System.Environment]::NewLine)$($parameters -split "$([System.Environment]::NewLine)")")
 
             # Stores any updated default values back to the store file.
             if ($flags.DefaultValueStoreDirty) {
                 $directory = Split-Path $defaultValueStorePath -Parent
                 if (!(Test-Path $directory)) {
                     $PSCmdlet.WriteDebug("Creating directory for template's DefaultValueStore '$directory'.")
-                    New-Item $directory -ItemType Directory > $null
+                    $null = New-Item $directory -ItemType Directory
                 }
 
                 $PSCmdlet.WriteDebug("DefaultValueStore is dirty, saving updated values to '$defaultValueStorePath'.")
@@ -1427,7 +1444,7 @@ function Invoke-Plaster {
                     'modify'            { ProcessModifyFile $node; break }
                     'newModuleManifest' { ProcessNewModuleManifest $node; break }
                     'requireModule'     { ProcessRequireModule $node; break }
-                    default             { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
+                    default             { Write-Error -ErrorAction $ErrorActionPreference -Message ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
             }
 

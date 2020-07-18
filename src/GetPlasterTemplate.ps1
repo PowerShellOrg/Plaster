@@ -54,18 +54,18 @@ function Get-PlasterTemplate {
             $metadata = $manifestXml["plasterManifest"]["metadata"]
 
             $manifestObj = [PSCustomObject]@{
+                PSTypeName = "Microsoft.PowerShell.Plaster.PlasterTemplate"
                 Name = $metadata["name"].InnerText
                 Title = $metadata["title"].InnerText
                 Author = $metadata["author"].InnerText
                 Version = New-Object -TypeName "System.Version" -ArgumentList $metadata["version"].InnerText
                 Description = $metadata["description"].InnerText
-                Tags = $metadata["tags"].InnerText.split(",") | % { $_.Trim() }
+                Tags = $metadata["tags"].InnerText.Split(",") | ForEach-Object -Process { $_.Trim() }
                 TemplatePath = $manifestPath.Directory.FullName
             }
 
-            $manifestObj.PSTypeNames.Insert(0, "Microsoft.PowerShell.Plaster.PlasterTemplate")
             Add-Member -MemberType ScriptMethod -InputObject $manifestObj -Name "InvokePlaster" -Value {Invoke-Plaster -TemplatePath $this.TemplatePath}
-            return $manifestObj | Where-Object Name -like $name | Where-Object Tags -like $tag
+            return $manifestObj | Where-Object -FilterScript { $_.Name -like $name -and $_.Tags -like $tag }
         }
 
         function GetManifestsUnderPath([string]$rootPath, [bool]$recurse, [string]$name, [string]$tag) {
@@ -79,7 +79,7 @@ function Get-PlasterTemplate {
             # Is this a folder path or a Plaster manifest file path?
             if (!$Recurse.IsPresent) {
                 if (Test-Path $Path -PathType Container) {
-                    $Path = Resolve-Path "$Path/plasterManifest.xml"
+                    $Path = Resolve-Path $(Join-Path -Path $Path -ChildPath 'plasterManifest.xml')
                 }
 
                 # Use Test-PlasterManifest to load the manifest file
@@ -93,7 +93,7 @@ function Get-PlasterTemplate {
         }
         else {
             # Return all templates included with Plaster
-            GetManifestsUnderPath "$PSScriptRoot\Templates" $true $Name $Tag
+            GetManifestsUnderPath $(Join-Path -Path $PSScriptRoot -ChildPath 'Templates') $true $Name $Tag
 
             if ($IncludeInstalledModules.IsPresent) {
                 # Search for templates in module path

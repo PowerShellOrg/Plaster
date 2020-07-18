@@ -10,7 +10,7 @@ function Test-PlasterManifest {
         [Alias("PSPath")]
         [ValidateNotNullOrEmpty()]
         [string[]]
-        $Path = @("$pwd\plasterManifest.xml")
+        $Path = $(Join-Path -Path $pwd -ChildPath 'plasterManifest.xml')
     )
 
     begin {
@@ -19,7 +19,7 @@ function Test-PlasterManifest {
         # Schema validation is not available on .NET Core - at the moment.
         if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
             $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
-            $xmlSchemaSet.Add($TargetNamespace, $schemaPath) > $null
+            $null = $xmlSchemaSet.Add($TargetNamespace, $schemaPath)
         }
         else {
             $PSCmdLet.WriteWarning($LocalizedData.TestPlasterNoXmlSchemaValidationWarning)
