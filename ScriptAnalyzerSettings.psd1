@@ -12,7 +12,7 @@
     #                 'PSReservedParams',
     #                 'PSShouldProcess',
     #                 'PSUseApprovedVerbs',
-    #                 'PSUseDeclaredVarsMoreThanAssigments')
+    #                 'PSUseDeclaredVarsMoreThanAssignments')
 
     # Use ExcludeRules when you want to run most of the default set of rules except
     # for a few rules you wish to "exclude".  Note: if a rule is in both IncludeRules
