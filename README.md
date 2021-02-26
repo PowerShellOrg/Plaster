@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster) [![Join the chat at https://gitter.im/PowerShell/Plaster](https://badges.gitter.im/PowerShell/Plaster.svg)](https://gitter.im/PowerShell/Plaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 > **This project has been transferred from Microsoft to PowerShell.org as of 16 June 2020. We hope to bring this project back up to speed. Please allow us some time to get re-organized**.
-> 
+>
 
 ## Current Status
 
@@ -23,13 +23,9 @@ The long-term goal is to make sure that the module works in Windows PowerShell 5
 
 Once these items have been addressed and the module is stable, we can re-visit ideas and suggestions.
 
-
 ## Background
 
-Plaster is a template-based file and project generator written in PowerShell.  Its purpose is to
-streamline the creation of PowerShell module projects, Pester tests, DSC configurations,
-and more. File generation is performed using crafted templates which allow the user to
-fill in details and choose from options to get their desired output.
+Plaster is a template-based file and project generator written in PowerShell.  Its purpose is to streamline the creation of PowerShell module projects, Pester tests, DSC configurations, and more. File generation is performed using crafted templates which allow the user to fill in details and choose from options to get their desired output.
 
 You can think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
 
@@ -42,30 +38,29 @@ you can enter the following command:
 Install-Module Plaster -Scope CurrentUser
 ```
 
-Alternatively you can download a ZIP file of the latest version from our [Releases](https://github.com/PowerShell/Plaster/releases)
+Alternatively, you can download a ZIP file of the latest version from our [Releases](https://github.com/PowerShellOrg/Plaster/releases)
 page.
 
 ## Documentation
 
-You can learn how to use Plaster and write your own templates by reading our documentation:
+You can learn how to use Plaster and write your templates by reading our documentation:
 
-- [About Plaster](docs/en-US/about_Plaster.help.md)
-- [Creating a Plaster Manifest](docs/en-US/about_Plaster_CreatingAManifest.help.md)
-- [Cmdlet Documentation](docs/en-US/Plaster.md)
++ [About Plaster](docs/en-US/about_Plaster.help.md)
++ [Creating a Plaster Manifest](docs/en-US/about_Plaster_CreatingAManifest.help.md)
++ [Cmdlet Documentation](docs/en-US/Plaster.md)
 
 Or by watching:
 
-- [Working with Plaster Presentation](https://youtu.be/16CYGTKH73U) by David Christian - [@dchristian3188](https://github.com/dchristian3188)
++ [Working with Plaster Presentation](https://youtu.be/16CYGTKH73U) by David Christian - [@dchristian3188](https://github.com/dchristian3188)
 
 Or by checking out some blog posts on Plaster:
 
-- [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by David Christian - [@dchristian3188](https://github.com/dchristian3188)
++ [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by David Christian - [@dchristian3188](https://github.com/dchristian3188)
 
 ## Maintainers
 
-- [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
-- [James Petty](https://github.com/psjamess) - [@daviwil](http://twitter.com/PSJamesP)
-
++ [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
++ [James Petty](https://github.com/psjamess) - [@daviwil](http://twitter.com/PSJamesP)
 
 ## License
 
