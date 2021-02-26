@@ -42,6 +42,8 @@ parameters ModuleName and Version extracted from the parameters section of
 the manifest file. The template will generate any files and directories in
 the ~\GitHub\NewModule directory.
 
+Note: The parameters -ModuleName and -Version are dynamically added from the plaster manifest file in the current directory. If you run this command it may fail if the manifest file you are testing with does not contain these parameters.
+
 ## PARAMETERS
 
 ### -Confirm
