@@ -617,15 +617,24 @@ function Invoke-Plaster {
             $store = $Node.store
 
             $condition = $Node.condition
+
+            $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
+
             if ($condition -and !(EvaluateConditionAttribute $condition "'<$($Node.LocalName)>'")) {
-                # Define the parameter so later conditions can use it but its value will be $null
-                SetPlasterVariable -Name $name -Value $null -IsParam $true
-                $PSCmdlet.WriteDebug("Skipping parameter $($Node.localName), condition evaluated to false.")
+                if (-not [string]::IsNullOrEmpty($default) -and $type -eq 'text') {
+                    SetPlasterVariable -Name $name -Value $default -IsParam $true
+                    $PSCmdlet.WriteDebug("The condition of the parameter $($name) with the type 'text' evaluated to false. The parameter has a default value which will be used.")
+                }
+                else {
+                    # Define the parameter so later conditions can use it but its value will be $null
+                    SetPlasterVariable -Name $name -Value $null -IsParam $true
+                    $PSCmdlet.WriteDebug("Skipping parameter $($name), condition evaluated to false.")
+                }
+
                 return
             }
 
             $prompt = InterpolateAttributeValue $Node.prompt (GetErrorLocationParameterAttrVal $name prompt)
-            $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
 
             # Check if parameter was provided via a dynamic parameter.
             if ($boundParameters.ContainsKey($name)) {
