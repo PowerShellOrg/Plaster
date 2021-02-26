@@ -20,7 +20,7 @@
     <xs:documentation>
       Schema for a Plaster manifest file that is used to define
       the metadata, parameters and content of a template.  For information of
-      the Plaster project see http://github.com/PowerShell/Plaster.
+      the Plaster project see http://github.com/PowerShellOrg/Plaster.
     </xs:documentation>
   </xs:annotation>
 

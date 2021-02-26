@@ -16,10 +16,10 @@
             Tags = @('Plaster', 'CodeGenerator', 'Scaffold')
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/PowerShell/Plaster/blob/master/LICENSE'
+            LicenseUri = 'https://github.com/PowerShellOrg/Plaster/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/PowerShell/Plaster'
+            ProjectUri = 'https://github.com/PowerShellOrg/Plaster'
 
             # A URL to an icon representing this module.
             #IconUri = 'https://github.com/PowerShell/Plaster/icon.png'
@@ -32,13 +32,13 @@
     }
 
     # Author of this module
-    Author = 'Microsoft Corporation'
+    Author = 'PowerShell.org'
 
     # Company or vendor of this module
-    CompanyName = 'Microsoft Corporation'
+    CompanyName = 'The DevOps Collective Inc.'
 
     # Copyright statement for this module
-    Copyright = '(c) Microsoft Corporation 2016-2018. All rights reserved.'
+    Copyright = '(c) The DevOps Collective Inc.2016-2021. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'Plaster scaffolds PowerShell projects and files.'
