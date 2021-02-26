@@ -250,6 +250,11 @@
               <xs:documentation>If true, expands variables in the replacement string, as if the string were a double quoted PowerShell string.</xs:documentation>
             </xs:annotation>
           </xs:attribute>
+          <xs:attribute name="isFile" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>If true, reads the substitute as a file.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
