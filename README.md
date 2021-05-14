@@ -62,6 +62,7 @@ Or by checking out some blog posts on Plaster:
 + [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
 + [James Petty](https://github.com/psjamess) - [@PSJamesP](http://twitter.com/PSJamesP)
 
+
 ## License
 
 This project is [licensed under the MIT License](LICENSE).
