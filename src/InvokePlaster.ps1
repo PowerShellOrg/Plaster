@@ -1144,6 +1144,8 @@ function Invoke-Plaster {
 
                         # Eval script expression delimiters
                         if ($content -and ($content.Count -gt 0)) {
+                            # Sets the Variable to the currently used template
+                            Set-Variable -Name PLASTER_TemplateFileSource -Value $srcPath -Scope Script
                             $newContent = [regex]::Replace($content, '(<%=)(.*?)(%>)', {
                                 param($match)
                                 $expr = $match.groups[2].value
