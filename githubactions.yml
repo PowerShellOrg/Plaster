@@ -8,8 +8,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run Pester tests
+      shell: pwsh
       run: |
         Set-PSRepository psgallery -InstallationPolicy trusted
         Install-Module -Name Pester -RequiredVersion 5.2.1 -Confirm:$false -Force
         Invoke-Pester -Path "tests"
-      shell: pwsh
