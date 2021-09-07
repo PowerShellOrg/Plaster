@@ -1,6 +1,6 @@
 # Plaster
 
-[![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster) [![Join the chat at https://gitter.im/PowerShell/Plaster](https://badges.gitter.im/PowerShell/Plaster.svg)](https://gitter.im/PowerShell/Plaster?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster)
 
 > **This project has been transferred from Microsoft to PowerShell.org as of 16 June 2020. We hope to bring this project back up to speed. Please allow us some time to get re-organized**.
 >
