@@ -380,8 +380,7 @@ Describe 'RequireModule Directive Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'It fails on combined requiredVersion with maximumVersion' {
@@ -404,8 +403,7 @@ Describe 'RequireModule Directive Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
     }
 }

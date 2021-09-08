@@ -4,7 +4,7 @@ Describe 'Module Error Handling Tests' {
     Context 'Empty template dir' {
         It 'Throws on missing plasterManifest.xml' {
             CleanDir $TemplateDir
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo } | Should -Throw
         }
     }
 
@@ -15,7 +15,7 @@ Describe 'Module Error Handling Tests' {
 
             "<a></b>" | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
         It 'Throws on missing plasterManifest (root) element' {
             CleanDir $TemplateDir
@@ -24,8 +24,7 @@ Describe 'Module Error Handling Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <manifest></manifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
 
         It 'Throws on missing target namespace on (root) element' {
@@ -45,8 +44,7 @@ Describe 'Module Error Handling Tests' {
   <content/>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata element' {
@@ -61,8 +59,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata id element' {
@@ -84,8 +81,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata name element' {
@@ -107,8 +103,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata version element' {
@@ -130,8 +125,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata title element' {
@@ -153,8 +147,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing content element' {
@@ -178,8 +171,7 @@ Describe 'Module Error Handling Tests' {
     </parameters>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
     }
 
@@ -201,8 +193,7 @@ Describe 'Module Error Handling Tests' {
     </metadata>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null} | Should -Throw
         }
     }
 
@@ -233,8 +224,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should -Throw
         }
 
         It 'Throws on newModuleManifest destination that is absolute path' {
@@ -259,8 +249,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should -Throw
         }
 
         It 'Throws on templateFile destination that is absolute path' {
@@ -282,8 +271,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should -Throw
         }
 
         It 'Throws on modify relativePath outside of DestinationPath' {
@@ -311,8 +299,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on newModuleManifest relativePath outside of DestinationPath' {
@@ -337,8 +324,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on templateFile relativePath outside of DestinationPath' {
@@ -360,8 +346,7 @@ Describe 'Module Error Handling Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
     }
 }
