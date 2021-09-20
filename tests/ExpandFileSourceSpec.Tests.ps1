@@ -1,12 +1,30 @@
-. $PSScriptRoot\Shared.ps1
-
+BeforeDiscovery {
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
 Describe 'File Directive ExpandFileSource Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\TemplateRootTemp"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $OutDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+    }
+    AfterEach {
+        Remove-Item $PlasterManifestPath -Confirm:$False
+        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $TemplateDir -Recurse -Confirm:$False
+    }
     Context 'Recurse\** case' {
         It 'It copies all files, preserving directory structure under the Recurse dir' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -22,9 +40,6 @@ Describe 'File Directive ExpandFileSource Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Name
@@ -33,10 +48,8 @@ Describe 'File Directive ExpandFileSource Tests' {
         }
 
         It 'It copies empty directories' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -52,9 +65,6 @@ Describe 'File Directive ExpandFileSource Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -Directory -Name
@@ -66,10 +76,8 @@ Describe 'File Directive ExpandFileSource Tests' {
 
     Context 'Recurse\*.txt case' {
         It 'It copies only empty.txt, foo.txt under the Recurse dir' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -85,9 +93,6 @@ Describe 'File Directive ExpandFileSource Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Filter *.txt -Name
@@ -99,10 +104,8 @@ Describe 'File Directive ExpandFileSource Tests' {
 
     Context 'Recurse\**\*.txt case' {
         It 'It copies all *.txt files, preserving directory structure under the Recurse dir' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -118,9 +121,6 @@ Describe 'File Directive ExpandFileSource Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
 
             $src = Get-ChildItem $PSScriptRoot\Recurse -Recurse -File -Filter *.txt -Name

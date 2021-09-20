@@ -1,12 +1,29 @@
-. $PSScriptRoot\Shared.ps1
-
+BeforeDiscovery {
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
 Describe 'RequireModule Directive Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\TemplateRootTemp"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $OutDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+    }
+    AfterEach {
+        Remove-Item $PlasterManifestPath -Confirm:$False
+        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $TemplateDir -Recurse -Confirm:$False
+    }
     Context 'Finds module' {
         It 'It finds module with no version number' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -29,10 +46,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'It finds module based on minimumVersion' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -55,10 +69,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'It finds module based on maximumVersion' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -81,10 +92,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'It finds module based on minimumVersion and maximumVersion' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -107,12 +115,10 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'It finds module based on requiredVersion' {
-            $version = (Get-Module -ListAvailable Microsoft.PowerShell.Management).Version.ToString()
+            # Grab the 0th item since there could be many
+            $version = (Get-Module -ListAvailable Microsoft.PowerShell.Management)[0].Version.ToString()
 
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -138,10 +144,7 @@ Describe 'RequireModule Directive Tests' {
 
     Context 'Should not find module that doesn not exist or is not the specified version' {
         It 'Determines non-existing module is missing with no version information' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -164,10 +167,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'Determines minimum version of module is missing' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -190,10 +190,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'Determines maximum version of module is missing' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -216,10 +213,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'Determines required version of module is missing' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -245,10 +239,7 @@ Describe 'RequireModule Directive Tests' {
 
     Context 'Test condition attribute' {
         It 'True condition evaluates requireModule directive' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -271,10 +262,7 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'False condition does not evaluate requireModule directive' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -301,12 +289,9 @@ Describe 'RequireModule Directive Tests' {
 
     Context 'Test message attribute' {
         It 'Outputs message when module not found' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
             $message = "BUMMER DUDE"
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -330,12 +315,9 @@ Describe 'RequireModule Directive Tests' {
         }
 
         It 'Does not output message when module is found' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
             $message = "BUMMER DUDE"
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -361,10 +343,7 @@ Describe 'RequireModule Directive Tests' {
 
     Context 'Invalid attribute combinations' {
         It 'It fails on combined requiredVersion with minimumVersion' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -381,14 +360,11 @@ Describe 'RequireModule Directive Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'It fails on combined requiredVersion with maximumVersion' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.4" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -405,7 +381,7 @@ Describe 'RequireModule Directive Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
     }
 }

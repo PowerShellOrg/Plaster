@@ -1,5 +1,6 @@
 *.zip
 Release/
+Output/
 examples/Out/*
-test/Out/*
-test/TemplateRootTemp/*
+tests/Out/*.xml
+tests/TemplateRootTemp/*

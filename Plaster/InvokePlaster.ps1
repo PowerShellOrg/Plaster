@@ -79,7 +79,7 @@ function Invoke-Plaster {
                 return
             }
 
-            $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+            $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -179,7 +179,7 @@ function Invoke-Plaster {
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
-                $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+                $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
                 $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
             }
             else {

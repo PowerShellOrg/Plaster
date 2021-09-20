@@ -45,14 +45,14 @@ authoring a Plaster manifest file.
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item
 ```
 
 Creates a basic plasterManifest.xml file in the current directory.
 
-### -------------------------- EXAMPLE 2 --------------------------
+### EXAMPLE 2
 ```
 New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -TemplateVersion 0.1.0 -Description "Some description." -Tags Module, Publish,Build
 ```
@@ -60,7 +60,7 @@ New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -Template
 Creates a plasterManifest.xml file in the current directory with the version set to 0.1.0 and with the
 Description and Tags elements populated.
 
-### -------------------------- EXAMPLE 3 --------------------------
+### EXAMPLE 3
 ```
 New-PlasterManifest -TemplateName NewPowerShellItem -TemplateType Item -AddContent
 ```
@@ -78,7 +78,7 @@ manifest's content element.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -93,7 +93,7 @@ Specifies the author of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 8
@@ -128,7 +128,7 @@ tests, building with psake and publishing to the PowerShell Gallery."
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 6
@@ -150,7 +150,7 @@ template.
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 3
@@ -171,7 +171,7 @@ The default, if no value is provided is to create plasterManifest.xml in the cur
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 0
@@ -187,7 +187,7 @@ Users can search for templates based on these tags.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 7
@@ -206,7 +206,7 @@ The name is limited to the characters: aA-zZ0-9_-.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -224,7 +224,7 @@ empty workspace or if it adds an item to an existing workspace.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 Accepted values: Item, Project
 
 Required: True
@@ -240,7 +240,7 @@ Specifies the version of the template.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 4
@@ -258,7 +258,7 @@ A typical title might be "New DSC Resource" or "New PowerShell Module".
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 5
@@ -284,7 +284,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

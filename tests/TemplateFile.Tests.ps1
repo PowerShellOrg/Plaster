@@ -1,12 +1,30 @@
-. $PSScriptRoot\Shared.ps1
+BeforeDiscovery {
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
 
 Describe 'TemplateFile Directive Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\TemplateRootTemp"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $OutDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+    }
+    AfterEach {
+        Remove-Item $PlasterManifestPath -Confirm:$False
+        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $TemplateDir -Recurse -Confirm:$False
+    }
     Context 'Invalid template files' {
         It 'It does not crash on an empty template file' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -22,19 +40,12 @@ Describe 'TemplateFile Directive Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
-
             Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
         }
 
         It 'It does not crash when prompt evaluates to empty' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
-
-@'
+            @'
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -53,11 +64,7 @@ Describe 'TemplateFile Directive Tests' {
     </content>
 </plasterManifest>
 '@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
-
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -Directory foo -NoLogo 6> $null
-
             Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
         }
     }

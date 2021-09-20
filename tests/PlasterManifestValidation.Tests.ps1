@@ -1,37 +1,52 @@
-. $PSScriptRoot\Shared.ps1
-
+BeforeDiscovery {
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
 Describe 'Module Error Handling Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\TemplateRootTemp"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $OutDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+        $DestPath = Join-Path $OutDir Foo
+    }
+    AfterEach {
+        Remove-Item $PlasterManifestPath -Confirm:$False -ErrorAction SilentlyContinue
+        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $TemplateDir -Recurse -Confirm:$False
+    }
     Context 'Empty template dir' {
         It 'Throws on missing plasterManifest.xml' {
-            CleanDir $TemplateDir
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo } | Should Throw
+            { Invoke-Plaster -TemplatePath 'foo\plasterManifest.xml' -DestinationPath $OutDir -NoLogo } | Should -Throw
         }
     }
-
-
     Context 'Invalid Manifest File Tests' {
         It 'Throws on not well-formed XML manifest file' {
-            CleanDir $TemplateDir
 
             "<a></b>" | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
         It 'Throws on missing plasterManifest (root) element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <manifest></manifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
 
         It 'Throws on missing target namespace on (root) element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest>
   <metadata>
@@ -46,13 +61,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo *>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <parameters>
@@ -62,13 +76,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata id element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -85,13 +98,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata name element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -108,13 +120,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata version element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -131,13 +142,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing metadata title element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -154,13 +164,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
 
         It 'Throws on missing content element' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest version="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -179,16 +188,15 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
     }
 
 
     Context 'Not supported schemaVersion' {
         It 'Throws on schemaVersion greater than latest supported schemaVersion' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="1.9999" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -202,16 +210,15 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 3>$null } | Should -Throw
         }
     }
 
 
     Context 'Template cannot write outside of the user-specified DestinationPath' {
         It 'Throws on modify path that is absolute path' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -234,13 +241,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on newModuleManifest destination that is absolute path' {
-            CleanDir $TemplateDir
-
-@"
+            $root = if ($IsWindows) { $env:LOCALAPPDATA } else { '/' }
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -252,21 +258,20 @@ Describe 'Module Error Handling Tests' {
         <tags></tags>
     </metadata>
     <content>
-        <newModuleManifest destination='$env:LOCALAPPDATA\foo-should-not-be-here.psd1'
+        <newModuleManifest destination='{0}foo-should-not-be-here.psd1'
                            moduleVersion='1.2.3.4'
                            rootModule='foo.psm1'
                            encoding='UTF8-NoBOM'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@  -f $root | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on templateFile destination that is absolute path' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -283,13 +288,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null} | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on modify relativePath outside of DestinationPath' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -312,13 +316,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on newModuleManifest relativePath outside of DestinationPath' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -338,13 +341,12 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
 
         It 'Throws on templateFile relativePath outside of DestinationPath' {
-            CleanDir $TemplateDir
 
-@"
+            @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
     <metadata>
@@ -361,7 +363,7 @@ Describe 'Module Error Handling Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
 
-            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should Throw
+            { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
     }
 }

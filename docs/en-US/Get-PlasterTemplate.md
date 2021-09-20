@@ -123,10 +123,12 @@ Accept wildcard characters: False
 ```
 
 ### -ListAvailable
-If specified, searches for Plaster templates inside of all installed module versions.```yaml
+If specified, searches for Plaster templates inside of all installed module versions.
+
+```yaml
 Type: SwitchParameter
 Parameter Sets: IncludedTemplates
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -141,7 +143,7 @@ Limits the templates returned to those that match the template name. Wildcard ch
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -157,7 +159,7 @@ Can also be a path to plasterManifest.xml.
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases: 
+Aliases:
 
 Required: False
 Position: 0
@@ -172,7 +174,7 @@ Indicates that this cmdlet gets the items in the specified locations and in all 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Path
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -187,7 +189,7 @@ Limits the templates returned to those that match the template tags. Wildcard ch
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -197,7 +199,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
