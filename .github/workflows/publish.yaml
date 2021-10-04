@@ -1,0 +1,24 @@
+name: Publish Module
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pre Install Modules
+        shell: pwsh
+        run: |
+          Install-Module BuildHelpers -Scope CurrentUser -Force | Out-Null
+          Install-Module PowerShellBuild -Scope CurrentUser -Force | Out-Null
+          Install-Module psake -Scope CurrentUser -Force | Out-Null
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
+          Install-Module platyPS -Scope CurrentUser -Force | Out-Null
+      - name: Build and publish
+        env:
+          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+        shell: pwsh
+        run: |
+          ./build.ps1 -Task Publish

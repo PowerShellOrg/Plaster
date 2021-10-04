@@ -1,10 +1,28 @@
-. $PSScriptRoot\Shared.ps1
-
+BeforeAll {
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
 Describe 'Condition Attribute Evaluation Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\TemplateRootTemp"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $OutDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+    }
+    AfterEach {
+        Remove-Item $PlasterManifestPath -Confirm:$False
+        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $TemplateDir -Recurse -Confirm:$False
+    }
     Context 'Runspace FileSystem provider working' {
         It 'Determines non-existing file is actually not in destination path' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
             @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -22,16 +40,12 @@ Describe 'Condition Attribute Evaluation Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return false (file doesn't exist) which will not copy over the file foo.txt
             Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
 
         It 'Determines existing file is in destination path' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
             @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -49,8 +63,6 @@ Describe 'Condition Attribute Evaluation Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             New-Item $OutDir\bar.txt -ItemType File > $null
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
@@ -60,8 +72,6 @@ Describe 'Condition Attribute Evaluation Tests' {
 
     Context 'Runspace commands' {
         It 'Get-Content command is available' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
             @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -79,16 +89,12 @@ Describe 'Condition Attribute Evaluation Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
             Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Get-Variable command is available' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
             @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -106,16 +112,12 @@ Describe 'Condition Attribute Evaluation Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
             Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Compare-Object command is available' {
-            CleanDir $TemplateDir
-            CleanDir $OutDir
 
             @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -133,8 +135,6 @@ Describe 'Condition Attribute Evaluation Tests' {
     </content>
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
-
-            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
             Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt

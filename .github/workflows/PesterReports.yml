@@ -1,8 +1,5 @@
-# This is a basic workflow to help you get started with Actions
-
 name: PesterReports
-
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -16,12 +13,48 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs pester test reports
-      - name: pester-tests-report
-        uses: zyborg/pester-tests-report@v1.5.0
+      - uses: actions/checkout@v2
+      # Setup Build Helpers
+      - name: SetupBuildHelpers
+        shell: pwsh
+        run: |
+          Install-Module BuildHelpers -Scope CurrentUser -Force | Out-Null
+          Install-Module PowerShellBuild -Scope CurrentUser -Force | Out-Null
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
+          Install-Module platyPS -Scope CurrentUser -Force | Out-Null
+      - name: Test
+        shell: pwsh
+        run: |
+          ./build.ps1 -Task Test
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unit Test Results (OS ${{ matrix.os }})
+          path: ./tests/Out/testResults.xml
+
+  publish-test-results:
+    name: "Publish Unit Tests Results"
+    needs: test
+    runs-on: ubuntu-latest
+    # the test job might be skipped, we don't need to run this job then
+    if: success() || failure()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          files: artifacts/**/*.xml

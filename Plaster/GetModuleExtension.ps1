@@ -6,23 +6,23 @@ function Get-ModuleExtension {
 
         [Version]
         $ModuleVersion,
-        
+
         [Switch]
         $ListAvailable
     )
 
     #Only get the latest version of each module
-    $modules = Get-Module -ListAvailable 
+    $modules = Get-Module -ListAvailable
     if (!$ListAvailable) {
-        $modules = $modules | 
-            Group-Object Name | 
-            Foreach-Object {
-                $_.group | 
-                    Sort-Object Version | 
-                    Select-Object -Last 1
-            }
+        $modules = $modules |
+        Group-Object Name |
+        Foreach-Object {
+            $_.group |
+            Sort-Object Version |
+            Select-Object -Last 1
+        }
     }
-        
+
     Write-Verbose "`nFound $($modules.Length) installed modules to scan for extensions."
 
     function ParseVersion($versionString) {
@@ -39,8 +39,7 @@ function Get-ModuleExtension {
 
             if ($PSVersionTable.PSEdition -eq "Core") {
                 $parsedVersion = New-Object -TypeName "System.Management.Automation.SemanticVersion" -ArgumentList $versionString
-            }
-            else {
+            } else {
                 $parsedVersion = New-Object -TypeName "System.Version" -ArgumentList $versionString
             }
         }
@@ -67,10 +66,10 @@ function Get-ModuleExtension {
                     (!$maximumVersion -or $ModuleVersion -le $maximumVersion)) {
                     # Return a new object with the extension information
                     [PSCustomObject]@{
-                        Module = $module
+                        Module         = $module
                         MinimumVersion = $minimumVersion
                         MaximumVersion = $maximumVersion
-                        Details = $extension.Details
+                        Details        = $extension.Details
                     }
                 }
             }
