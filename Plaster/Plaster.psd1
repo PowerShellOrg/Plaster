@@ -3,7 +3,7 @@
     RootModule           = 'Plaster.psm1'
 
     # Supported PSEditions
-    CompatiblePSEditions = @(Windows)
+    CompatiblePSEditions = 'Dekstop'
     # ID used to uniquely identify this module
     GUID                 = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
 
