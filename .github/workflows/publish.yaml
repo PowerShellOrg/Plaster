@@ -3,22 +3,33 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Pre Install Modules
-        shell: pwsh
+      - name: Install and cache PowerShell modules
+        id: psmodulecache
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: BuildHelpers, PowerShellBuild, psake, PSScriptAnalyzer, platyPS
+      - shell: pwsh
+        # Give an id to the step, so we can reference it later
+        id: check_if_versions_bumped
         run: |
-          Install-Module BuildHelpers -Scope CurrentUser -Force | Out-Null
-          Install-Module PowerShellBuild -Scope CurrentUser -Force | Out-Null
-          Install-Module psake -Scope CurrentUser -Force | Out-Null
-          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
-          Install-Module platyPS -Scope CurrentUser -Force | Out-Null
+          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name Plaster -ErrorAction Stop
+          [version]$GithubVersion = Get-MetaData -Path ./Plaster/Plaster.psd1 -PropertyName ModuleVersion -ErrorAction Stop
+          $bumped = $GithubVersion -ge $GalleryVersion
+
+          # Set the output named "version_bumped"
+          Write-Host "::set-output name=version_bumped::$bumped"
+
+      # Only publish (from master) if versions
       - name: Build and publish
+        if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
         env:
-          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+          PSGALLERY_API_KEY: ${{ secrets.NUGET_KEY }}
         shell: pwsh
         run: |
           ./build.ps1 -Task Publish
