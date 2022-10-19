@@ -1,8 +1,7 @@
 name: Publish Module
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
 jobs:
   build:
@@ -29,7 +28,7 @@ jobs:
       - name: Build and publish
         if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
         env:
-          PSGALLERY_API_KEY: ${{ secrets.NUGET_KEY }}
+          PSGALLERY_API_KEY: ${{ secrets.GALLERY_KEY }}
         shell: pwsh
         run: |
           ./build.ps1 -Task Publish
