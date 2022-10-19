@@ -1,16 +1,18 @@
 ﻿@{
     # Script module or binary module file associated with this manifest.
-    RootModule        = 'Plaster.psm1'
+    RootModule           = 'Plaster.psm1'
 
+    # Supported PSEditions
+    CompatiblePSEditions = @(Windows)
     # ID used to uniquely identify this module
-    GUID              = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
+    GUID                 = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
 
     # Version number of this module.
-    ModuleVersion     = '1.1.4'
+    ModuleVersion        = '1.1.4'
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a
     # PSData hashtable with additional module metadata used by PowerShell.
-    PrivateData       = @{
+    PrivateData          = @{
         PSData = @{
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags       = @('Plaster', 'CodeGenerator', 'Scaffold', 'Windows')
@@ -32,24 +34,24 @@
     }
 
     # Author of this module
-    Author            = 'PowerShell.org'
+    Author               = 'PowerShell.org'
 
     # Company or vendor of this module
-    CompanyName       = 'The DevOps Collective Inc.'
+    CompanyName          = 'The DevOps Collective Inc.'
 
     # Copyright statement for this module
-    Copyright         = '(c) The DevOps Collective Inc.2016-2021. All rights reserved.'
+    Copyright            = '(c) The DevOps Collective Inc.2016-2021. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'Plaster scaffolds PowerShell projects and files.'
+    Description          = 'Plaster scaffolds PowerShell projects and files.'
 
     # Minimum version of the Windows PowerShell engine required by this module
-    PowerShellVersion = '3.0'
+    PowerShellVersion    = '3.0'
 
     # Functions to export from this module - explicitly list each function that should be
     # exported.  This improves performance of PowerShell when discovering the commands in
     # module.
-    FunctionsToExport = @(
+    FunctionsToExport    = @(
         'Invoke-Plaster'
         'New-PlasterManifest'
         'Get-PlasterTemplate',
@@ -57,10 +59,10 @@
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-    CmdletsToExport   = @()
+    CmdletsToExport      = @()
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport   = @()
+    AliasesToExport      = @()
 
     # HelpInfo URI of this module
     # HelpInfoURI = ''
