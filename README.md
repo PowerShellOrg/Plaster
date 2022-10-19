@@ -1,6 +1,9 @@
 # Plaster
 
-[![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster)
+![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/Plaster)
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Plaster)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/PowerShellOrg/Plaster/CI)
+![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Plaster)
 
 > **This project has been transferred from Microsoft to PowerShell.org as of 16 June 2020. We hope to bring this project back up to speed. Please allow us some time to get re-organized**.
 >
