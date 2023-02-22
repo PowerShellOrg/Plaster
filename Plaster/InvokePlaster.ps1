@@ -538,13 +538,23 @@ function Invoke-Plaster {
             }
         }
 
-        function PromptForInput($prompt, $default) {
+        function PromptForInput($prompt, $default, $pattern) {
+            if (!$pattern) {
+                $patternMatch = $true
+            }
+
             do {
                 $value = Read-Host -Prompt $prompt
                 if (!$value -and $default) {
                     $value = $default
                 }
-            } while (!$value)
+
+                if ($pattern) {
+                    if ($value -match $pattern) {
+                        $patternMatch = $true
+                    }
+                }
+            } while (!$value -or !$patternMatch)
 
             $value
         }
@@ -625,6 +635,8 @@ function Invoke-Plaster {
             $type = $Node.type
             $store = $Node.store
 
+            $pattern = $Node.pattern
+
             $condition = $Node.condition
 
             $default = InterpolateAttributeValue $Node.default (GetErrorLocationParameterAttrVal $name default)
@@ -675,6 +687,12 @@ function Invoke-Plaster {
                 # Some default values might not come from the template e.g. some are harvested from .gitconfig if it exists.
                 $defaultNotFromTemplate = $false
 
+                $splat = @{}
+
+                if ($null -ne $pattern) {
+                    $splat.Add('pattern', $pattern)
+                }
+
                 # Now prompt user for parameter value based on the parameter type.
                 switch -regex ($type) {
                     'text' {
@@ -689,7 +707,7 @@ function Invoke-Plaster {
                             }
                         }
                         # Prompt the user for text input.
-                        $value = PromptForInput $prompt $default
+                        $value = PromptForInput $prompt $default @splat
                         $valueToStore = $value
                     }
                     'user-fullname' {
@@ -710,7 +728,7 @@ function Invoke-Plaster {
                         }
 
                         # Prompt the user for text input.
-                        $value = PromptForInput $prompt $default
+                        $value = PromptForInput $prompt $default @splat
                         $valueToStore = $value
                     }
                     'user-email' {
@@ -731,7 +749,7 @@ function Invoke-Plaster {
                         }
 
                         # Prompt the user for text input.
-                        $value = PromptForInput $prompt $default
+                        $value = PromptForInput $prompt $default @splat
                         $valueToStore = $value
                     }
                     'choice|multichoice' {
