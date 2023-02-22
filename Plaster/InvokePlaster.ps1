@@ -547,11 +547,14 @@ function Invoke-Plaster {
                 $value = Read-Host -Prompt $prompt
                 if (!$value -and $default) {
                     $value = $default
+                    $patternMatch = $true
                 }
-
-                if ($pattern) {
+                elseif ($value -and $pattern) {
                     if ($value -match $pattern) {
                         $patternMatch = $true
+                    }
+                    else {
+                        $PSCmdlet.WriteDebug("Value '$value' did not match the pattern '$pattern'")
                     }
                 }
             } while (!$value -or !$patternMatch)
