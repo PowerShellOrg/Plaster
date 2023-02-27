@@ -212,6 +212,11 @@
           <xs:documentation>The default value for the parameter which the user will be able to accept or change.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="pattern" type="xs:string">
+        <xs:annotation>
+            <xs:documentation>Used for parameter input validation. If the value matches the pattern, the value is accepted. Otherwise it is not.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="store" type="ptd:StoreFormatType"/>
       <xs:attribute name="condition" type="ptd:condition">
         <xs:annotation>
