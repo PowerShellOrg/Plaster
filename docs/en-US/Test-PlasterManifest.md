@@ -8,7 +8,7 @@ schema: 2.0.0
 # Test-PlasterManifest
 
 ## SYNOPSIS
-Verifies that a plaster manifest file is a valid.
+Verifies that a plaster manifest file is valid.
 
 ## SYNTAX
 
@@ -17,7 +17,7 @@ Test-PlasterManifest [[-Path] <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Verifies that a plaster manifest file is a valid.
+Verifies that a plaster manifest file is valid.
 If there are any errors, the details of the errors can be viewed by using the
 Verbose parameter.
 
