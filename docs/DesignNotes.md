@@ -34,7 +34,7 @@ This document aims to lay out a rough design for a new module named Plaster whic
   dangerous because you can execute arbitrary code in $() e.g. `$(Remove-Item $home\* -Recurse -Force)` - with flexibility comes greater danger.
   The bigger issue here is that we can no longer guarantee `idempotency` when the template is invoked multiple times against the same destination.
   If we can prevent "side effects" from arbitrary code executing in an attribute like `destination` then we can provide a
-  good (predictable) experience when invoking the template multiple times againt the same destination folder.
+  good (predictable) experience when invoking the template multiple times against the same destination folder.
 
   A better (safe) option is to have the user specify a `name` of a variable that will be created by PowerShell and that they
   can later reference by name e.g. `${PLASTER_PARAM_ModuleName}` We in fact allow any accessible variables like `${env:COMPUTERNAME}`
@@ -48,7 +48,7 @@ This document aims to lay out a rough design for a new module named Plaster whic
   script and ask the user if they trust the template.  We might even give the user an option to open the script in an editor so they can see what
   it wants to do.  One issue with these `<script>` directives is idempotency.  It is not uncommon that a user might want to run the template again
   for the same output directory.  The script needs to be "smart" about that and warn the user when it detects a `conflict` with an existing file.
-  The user can then chose to allow the existing file to be overwritten or not.
+  The user can then choose to allow the existing file to be overwritten or not.
 
   This approach should eliminate arbitrary code execution but we will need to provide a set of predefined variables.  Looking at
   [VSIX list of template parameters](https://msdn.microsoft.com/en-us/library/eehb4faa.aspx) gives a good idea of what we might want to predefine.

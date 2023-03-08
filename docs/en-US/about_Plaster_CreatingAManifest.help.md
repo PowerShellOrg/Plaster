@@ -47,7 +47,7 @@ template. This field is automatically generated if not given a value.
 - `tags`        - Tags used to describe the purpose of the template.
 - `author`      - (Optional) Authors name or details.
 
-An example of the settings explained above can be shown by running `New-PlasterManifest` this would give you something similar to the the following:
+An example of the settings explained above can be shown by running `New-PlasterManifest` this would give you something similar to the following:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
@@ -179,7 +179,7 @@ Choice[0]:
 ```
 
 ### Parameter Type: Other
-The `user-fullname` and `user-email` parameter types are the same as the `text` type, except that they get their default values from from the user's .gitconfig file (if the user has one, and no default is set in the manifest).
+The `user-fullname` and `user-email` parameter types are the same as the `text` type, except that they get their default values from the user's .gitconfig file (if the user has one, and no default is set in the manifest).
 
 Here is an example of the XML for this parameter.
 ```xml
@@ -195,7 +195,7 @@ Enter your full name (Your Name):
 ```
 
 ## Content
-There are a selection of elements in the `content` block that can be used to specify all of the content that should be included with your template and how it should be created and transformed into the end product that the template provides.
+There is a selection of elements in the `content` block that can be used to specify all of the content that should be included with your template and how it should be created and transformed into the end product that the template provides.
 
 The available element types are:
 - `file`              - Specify one or more files to copy under the destination folder.
@@ -311,7 +311,7 @@ Available attributes for this content element are:
 - `condition`    - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
 - `openInEditor` - Specifies whether the file should be opened in the editor (true) after scaffolding or not (false).  The PowerShell extension for Visual Studio Code honors this setting.
 
-Here is a simple example of the modify element, using a regular expressions:
+Here is a simple example of the modify element, using a regular expression:
 
 ```xml
 <modify path='.vscode\tasks.json' encoding='UTF8'
@@ -361,7 +361,7 @@ Available attributes for this content element:
 - `minimumVersion`  - The required module's minimum version.
 - `maximumVersion`  - The required module's maximum version.
 - `requiredVersion` - Specifies a specific version of the module. This attribute cannot be used with either the `minimumVersion` or `maximumVersion` attributes. Use this attribute rarely as any update to the module that changes its version will result in this check failing.
-- `message`         - Specifies a custom message to display after the standard Plaster message when the specified module's is not available on the target machine. This message should be used to tell the user what functionality will not work without the specified module.
+- `message`         - Specifies a custom message to display after the standard Plaster message when the specified module is not available on the target machine. This message should be used to tell the user what functionality will not work without the specified module.
 - `condition`       - Used to determine whether a directive is executed. If the condition (a PowerShell expression) evaluates to true, it will execute.
 
 #### NOTE: All versions in this element should be specified in the three part MAJOR.MINOR.PATCH (Semver) format.
@@ -407,7 +407,7 @@ In addition to these variables, Plaster defines a set of built-in variables:
 
 - PLASTER_TemplatePath    - The absolute path to the template directory.
 - PLASTER_DestinationPath - The absolute path to the destination directory.
-- PLASTER_DestinationName - The name of the destinaion directory.
+- PLASTER_DestinationName - The name of the destination directory.
 - PLASTER_FileContent     - The contents of a file be modified via the `<modify>` directive.
 - PLASTER_DirSepChar      - The directory separator char for the platform.
 - PLASTER_HostName        - The PowerShell host name e.g. $Host.Name

@@ -23,5 +23,5 @@ Retrieves available Plaster templates which can be scaffolded with Invoke-Plaste
 Creates a new Plaster template manifest file.
 
 ### [Test-PlasterManifest](Test-PlasterManifest.md)
-Verifies that a plaster manifest file is a valid.
+Verifies that a plaster manifest file is valid.
 

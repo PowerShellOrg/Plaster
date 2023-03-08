@@ -119,7 +119,7 @@ Accept wildcard characters: False
 
 ### -Description
 Description of the Plaster template.
-This describes what the the template is for.
+This describes what the template is for.
 It is typically used in
 an editor like VSCode when displaying additional information about a Plaster template.
 A typical title might be "Creates files required for a PowerShell module with optional support for Pester
