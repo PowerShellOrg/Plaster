@@ -49,7 +49,7 @@ PS C:\> Invoke-Plaster -TemplatePath $templates[0].TemplatePath -DestinationPath
 ```
 
 This will get the list of built-in Plaster templates.  The first template returned is then used to
-create a new module at the specifed path.
+create a new module at the specified path.
 
 ### Example 2
 ```
@@ -60,7 +60,7 @@ PS C:\> Invoke-Plaster -TemplatePath $templates[0].TemplatePath -DestinationPath
 
 This will get a list of Plaster templates, both built-in and included with installed
 modules.  The first template returned is then used to create a new module at
-the specifed path.
+the specified path.
 
 ### Example 3
 ```
@@ -70,7 +70,7 @@ PS C:\> Invoke-Plaster -TemplatePath $templates[0].TemplatePath -DestinationPath
 ```
 
 This will get a list of Plaster templates found recursively under c:\MyPlasterTemplates
-The first template returned is then used to create a new module at the specifed path.
+The first template returned is then used to create a new module at the specified path.
 
 ### Example 4
 ```
