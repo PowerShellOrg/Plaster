@@ -1,6 +1,0 @@
-*.zip
-Release/
-Output/
-examples/Out/*
-tests/Out/*.xml
-tests/TemplateRootTemp/*
