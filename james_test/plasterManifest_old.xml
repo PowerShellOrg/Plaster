@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.2"
+  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>test1</name>
+    <id>c9c4782a-6321-47a2-9b4d-ffaf4f5eef2e</id>
+    <version>1.0.0</version>
+    <title>test1</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters></parameters>
+  <content></content>
+</plasterManifest>
+
+
+{
+   "name":"Jack",
+   "age":30,
+   "contactNumbers":[
+      {
+         "type":"Home",
+         "number":"123 123-123"
+      },
+      {
+         "type":"Office",
+         "number":"321 321-321"
+      }
+   ],
+   "spouse":null,
+   "favoriteSports":[
+      "Football",
+      "Cricket"
+   ]
+}
