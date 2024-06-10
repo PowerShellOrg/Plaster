@@ -1,6 +1,6 @@
 # Plaster
 
-[![Build status](https://ci.appveyor.com/api/projects/status/o9rtmv1n8hh6qgg1?svg=true)](https://ci.appveyor.com/project/PowerShell/plaster)
+![Build status](https://img.shields.io/github/actions/workflow/status/PowerShellOrg/Plaster/PesterReports.yml?branch=master)
 
 > **This project has been transferred from Microsoft to PowerShell.org as of 16 June 2020. We hope to bring this project back up to speed. Please allow us some time to get re-organized**.
 >
@@ -61,7 +61,6 @@ Or by checking out some blog posts on Plaster:
 
 + [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
 + [James Petty](https://github.com/psjamess) - [@PSJamesP](http://twitter.com/PSJamesP)
-
 
 ## License
 
