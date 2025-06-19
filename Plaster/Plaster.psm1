@@ -1,4 +1,12 @@
+#Requires -Version 5.1
 
+using namespace System.Management.Automation
+
+# Module initialization
+$ErrorActionPreference = 'Stop'
+$InformationPreference = 'Continue'
+
+# Import localized data
 data LocalizedData {
     # culture="en-US"
     ConvertFrom-StringData @'
@@ -67,36 +75,169 @@ data LocalizedData {
 '@
 }
 
-Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
+# Import localized data with improved error handling
+try {
+    Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
+} catch {
+    Write-Warning "Failed to import localized data: $_"
+}
 
-# Module variables
+# Module variables with proper scoping and type safety
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-$PlasterVersion = (Test-ModuleManifest -Path $PSScriptRoot\Plaster.psd1).Version
+$PlasterVersion = (Test-ModuleManifest -Path (Join-Path $PSScriptRoot 'Plaster.psd1')).Version
+
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $LatestSupportedSchemaVersion = [System.Version]'1.2'
+
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $TargetNamespace = "http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-$DefaultEncoding = 'Default'
+$DefaultEncoding = 'UTF8-NoBOM'
 
-if (($PSVersionTable.PSVersion.Major -le 5) -or ($PSVersionTable.PSEdition -eq 'Desktop') -or $IsWindows) {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ParameterDefaultValueStoreRootPath = "$env:LOCALAPPDATA\Plaster"
-}
-elseif ($IsLinux) {
-    # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ParameterDefaultValueStoreRootPath = if ($XDG_DATA_HOME) { "$XDG_DATA_HOME/plaster"  } else { "$Home/.local/share/plaster" }
-}
-else {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ParameterDefaultValueStoreRootPath = "$Home/.plaster"
+# Cross-platform parameter store path configuration
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+$ParameterDefaultValueStoreRootPath = switch ($true) {
+    # Windows (both Desktop and Core)
+    (($PSVersionTable.PSVersion.Major -le 5) -or ($PSVersionTable.PSEdition -eq 'Desktop') -or ($IsWindows -eq $true)) {
+        if ($env:LOCALAPPDATA) {
+            "$env:LOCALAPPDATA\Plaster"
+        } else {
+            "$env:USERPROFILE\AppData\Local\Plaster"
+        }
+    }
+    # Linux - Follow XDG Base Directory Specification
+    ($IsLinux -eq $true) {
+        if ($env:XDG_DATA_HOME) {
+            "$env:XDG_DATA_HOME/plaster"
+        } else {
+            "$Home/.local/share/plaster"
+        }
+    }
+    # macOS and other Unix-like systems
+    default {
+        "$Home/.plaster"
+    }
 }
 
-# Dot source the individual module command scripts.
-. $PSScriptRoot\NewPlasterManifest.ps1
-. $PSScriptRoot\TestPlasterManifest.ps1
-. $PSScriptRoot\GetPlasterTemplate.ps1
-. $PSScriptRoot\InvokePlaster.ps1
+# Enhanced platform detection with fallback
+if (-not (Get-Variable -Name 'IsWindows' -ErrorAction SilentlyContinue)) {
+    $script:IsWindows = $PSVersionTable.PSVersion.Major -le 5 -or $PSVersionTable.PSEdition -eq 'Desktop'
+}
 
-Export-ModuleMember -Function *-*
+if (-not (Get-Variable -Name 'IsLinux' -ErrorAction SilentlyContinue)) {
+    $script:IsLinux = $false
+}
+
+if (-not (Get-Variable -Name 'IsMacOS' -ErrorAction SilentlyContinue)) {
+    $script:IsMacOS = $false
+}
+
+# .NET Core compatibility check for XML Schema validation
+$script:XmlSchemaValidationSupported = $null -ne ('System.Xml.Schema.XmlSchemaSet' -as [type])
+
+if (-not $script:XmlSchemaValidationSupported) {
+    Write-Verbose "XML Schema validation is not supported on this platform. Limited validation will be performed."
+}
+
+# Module logging configuration
+$script:LogLevel = if ($env:PLASTER_LOG_LEVEL) { $env:PLASTER_LOG_LEVEL } else { 'Information' }
+
+function Write-PlasterLog {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet('Error', 'Warning', 'Information', 'Verbose', 'Debug')]
+        [string]$Level,
+
+        [Parameter(Mandatory)]
+        [string]$Message,
+
+        [string]$Source = 'Plaster'
+    )
+
+    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $logMessage = "[$timestamp] [$Level] [$Source] $Message"
+
+    switch ($Level) {
+        'Error' { Write-Error $logMessage }
+        'Warning' { Write-Warning $logMessage }
+        'Information' { Write-Information $logMessage }
+        'Verbose' { Write-Verbose $logMessage }
+        'Debug' { Write-Debug $logMessage }
+    }
+}
+
+# Enhanced error handling wrapper
+function Invoke-PlasterOperation {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [scriptblock]$ScriptBlock,
+
+        [string]$OperationName = 'PlasterOperation',
+
+        [switch]$PassThru
+    )
+
+    try {
+        Write-PlasterLog -Level Debug -Message "Starting operation: $OperationName"
+        $result = & $ScriptBlock
+        Write-PlasterLog -Level Debug -Message "Completed operation: $OperationName"
+
+        if ($PassThru) {
+            return $result
+        }
+    } catch {
+        $errorMessage = "Operation '$OperationName' failed: $($_.Exception.Message)"
+        Write-PlasterLog -Level Error -Message $errorMessage
+        throw $_
+    }
+}
+
+# Dot source the individual module command scripts with error handling
+$commandFiles = @(
+    'NewPlasterManifest.ps1'
+    'TestPlasterManifest.ps1'
+    'GetPlasterTemplate.ps1'
+    'InvokePlaster.ps1'
+)
+
+foreach ($file in $commandFiles) {
+    $filePath = Join-Path $PSScriptRoot $file
+    if (Test-Path $filePath) {
+        try {
+            Write-PlasterLog -Level Debug -Message "Loading command file: $file"
+            . $filePath
+        } catch {
+            $errorMessage = "Failed to load command file '$file': $($_.Exception.Message)"
+            Write-PlasterLog -Level Error -Message $errorMessage
+            throw $_
+        }
+    } else {
+        Write-PlasterLog -Level Warning -Message "Command file not found: $filePath"
+    }
+}
+
+# Module cleanup on removal
+$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
+    Write-PlasterLog -Level Information -Message "Plaster module is being removed"
+
+    # Clean up any module-scoped variables or resources
+    Remove-Variable -Name 'PlasterVersion' -Scope Script -ErrorAction SilentlyContinue
+    Remove-Variable -Name 'LatestSupportedSchemaVersion' -Scope Script -ErrorAction SilentlyContinue
+    Remove-Variable -Name 'TargetNamespace' -Scope Script -ErrorAction SilentlyContinue
+    Remove-Variable -Name 'DefaultEncoding' -Scope Script -ErrorAction SilentlyContinue
+    Remove-Variable -Name 'ParameterDefaultValueStoreRootPath' -Scope Script -ErrorAction SilentlyContinue
+}
+
+# Export module members explicitly for better performance
+Export-ModuleMember -Function @(
+    'Invoke-Plaster'
+    'New-PlasterManifest'
+    'Get-PlasterTemplate'
+    'Test-PlasterManifest'
+)
+
+# Module initialization complete
+Write-PlasterLog -Level Information -Message "Plaster v$PlasterVersion module loaded successfully (PowerShell $($PSVersionTable.PSVersion))"
