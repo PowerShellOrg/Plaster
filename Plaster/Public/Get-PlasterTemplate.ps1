@@ -47,13 +47,21 @@ function Get-PlasterTemplate {
 
     process {
         if ($Path) {
-            # Is this a folder path or a Plaster manifest file path?
             if (!$Recurse.IsPresent) {
                 if (Test-Path $Path -PathType Container) {
-                    $Path = Resolve-Path "$Path/plasterManifest.xml"
+                    # Check for JSON first, then XML
+                    $jsonPath = Join-Path $Path "plasterManifest.json"
+                    $xmlPath = Join-Path $Path "plasterManifest.xml"
+
+                    if (Test-Path $jsonPath) {
+                        $Path = $jsonPath
+                    } elseif (Test-Path $xmlPath) {
+                        $Path = $xmlPath
+                    } else {
+                        $Path = Resolve-Path "$Path/plasterManifest.*" -ErrorAction SilentlyContinue | Select-Object -First 1
+                    }
                 }
 
-                # Use Test-PlasterManifest to load the manifest file
                 Write-Verbose "Attempting to get Plaster template at path: $Path"
                 $newTemplateObjectFromManifestSplat = @{
                     ManifestPath = $Path
@@ -93,17 +101,26 @@ function Get-PlasterTemplate {
                 foreach ($extension in $extensions) {
                     # Scan all module paths registered in the module
                     foreach ($templatePath in $extension.Details.TemplatePaths) {
-                        $expandedTemplatePath =
-                        [System.IO.Path]::Combine(
+                        # Check for both JSON and XML manifests
+                        $jsonManifestPath = [System.IO.Path]::Combine(
+                            $extension.Module.ModuleBase,
+                            $templatePath,
+                            "plasterManifest.json")
+
+                        $xmlManifestPath = [System.IO.Path]::Combine(
                             $extension.Module.ModuleBase,
                             $templatePath,
                             "plasterManifest.xml")
 
                         $newTemplateObjectFromManifestSplat = @{
-                            ManifestPath = $expandedTemplatePath
                             Name = $Name
                             Tag = $Tag
                             ErrorAction = 'SilentlyContinue'
+                        }
+                        if (Test-Path $jsonManifestPath) {
+                            $newTemplateObjectFromManifestSplat.ManifestPath = $jsonManifestPath
+                        } elseif (Test-Path $xmlManifestPath) {
+                            $newTemplateObjectFromManifestSplat.ManifestPath = $xmlManifestPath
                         }
                         New-TemplateObjectFromManifest @newTemplateObjectFromManifestSplat
                     }

@@ -1,0 +1,772 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+    "title": "Plaster Template Manifest v2.0",
+    "description": "JSON schema for Plaster 2.0 template manifests",
+    "type": "object",
+    "required": [
+        "schemaVersion",
+        "metadata",
+        "content"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "JSON Schema reference",
+            "format": "uri"
+        },
+        "schemaVersion": {
+            "type": "string",
+            "description": "Plaster schema version",
+            "enum": [
+                "2.0"
+            ]
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Template metadata",
+            "required": [
+                "name",
+                "id",
+                "version",
+                "title",
+                "author"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Template name (must be a valid identifier)",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_-]*$",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "id": {
+                    "type": "string",
+                    "description": "Unique template identifier (GUID)",
+                    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Template version (semantic versioning)",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+([+-].*)?$"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Human-readable template title",
+                    "minLength": 1,
+                    "maxLength": 200
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Template description",
+                    "maxLength": 1000
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Template author",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "tags": {
+                    "type": "array",
+                    "description": "Template tags for categorization",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 20
+                },
+                "templateType": {
+                    "type": "string",
+                    "description": "Template type",
+                    "enum": [
+                        "Project",
+                        "Item"
+                    ],
+                    "default": "Project"
+                },
+                "minimumPlasterVersion": {
+                    "type": "string",
+                    "description": "Minimum required Plaster version",
+                    "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+                },
+                "openInEditor": {
+                    "type": "boolean",
+                    "description": "Whether to open the template in an editor after creation",
+                    "default": false
+                }
+            }
+        },
+        "parameters": {
+            "type": "array",
+            "description": "Template parameters",
+            "items": {
+                "$ref": "#/definitions/parameter"
+            }
+        },
+        "content": {
+            "type": "array",
+            "description": "Template content actions",
+            "items": {
+                "$ref": "#/definitions/contentAction"
+            },
+            "minItems": 1
+        },
+        "functions": {
+            "type": "object",
+            "description": "Custom functions for template processing",
+            "additionalProperties": {
+                "type": "string",
+                "description": "PowerShell script block as string"
+            }
+        }
+    },
+    "definitions": {
+        "parameter": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Parameter name",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+                    "minLength": 1,
+                    "maxLength": 50
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Parameter type",
+                    "enum": [
+                        "text",
+                        "user-fullname",
+                        "user-email",
+                        "choice",
+                        "multichoice",
+                        "switch"
+                    ]
+                },
+                "prompt": {
+                    "type": "string",
+                    "description": "User prompt text",
+                    "minLength": 1,
+                    "maxLength": 200
+                },
+                "default": {
+                    "description": "Default value",
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                },
+                "choices": {
+                    "type": "array",
+                    "description": "Available choices for choice/multichoice parameters",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "label",
+                            "value"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "label": {
+                                "type": "string",
+                                "description": "Choice display label",
+                                "minLength": 1,
+                                "maxLength": 100
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "Choice value",
+                                "minLength": 1,
+                                "maxLength": 100
+                            },
+                            "help": {
+                                "type": "string",
+                                "description": "Choice help text",
+                                "maxLength": 500
+                            }
+                        }
+                    },
+                    "minItems": 1,
+                    "maxItems": 50
+                },
+                "validation": {
+                    "type": "object",
+                    "description": "Parameter validation rules",
+                    "additionalProperties": false,
+                    "properties": {
+                        "pattern": {
+                            "type": "string",
+                            "description": "Regex pattern for validation",
+                            "format": "regex"
+                        },
+                        "minLength": {
+                            "type": "integer",
+                            "description": "Minimum string length",
+                            "minimum": 0
+                        },
+                        "maxLength": {
+                            "type": "integer",
+                            "description": "Maximum string length",
+                            "minimum": 1
+                        },
+                        "minimum": {
+                            "type": "number",
+                            "description": "Minimum numeric value"
+                        },
+                        "maximum": {
+                            "type": "number",
+                            "description": "Maximum numeric value"
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "Custom validation error message",
+                            "maxLength": 200
+                        }
+                    }
+                },
+                "condition": {
+                    "type": "string",
+                    "description": "Condition for parameter visibility",
+                    "maxLength": 500
+                },
+                "dependsOn": {
+                    "type": "array",
+                    "description": "Parameters this parameter depends on",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+                    },
+                    "uniqueItems": true
+                },
+                "store": {
+                    "type": "string",
+                    "description": "How to store the parameter value",
+                    "enum": [
+                        "text",
+                        "encrypted"
+                    ]
+                },
+                "help": {
+                    "type": "string",
+                    "description": "Parameter help text",
+                    "maxLength": 500
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "enum": [
+                                    "choice",
+                                    "multichoice"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "choices"
+                        ]
+                    }
+                }
+            ]
+        },
+        "contentAction": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "discriminator": {
+                "propertyName": "type"
+            },
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/messageAction"
+                },
+                {
+                    "$ref": "#/definitions/fileAction"
+                },
+                {
+                    "$ref": "#/definitions/templateFileAction"
+                },
+                {
+                    "$ref": "#/definitions/directoryAction"
+                },
+                {
+                    "$ref": "#/definitions/newModuleManifestAction"
+                },
+                {
+                    "$ref": "#/definitions/modifyAction"
+                },
+                {
+                    "$ref": "#/definitions/requireModuleAction"
+                },
+                {
+                    "$ref": "#/definitions/executeAction"
+                }
+            ]
+        },
+        "baseAction": {
+            "type": "object",
+            "properties": {
+                "condition": {
+                    "type": "string",
+                    "description": "Condition for executing this action",
+                    "maxLength": 500
+                }
+            }
+        },
+        "messageAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "text"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "message"
+                        },
+                        "text": {
+                            "type": "string",
+                            "description": "Message text to display",
+                            "minLength": 1,
+                            "maxLength": 1000
+                        },
+                        "noNewline": {
+                            "type": "boolean",
+                            "description": "Don't add newline after message",
+                            "default": false
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "fileAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "source",
+                        "destination"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "file"
+                        },
+                        "source": {
+                            "type": "string",
+                            "description": "Source file path (supports wildcards)",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "destination": {
+                            "type": "string",
+                            "description": "Destination path",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "description": "File encoding",
+                            "enum": [
+                                "UTF8",
+                                "UTF8-NoBOM",
+                                "ASCII",
+                                "Unicode",
+                                "UTF32",
+                                "Default"
+                            ]
+                        },
+                        "openInEditor": {
+                            "type": "boolean",
+                            "description": "Open file in editor after creation",
+                            "default": false
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "templateFileAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "source",
+                        "destination"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "templateFile"
+                        },
+                        "source": {
+                            "type": "string",
+                            "description": "Source template file path",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "destination": {
+                            "type": "string",
+                            "description": "Destination path",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "description": "File encoding",
+                            "enum": [
+                                "UTF8",
+                                "UTF8-NoBOM",
+                                "ASCII",
+                                "Unicode",
+                                "UTF32",
+                                "Default"
+                            ],
+                            "default": "UTF8-NoBOM"
+                        },
+                        "openInEditor": {
+                            "type": "boolean",
+                            "description": "Open file in editor after creation",
+                            "default": false
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "directoryAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "destination"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "directory"
+                        },
+                        "destination": {
+                            "type": "string",
+                            "description": "Directory path to create",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "newModuleManifestAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "destination"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "newModuleManifest"
+                        },
+                        "destination": {
+                            "type": "string",
+                            "description": "Module manifest destination path",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "moduleVersion": {
+                            "type": "string",
+                            "description": "Module version",
+                            "pattern": "^\\d+\\.\\d+\\.\\d+([+-].*)?$"
+                        },
+                        "rootModule": {
+                            "type": "string",
+                            "description": "Root module file",
+                            "maxLength": 200
+                        },
+                        "author": {
+                            "type": "string",
+                            "description": "Module author",
+                            "maxLength": 100
+                        },
+                        "companyName": {
+                            "type": "string",
+                            "description": "Company name",
+                            "maxLength": 100
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "Module description",
+                            "maxLength": 1000
+                        },
+                        "powerShellVersion": {
+                            "type": "string",
+                            "description": "Minimum PowerShell version",
+                            "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+                        },
+                        "copyright": {
+                            "type": "string",
+                            "description": "Copyright statement",
+                            "maxLength": 200
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "description": "File encoding",
+                            "enum": [
+                                "UTF8",
+                                "UTF8-NoBOM",
+                                "ASCII",
+                                "Unicode",
+                                "UTF32",
+                                "Default"
+                            ],
+                            "default": "UTF8-NoBOM"
+                        },
+                        "openInEditor": {
+                            "type": "boolean",
+                            "description": "Open manifest in editor after creation",
+                            "default": false
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "modifyAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "path",
+                        "modifications"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "modify"
+                        },
+                        "path": {
+                            "type": "string",
+                            "description": "Path to file to modify",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
+                        "modifications": {
+                            "type": "array",
+                            "description": "List of modifications to apply",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "type"
+                                ],
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "type",
+                                            "search",
+                                            "replace"
+                                        ],
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "type": {
+                                                "const": "replace"
+                                            },
+                                            "search": {
+                                                "type": "string",
+                                                "description": "Text/regex to search for",
+                                                "minLength": 1
+                                            },
+                                            "replace": {
+                                                "type": "string",
+                                                "description": "Replacement text"
+                                            },
+                                            "isRegex": {
+                                                "type": "boolean",
+                                                "description": "Whether search is a regex pattern",
+                                                "default": false
+                                            },
+                                            "condition": {
+                                                "type": "string",
+                                                "description": "Condition for this modification"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "minItems": 1
+                        },
+                        "encoding": {
+                            "type": "string",
+                            "description": "File encoding",
+                            "enum": [
+                                "UTF8",
+                                "UTF8-NoBOM",
+                                "ASCII",
+                                "Unicode",
+                                "UTF32",
+                                "Default"
+                            ],
+                            "default": "UTF8-NoBOM"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "requireModuleAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "name"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "requireModule"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "Required module name",
+                            "minLength": 1,
+                            "maxLength": 100
+                        },
+                        "minimumVersion": {
+                            "type": "string",
+                            "description": "Minimum module version",
+                            "pattern": "^\\d+\\.\\d+(\\.\\d+)?([+-].*)?$"
+                        },
+                        "maximumVersion": {
+                            "type": "string",
+                            "description": "Maximum module version",
+                            "pattern": "^\\d+\\.\\d+(\\.\\d+)?([+-].*)?$"
+                        },
+                        "requiredVersion": {
+                            "type": "string",
+                            "description": "Exact required version",
+                            "pattern": "^\\d+\\.\\d+(\\.\\d+)?([+-].*)?$"
+                        },
+                        "message": {
+                            "type": "string",
+                            "description": "Custom message when module is missing",
+                            "maxLength": 500
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        },
+        "executeAction": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/baseAction"
+                },
+                {
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "script"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "const": "execute"
+                        },
+                        "script": {
+                            "type": "string",
+                            "description": "PowerShell script to execute",
+                            "minLength": 1,
+                            "maxLength": 10000
+                        },
+                        "workingDirectory": {
+                            "type": "string",
+                            "description": "Working directory for script execution",
+                            "maxLength": 500
+                        },
+                        "continueOnError": {
+                            "type": "boolean",
+                            "description": "Continue processing if script fails",
+                            "default": false
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/baseAction/properties/condition"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

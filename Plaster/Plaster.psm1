@@ -80,6 +80,9 @@ try {
 $PlasterVersion = (Test-ModuleManifest -Path (Join-Path $PSScriptRoot 'Plaster.psd1')).Version
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+$JsonSchemaPath = Join-Path $PSScriptRoot "Schema\plaster-manifest-v2.json"
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $LatestSupportedSchemaVersion = [System.Version]'1.2'
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
