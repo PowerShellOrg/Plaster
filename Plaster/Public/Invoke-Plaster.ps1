@@ -15,12 +15,22 @@
 ##  4. Please follow the scripting style of this file when adding new script.
 
 function Invoke-Plaster {
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(DefaultParameterSetName = 'TemplatePath', SupportsShouldProcess = $true, DefaultParameterSetName = 'TemplatePath')]
     param(
-        [Parameter(Position = 0, Mandatory = $true)]
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplatePath')]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
+
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplateDefinition')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $TemplateDefinition,
+
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplateDefinition')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $TemplateDefinition,
 
         [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -35,7 +45,7 @@ function Invoke-Plaster {
         [switch]
         $NoLogo,
 
-        [Parameter()]
+        # Enhanced dynamic parameter processing for both XML and JSON
         [switch]
         $PassThru
     )
@@ -62,18 +72,38 @@ function Invoke-Plaster {
             # since we are only evaluating the parameters in the manifest - no need for Test-ConditionAttribute as we
             # are not building up multiple parametersets.  And no need for EvaluateAttributeValue since we are only
             # grabbing the parameter's value which is static.
-            $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
-            if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
-                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
-            }
-
-            # Load manifest file using culture lookup
-            $manifestPath = Get-PlasterManifestPathForCulture $templateAbsolutePath $PSCulture
-            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
+            $templateAbsolutePath = $ExecutionConteut            # Load manifest file using culture lookup
+            # Determine manifest type and process accordingly
+            try {
+                $manifestType = Get-PlasterManifestType -ManifestPath $manifestPath
+                Write-Debug "Detected manifest type: $manifestType for path: $manifestPath"
+            } catch {
+                Write-Warning "Failed to determine manifest type for '$manifestPath': $($_.Exception.Message)"
                 return
             }
 
-            $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+            #
+            Process JSON manifests
+            if ($manifestType -eq 'JSON') {
+                try {
+                    $jsonContent = Get-Content -LiteralPath $manifestPath -Raw -ErrorAction Stop
+                    $manifest = ConvertFrom-JsonManifest -JsonContent $jsonContent -ErrorAction Stop
+                    Write-Debug "Successfully converted JSON manifest to XML for processing"
+                } catch {
+                    Write-Warning "Failed to process JSON manifest '$manifestPath': $($_.Exception.Message)"
+                    return
+                }
+            } else {
+                #
+                Process XML manifests (existing logic)
+                $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+            }ture
+            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
+
+                return
+            }
+
+            $
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -132,20 +162,20 @@ function Invoke-Plaster {
     }
 
     begin {
-        # Write out the Plaster logo if necessary
+        # Enhanced logo with JSON support indicator
         $plasterLogo = @'
-  ____  _           _
- |  _ \| | __ _ ___| |_ ___ _ __
- | |_) | |/ _` / __| __/ _ \ '__|
- |  __/| | (_| \__ \ ||  __/ |
- |_|   |_|\__,_|___/\__\___|_|
+  ____  _           _              ____   ___
+ |  _ \| | __ _ ___| |_ ___ _ __   |___ \ / _ \
+ | |_) | |/ _` / __| __/ _ \ '__|    __) | | | |
+ |  __/| | (_| \__ \ ||  __/ |      / /| |_| | /
+ |_|   |_|\__,_|___/\__\___|_|     |____|\___/
 '@
 
         if (!$NoLogo) {
-            $versionString = "v$PlasterVersion"
-            Write-Host $plasterLogo
-            Write-Host ((" " * (50 - $versionString.Length)) + $versionString)
-            Write-Host ("=" * 50)
+            $versionString = "v$PlasterVersion (JSON Enhanced)"
+            Write-Host $plasterLogo -ForegroundColor Blue
+            Write-Host ((" " * (50 - $versionString.Length)) + $versionString) -ForegroundColor Cyan
+            Write-Host ("=" * 50) -ForegroundColor Blue
         }
 
         #region Script Scope Variables
@@ -161,51 +191,98 @@ function Invoke-Plaster {
         }
         #endregion Script Scope Variables
 
-        # Verify TemplatePath parameter value is valid.
-        $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
-        if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
-            throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
-        }
-
-        # We will have a null manifest if the dynamicparam scriptblock was unable to load the template manifest
-        # or it wasn't valid. If so, let's try to load it here. If anything, we can provide better errors here.
-        if ($null -eq $manifest) {
-            if ($null -eq $manifestPath) {
-                $manifestPath = Get-PlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+        # Determine template source and type
+        if ($PSCmdlet.ParameterSetName -eq 'TemplatePath') {
+            $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+            if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
+                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
             }
 
-            if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
-                $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
-                $PSCmdlet.WriteDebug("In begin, loading manifest file '$manifestPath'")
+            # Determine manifest type and path
+            $jsonManifestPath = Join-Path $templateAbsolutePath 'plasterManifest.json'
+            $xmlManifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+
+            if (Test-Path -LiteralPath $jsonManifestPath) {
+                $manifestPath = $jsonManifestPath
+                $manifestType = 'JSON'
+                Write-PlasterLog -Level Information -Message "Using JSON manifest: $($manifestPath | Split-Path -Leaf)"
+            } elseif (($null -ne $xmlManifestPath) -and (Test-Path $xmlManifestPath)) {
+                $manifestPath = $xmlManifestPath
+                $manifestType = 'XML'
+                Write-PlasterLog -Level Information -Message "Using XML manifest: $($manifestPath | Split-Path -Leaf)"
             } else {
-                throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
+                throw ($LocalizedData.ManifestFileMissing_F1 -f "plasterManifest.json or plasterManifest.xml")
+            }
+
+        } else {
+            # TemplateDefinition parameter set
+            $manifestType = if ($TemplateDefinition.TrimStart() -match '^[\s]*[\{\[]') { 'JSON' } else { 'XML' }
+            $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+            Write-PlasterLog -Level Information -Message "Using inline $manifestType template definition"
+        }
+
+        # Process manifest based on type
+
+        if ($null -eq $manifest) {
+            if ($manifestType -eq 'JSON') {
+                $manifestContent = if ($manifestPath) {
+                    Get-Content -LiteralPath $manifestPath -Raw
+                } else {
+                    $TemplateDefinition
+                }
+
+                # Validate and convert JSON manifest
+                $isValid = Test-JsonManifest -JsonContent $manifestContent -Detailed
+                if (-not $isValid) {
+                    throw "JSON manifest validation failed"
+                }
+
+                $manifest = ConvertFrom-JsonManifest -JsonContent $manifestContent
+                Write-PlasterLog -Level Debug -Message "JSON manifest converted to internal format"
+
+            } else {
+                # Load XML manifest
+
+                if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+                    $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
+                    $PSCmdlet.WriteDebug("Loading XML manifest file '$manifestPath'")
+                } else {
+                    throw ($LocalizedData.ManifestFileMissing_F1 -f $manifestPath)
+                }
             }
         }
 
-        # If the destination path doesn't exist, create it.
+        # Validate destination path
         $destinationAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
         if (!(Test-Path -LiteralPath $destinationAbsolutePath)) {
             New-Item $destinationAbsolutePath -ItemType Directory > $null
+            Write-PlasterLog -Level Information -Message "Created destination directory: $destinationAbsolutePath"
         }
 
         # Prepare output object if user has specified the -PassThru parameter.
         if ($PassThru) {
             $InvokePlasterInfo = [PSCustomObject]@{
-                TemplatePath = $templateAbsolutePath
+                TemplatePath = if ($templateAbsolutePath) { $templateAbsolutePath } else { 'Inline Definition' }
                 DestinationPath = $destinationAbsolutePath
+                ManifestType = $manifestType
                 Success = $false
                 TemplateType = if ($manifest.plasterManifest.templateType) { $manifest.plasterManifest.templateType } else { 'Unspecified' }
                 CreatedFiles = [string[]]@()
                 UpdatedFiles = [string[]]@()
                 MissingModules = [string[]]@()
                 OpenFiles = [string[]]@()
+                ProcessingTime = $null
             }
         }
 
-        # Create the pre-defined Plaster variables.
-        Initialize-PredefinedVariables -TemplatePath $templateAbsolutePath -DestPath $destinationAbsolutePath
+        # Initialize pre-defined variables
+        if ($templateAbsolutePath) {
+            Initialize-PredefinedVariables -TemplatePath $templateAbsolutePath -DestPath $destinationAbsolutePath
+        } else {
+            Initialize-PredefinedVariables -TemplatePath $destinationAbsolutePath -DestPath $destinationAbsolutePath
+        }
 
-        # Check for any existing default value store file and load default values if file exists.
+        # Enhanced default value store handling
         $templateId = $manifest.plasterManifest.metadata.id
         $templateVersion = $manifest.plasterManifest.metadata.version
         $templateName = $manifest.plasterManifest.metadata.name
@@ -215,6 +292,7 @@ function Invoke-Plaster {
             try {
                 $PSCmdlet.WriteDebug("Loading default value store from '$script:defaultValueStorePath'.")
                 $script:defaultValueStore = Import-Clixml $script:defaultValueStorePath -ErrorAction Stop
+                Write-PlasterLog -Level Debug -Message "Loaded parameter defaults from store"
             } catch {
                 Write-Warning ($LocalizedData.ErrorFailedToLoadStoreFile_F1 -f $script:defaultValueStorePath)
             }
@@ -222,8 +300,12 @@ function Invoke-Plaster {
     }
 
     end {
+        $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
         try {
-            # Process parameters
+            Write-PlasterLog -Level Information -Message "Starting template processing ($manifestType format)"
+
+            # Process parameters with enhanced JSON support
             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement]) { continue }
                 switch ($node.LocalName) {
@@ -232,7 +314,7 @@ function Invoke-Plaster {
                 }
             }
 
-            # Outputs the processed template parameters to the debug stream
+            # Output processed parameters for debugging
             $parameters = Get-Variable -Name PLASTER_* | Out-String
             $PSCmdlet.WriteDebug("Parameter values are:`n$($parameters -split "`n")")
 
@@ -248,13 +330,14 @@ function Invoke-Plaster {
                 $script:defaultValueStore | Export-Clixml -LiteralPath $script:defaultValueStorePath
             }
 
-            # Output the DestinationPath
+            # Output destination path
             Write-Host ($LocalizedData.DestPath_F1 -f $destinationAbsolutePath)
 
-            # Process content
+            # Process content with enhanced logging
             foreach ($node in $manifest.plasterManifest.content.ChildNodes) {
                 if ($node -isnot [System.Xml.XmlElement]) { continue }
 
+                Write-PlasterLog -Level Debug -Message "Processing content action: $($node.LocalName)"
                 switch -Regex ($node.LocalName) {
                     'file|templateFile' { Start-ProcessFile $node; break }
                     'message' { Resolve-ProcessMessage $node; break }
@@ -264,16 +347,36 @@ function Invoke-Plaster {
                     default { throw ($LocalizedData.UnrecognizedContentElement_F1 -f $node.LocalName) }
                 }
             }
+            $stopwatch.Stop()
 
             if ($PassThru) {
                 $InvokePlasterInfo.Success = $true
-                $InvokePlasterInfo
+                $InvokePlasterInfo.ProcessingTime = $stopwatch.Elapsed
+                Write-PlasterLog -Level Information -Message "Template processing completed successfully in $($stopwatch.Elapsed.TotalSeconds) seconds"
+                return $InvokePlasterInfo
+            } else {
+                Write-PlasterLog -Level Information -Message "Template processing completed successfully in $($stopwatch.Elapsed.TotalSeconds) seconds"
             }
-        } finally {
-            # Dispose of the ConstrainedRunspace.
+        }
+        catch {
+            $stopwatch.Stop()
+            $errorMessage = "Template processing failed after $($stopwatch.Elapsed.TotalSeconds) seconds: $($_.Exception.Message)"
+            Write-PlasterLog -Level Error -Message $errorMessage
+
+            if ($PassThru) {
+                $InvokePlasterInfo.Success = $false
+                $InvokePlasterInfo.ProcessingTime = $stopwatch.Elapsed
+                return $InvokePlasterInfo
+            }
+
+            throw $_
+        }
+        finally {
+            # Enhanced cleanup
             if ($script:constrainedRunspace) {
                 $script:constrainedRunspace.Dispose()
                 $script:constrainedRunspace = $null
+                Write-PlasterLog -Level Debug -Message "Disposed constrained runspace"
             }
         }
     }
