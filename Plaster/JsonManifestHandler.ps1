@@ -80,12 +80,19 @@ function Test-JsonManifest {
             }
 
             # Parameters validation
-            if ($jsonObject.PSObject.Properties['parameters']) {
+            # Parameters validation
+            if ($jsonObject.PSObject.Properties['parameters'] -and $jsonObject.parameters -and $jsonObject.parameters.Count -gt 0) {
                 Test-JsonManifestParameters -Parameters $jsonObject.parameters
             }
 
             # Content validation
-            Test-JsonManifestContent -Content $jsonObject.content
+            # Content validation
+            # Content validation
+            if ($jsonObject.content -and $jsonObject.content.Count -gt 0) {
+                Test-JsonManifestContent -Content $jsonObject.content
+            } else {
+                throw "Content section cannot be empty"
+            }
 
             Write-PlasterLog -Level Debug -Message "JSON manifest validation successful"
             return $true
@@ -107,6 +114,7 @@ function Test-JsonManifestParameters {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
         [object[]]$Parameters
     )
 
@@ -171,6 +179,7 @@ function Test-JsonManifestContent {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
         [object[]]$Content
     )
 
@@ -808,7 +817,7 @@ function Test-PlasterCondition {
             $errorMsg = if ($ParameterName) {
                 "Invalid condition in parameter '$ParameterName': $($errors[0].Message)"
             } else {
-                "Invalid condition in $Context: $($errors[0].Message)"
+                "Invalid condition in ${Context}: $($errors[0].Message)"
             }
             throw $errorMsg
         }
