@@ -72,7 +72,20 @@ function Invoke-Plaster {
             # since we are only evaluating the parameters in the manifest - no need for Test-ConditionAttribute as we
             # are not building up multiple parametersets.  And no need for EvaluateAttributeValue since we are only
             # grabbing the parameter's value which is static.
-            $templateAbsolutePath = $ExecutionConteut            # Load manifest file using culture lookup
+            # Load manifest file using culture lookup - try both JSON and XML formats
+            $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+
+            # If XML not found, try JSON
+            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
+                $jsonManifestPath = Join-Path $templateAbsolutePath 'plasterManifest.json'
+                if (Test-Path $jsonManifestPath) {
+                    $manifestPath = $jsonManifestPath
+                }
+            }
+
+            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
+                return
+            }
             # Determine manifest type and process accordingly
             try {
                 $manifestType = Get-PlasterManifestType -ManifestPath $manifestPath
@@ -242,8 +255,7 @@ function Invoke-Plaster {
 
             } else {
                 # Load XML manifest
-
-                if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+                if ($manifestPath -and (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
                     $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
                     $PSCmdlet.WriteDebug("Loading XML manifest file '$manifestPath'")
                 } else {
@@ -262,16 +274,16 @@ function Invoke-Plaster {
         # Prepare output object if user has specified the -PassThru parameter.
         if ($PassThru) {
             $InvokePlasterInfo = [PSCustomObject]@{
-                TemplatePath = if ($templateAbsolutePath) { $templateAbsolutePath } else { 'Inline Definition' }
+                TemplatePath    = if ($templateAbsolutePath) { $templateAbsolutePath } else { 'Inline Definition' }
                 DestinationPath = $destinationAbsolutePath
-                ManifestType = $manifestType
-                Success = $false
-                TemplateType = if ($manifest.plasterManifest.templateType) { $manifest.plasterManifest.templateType } else { 'Unspecified' }
-                CreatedFiles = [string[]]@()
-                UpdatedFiles = [string[]]@()
-                MissingModules = [string[]]@()
-                OpenFiles = [string[]]@()
-                ProcessingTime = $null
+                ManifestType    = $manifestType
+                Success         = $false
+                TemplateType    = if ($manifest.plasterManifest.templateType) { $manifest.plasterManifest.templateType } else { 'Unspecified' }
+                CreatedFiles    = [string[]]@()
+                UpdatedFiles    = [string[]]@()
+                MissingModules  = [string[]]@()
+                OpenFiles       = [string[]]@()
+                ProcessingTime  = $null
             }
         }
 
@@ -357,8 +369,7 @@ function Invoke-Plaster {
             } else {
                 Write-PlasterLog -Level Information -Message "Template processing completed successfully in $($stopwatch.Elapsed.TotalSeconds) seconds"
             }
-        }
-        catch {
+        } catch {
             $stopwatch.Stop()
             $errorMessage = "Template processing failed after $($stopwatch.Elapsed.TotalSeconds) seconds: $($_.Exception.Message)"
             Write-PlasterLog -Level Error -Message $errorMessage
@@ -370,8 +381,7 @@ function Invoke-Plaster {
             }
 
             throw $_
-        }
-        finally {
+        } finally {
             # Enhanced cleanup
             if ($script:constrainedRunspace) {
                 $script:constrainedRunspace.Dispose()

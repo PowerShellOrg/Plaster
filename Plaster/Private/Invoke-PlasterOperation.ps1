@@ -42,13 +42,12 @@ function Invoke-PlasterOperation {
         [switch]
         $PassThru
     )
-
     try {
         Write-PlasterLog -Level Debug -Message "Starting operation: $OperationName"
         $result = & $ScriptBlock
         Write-PlasterLog -Level Debug -Message "Completed operation: $OperationName"
 
-        if ($PassThru.IsPresent) {
+        if ($PassThru) {
             return $result
         }
     } catch {
