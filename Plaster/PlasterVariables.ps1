@@ -19,3 +19,4 @@ if (-not (Get-Variable -Name 'JsonSchemaVersion' -Scope Script -ErrorAction Sile
 
 # Export the variables that need to be available globally
 Export-ModuleMember -Variable @('TargetNamespace', 'DefaultEncoding', 'JsonSchemaVersion')
+

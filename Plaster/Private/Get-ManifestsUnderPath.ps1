@@ -45,7 +45,7 @@ function Get-ManifestsUnderPath {
     )
     $getChildItemSplat = @{
         Path = $RootPath
-        Include = "plasterManifest.xml"
+        Include = "plasterManifest.xml", "plasterManifest.json"
         Recurse = $Recurse
     }
     $manifestPaths = Get-ChildItem @getChildItemSplat

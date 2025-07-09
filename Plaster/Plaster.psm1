@@ -115,6 +115,42 @@ $ParameterDefaultValueStoreRootPath = switch ($true) {
         "$Home/.plaster"
     }
 }
+# Dot source the individual module command scripts with error handling
+$commandFiles = @(
+    'writePlasterLog.ps1'
+    'PlasterVariables.ps1'
+    'JsonManifestHandler.ps1'
+    'NewPlasterManifest.ps1'
+    'TestPlasterManifest.ps1'
+    'GetPlasterTemplate.ps1'
+    'InvokePlaster.ps1'
+
+)
+foreach ($file in $commandFiles) {
+    $filePath = Join-Path $PSScriptRoot $file
+    if (Test-Path $filePath) {
+        try {
+            Write-Verbose "Loading command file: $file"
+            . $filePath
+            Write-Verbose "Successfully loaded: $file"
+        } catch {
+            $errorMessage = "Failed to load command file '$file': $($_.Exception.Message)"
+            if (Get-Command Write-PlasterLog -ErrorAction SilentlyContinue) {
+                Write-PlasterLog -Level Error -Message $errorMessage
+            } else {
+                Write-Error $errorMessage
+            }
+            throw $_
+        }
+    } else {
+        $warningMessage = "Command file not found: $filePath"
+        if (Get-Command Write-PlasterLog -ErrorAction SilentlyContinue) {
+            Write-PlasterLog -Level Warning -Message $warningMessage
+        } else {
+            Write-Warning $warningMessage
+        }
+    }
+}
 
 # Enhanced platform detection with fallback
 if (-not (Get-Variable -Name 'IsWindows' -ErrorAction SilentlyContinue)) {
