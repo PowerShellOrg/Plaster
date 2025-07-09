@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+# Requires -Version 5.1
 
 using namespace System.Management.Automation
 
@@ -10,6 +10,7 @@ using namespace System.Management.Automation
     This module provides JSON manifest support for Plaster templates,
     including validation, conversion, and processing capabilities.
 #>
+
 
 # JSON Schema validation function
 function Test-JsonManifest {
@@ -1001,12 +1002,3 @@ function Get-PlasterManifestType {
         throw "Error determining manifest type for '$ManifestPath': $($_.Exception.Message)"
     }
 }
-
-# Export functions
-Export-ModuleMember -Function @(
-    'Test-JsonManifest'
-    'ConvertFrom-JsonManifest'
-    'ConvertTo-JsonManifest'
-    'Get-PlasterManifestType'
-    'New-JsonManifestStructure'
-)
