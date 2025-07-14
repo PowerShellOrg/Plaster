@@ -16,6 +16,8 @@
         "frommodule",
         "minimumversion",
         "plaster",
+        "multichoice",
+        "BHPS"
     ],
     "ignoreWords": [],
     "import": []

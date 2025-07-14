@@ -9,7 +9,7 @@ BeforeDiscovery {
 
   $global:LatestSchemaVersion = $module.Invoke( { $LatestSupportedSchemaVersion })
   function global:GetFullPath {
-    Param(
+    param(
       [string] $Path
     )
     return $Path.Replace('TestDrive:', (Get-PSDrive TestDrive).Root)
@@ -41,7 +41,8 @@ Describe 'New-PlasterManifest Command Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
   schemaVersion="$global:LatestSchemaVersion"
-  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  templateType="Item"
+  xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -65,7 +66,8 @@ Describe 'New-PlasterManifest Command Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
   schemaVersion="$global:LatestSchemaVersion"
-  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  templateType="Project"
+  xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -90,7 +92,8 @@ Describe 'New-PlasterManifest Command Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
   schemaVersion="$global:LatestSchemaVersion"
-  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  templateType="Item"
+  xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>
@@ -116,7 +119,8 @@ Describe 'New-PlasterManifest Command Tests' {
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest
   schemaVersion="$global:LatestSchemaVersion"
-  templateType="Project" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  templateType="Project"
+  xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>TemplateName</name>
     <id>1a1b0933-78b2-4a3e-bf48-492591e69521</id>

@@ -89,5 +89,5 @@
             },
             "problemMatcher": [ "$pester" ]
         }
-	]
+    ]
 }
