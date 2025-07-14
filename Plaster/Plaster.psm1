@@ -1,4 +1,4 @@
-
+# spell-checker:ignore Multichoice Assigments
 # Import localized data
 data LocalizedData {
     # culture="en-US"

@@ -1,3 +1,4 @@
+# spell-checker:ignore potatoqualitee psdepend psmodulecache
 name: PesterReports
 # Controls when the action will run.
 on:
@@ -5,8 +6,6 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -21,25 +20,34 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
-      # Setup Build Helpers
-      - name: SetupBuildHelpers
+      - uses: actions/checkout@v4
+      - name: Install and cache PSDepend
+        id: psdepend
+        uses: potatoqualitee/psmodulecache@v6.2.1
+        with:
+          modules-to-cache: PSDepend:0.3.8
+      - name: Determine modules to cache
         shell: pwsh
+        id: modules-to-cache
         run: |
-          Install-Module BuildHelpers -Scope CurrentUser -Force | Out-Null
-          Install-Module PowerShellBuild -Scope CurrentUser -Force | Out-Null
-          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
-          Install-Module platyPS -Scope CurrentUser -Force | Out-Null
+          $dependencies = Get-Dependency
+          $f = $dependencies | ?{ $_.DependencyType -eq 'PSGalleryModule' } | %{ "{0}:{1}" -F $_.DependencyName, $_.Version}
+          Write-Output "::set-output name=ModulesToCache::$($f -join ', ')"
+      - name: Install and cache PowerShell modules
+        id: psmodulecache
+        uses: potatoqualitee/psmodulecache@v6.2.1
+        with:
+          modules-to-cache: ${{ steps.modules-to-cache.outputs.ModulesToCache }}
+          shell: pwsh
       - name: Test
         shell: pwsh
-        run: |
-          ./build.ps1 -Task Test
+        run: ./build.ps1 -Task Test
       - name: Upload Unit Test Results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Unit Test Results (OS ${{ matrix.os }})
-          path: ./tests/Out/testResults.xml
+          path: ./tests/out/testResults.xml
 
   publish-test-results:
     name: "Publish Unit Tests Results"
@@ -55,6 +63,6 @@ jobs:
           path: artifacts
 
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: artifacts/**/*.xml

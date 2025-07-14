@@ -14,7 +14,8 @@
         "defaultlocale",
         "testoutputfile",
         "frommodule",
-        "minimumversion"
+        "minimumversion",
+        "plaster",
     ],
     "ignoreWords": [],
     "import": []
