@@ -15,13 +15,14 @@ cmdlet.
 
 ### Path
 ```
-Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [-Tag <String>] [-Recurse] [<CommonParameters>]
+Get-PlasterTemplate [[-Path] <String>] [[-Name] <String>] [-Tag <String>] [-Recurse]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### IncludedTemplates
 ```
 Get-PlasterTemplate [[-Name] <String>] [-Tag <String>] [-IncludeInstalledModules] [-ListAvailable]
- [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -194,6 +195,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: *
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

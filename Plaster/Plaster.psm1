@@ -1,11 +1,4 @@
-#Requires -Version 5.1
-
-using namespace System.Management.Automation
-
-# Module initialization
-$ErrorActionPreference = 'Stop'
-$InformationPreference = 'Continue'
-
+# spell-checker:ignore Multichoice Assigments
 # Import localized data
 data LocalizedData {
     # culture="en-US"
@@ -77,7 +70,7 @@ data LocalizedData {
 
 # Import localized data with improved error handling
 try {
-    Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName Plaster.Resources.psd1 -ErrorAction SilentlyContinue
+    Microsoft.PowerShell.Utility\Import-LocalizedData LocalizedData -FileName 'Plaster.Resources.psd1' -ErrorAction SilentlyContinue
 } catch {
     Write-Warning "Failed to import localized data: $_"
 }
@@ -143,82 +136,6 @@ if (-not $script:XmlSchemaValidationSupported) {
 # Module logging configuration
 $script:LogLevel = if ($env:PLASTER_LOG_LEVEL) { $env:PLASTER_LOG_LEVEL } else { 'Information' }
 
-function Write-PlasterLog {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('Error', 'Warning', 'Information', 'Verbose', 'Debug')]
-        [string]$Level,
-
-        [Parameter(Mandatory)]
-        [string]$Message,
-
-        [string]$Source = 'Plaster'
-    )
-
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $logMessage = "[$timestamp] [$Level] [$Source] $Message"
-
-    switch ($Level) {
-        'Error' { Write-Error $logMessage }
-        'Warning' { Write-Warning $logMessage }
-        'Information' { Write-Information $logMessage }
-        'Verbose' { Write-Verbose $logMessage }
-        'Debug' { Write-Debug $logMessage }
-    }
-}
-
-# Enhanced error handling wrapper
-function Invoke-PlasterOperation {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [scriptblock]$ScriptBlock,
-
-        [string]$OperationName = 'PlasterOperation',
-
-        [switch]$PassThru
-    )
-
-    try {
-        Write-PlasterLog -Level Debug -Message "Starting operation: $OperationName"
-        $result = & $ScriptBlock
-        Write-PlasterLog -Level Debug -Message "Completed operation: $OperationName"
-
-        if ($PassThru) {
-            return $result
-        }
-    } catch {
-        $errorMessage = "Operation '$OperationName' failed: $($_.Exception.Message)"
-        Write-PlasterLog -Level Error -Message $errorMessage
-        throw $_
-    }
-}
-
-# Dot source the individual module command scripts with error handling
-$commandFiles = @(
-    'NewPlasterManifest.ps1'
-    'TestPlasterManifest.ps1'
-    'GetPlasterTemplate.ps1'
-    'InvokePlaster.ps1'
-)
-
-foreach ($file in $commandFiles) {
-    $filePath = Join-Path $PSScriptRoot $file
-    if (Test-Path $filePath) {
-        try {
-            Write-PlasterLog -Level Debug -Message "Loading command file: $file"
-            . $filePath
-        } catch {
-            $errorMessage = "Failed to load command file '$file': $($_.Exception.Message)"
-            Write-PlasterLog -Level Error -Message $errorMessage
-            throw $_
-        }
-    } else {
-        Write-PlasterLog -Level Warning -Message "Command file not found: $filePath"
-    }
-}
-
 # Module cleanup on removal
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Write-PlasterLog -Level Information -Message "Plaster module is being removed"
@@ -230,14 +147,6 @@ $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Remove-Variable -Name 'DefaultEncoding' -Scope Script -ErrorAction SilentlyContinue
     Remove-Variable -Name 'ParameterDefaultValueStoreRootPath' -Scope Script -ErrorAction SilentlyContinue
 }
-
-# Export module members explicitly for better performance
-Export-ModuleMember -Function @(
-    'Invoke-Plaster'
-    'New-PlasterManifest'
-    'Get-PlasterTemplate'
-    'Test-PlasterManifest'
-)
 
 # Module initialization complete
 Write-PlasterLog -Level Information -Message "Plaster v$PlasterVersion module loaded successfully (PowerShell $($PSVersionTable.PSVersion))"

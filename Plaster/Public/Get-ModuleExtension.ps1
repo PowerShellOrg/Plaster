@@ -15,15 +15,15 @@ function Get-ModuleExtension {
     $modules = Get-Module -ListAvailable
     if (!$ListAvailable) {
         $modules = $modules |
-        Group-Object Name |
-        Foreach-Object {
-            $_.group |
-            Sort-Object Version |
-            Select-Object -Last 1
-        }
+            Group-Object Name |
+            ForEach-Object {
+                $_.group |
+                    Sort-Object Version |
+                    Select-Object -Last 1
+                }
     }
 
-    Write-Verbose "`nFound $($modules.Length) installed modules to scan for extensions."
+    Write-Verbose "Found $($modules.Length) installed modules to scan for extensions."
 
     function ParseVersion($versionString) {
         $parsedVersion = $null
@@ -32,7 +32,7 @@ function Get-ModuleExtension {
             # We're targeting Semantic Versioning 2.0 so make sure the version has
             # at least 3 components (X.X.X).  This logic ensures that the "patch"
             # (third) component has been specified.
-            $versionParts = $versionString.Split('.');
+            $versionParts = $versionString.Split('.')
             if ($versionParts.Length -lt 3) {
                 $versionString = "$versionString.0"
             }
@@ -66,10 +66,10 @@ function Get-ModuleExtension {
                     (!$maximumVersion -or $ModuleVersion -le $maximumVersion)) {
                     # Return a new object with the extension information
                     [PSCustomObject]@{
-                        Module         = $module
+                        Module = $module
                         MinimumVersion = $minimumVersion
                         MaximumVersion = $maximumVersion
-                        Details        = $extension.Details
+                        Details = $extension.Details
                     }
                 }
             }

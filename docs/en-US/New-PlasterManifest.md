@@ -15,7 +15,8 @@ Creates a new Plaster template manifest file.
 ```
 New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [-TemplateType] <String> [[-Id] <Guid>]
  [[-TemplateVersion] <String>] [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>]
- [[-Author] <String>] [-AddContent] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-Author] <String>] [-AddContent] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -275,6 +276,21 @@ The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named

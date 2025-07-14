@@ -1,5 +1,3 @@
-. $PSScriptRoot\GetModuleExtension.ps1
-
 function Get-PlasterTemplate {
     [CmdletBinding()]
     param(
@@ -54,18 +52,18 @@ function Get-PlasterTemplate {
             $metadata = $manifestXml["plasterManifest"]["metadata"]
 
             $manifestObj = [PSCustomObject]@{
-                Name         = $metadata["name"].InnerText
-                Title        = $metadata["title"].InnerText
-                Author       = $metadata["author"].InnerText
-                Version      = New-Object -TypeName "System.Version" -ArgumentList $metadata["version"].InnerText
-                Description  = $metadata["description"].InnerText
-                Tags         = $metadata["tags"].InnerText.split(",") | ForEach-Object { $_.Trim() }
+                Name = $metadata["name"].InnerText
+                Title = $metadata["title"].InnerText
+                Author = $metadata["author"].InnerText
+                Version = New-Object -TypeName "System.Version" -ArgumentList $metadata["version"].InnerText
+                Description = $metadata["description"].InnerText
+                Tags = $metadata["tags"].InnerText.split(",") | ForEach-Object { $_.Trim() }
                 TemplatePath = $manifestPath.Directory.FullName
             }
 
             $manifestObj.PSTypeNames.Insert(0, "Microsoft.PowerShell.Plaster.PlasterTemplate")
             Add-Member -MemberType ScriptMethod -InputObject $manifestObj -Name "InvokePlaster" -Value { Invoke-Plaster -TemplatePath $this.TemplatePath }
-            return $manifestObj | Where-Object Name -like $name | Where-Object Tags -like $tag
+            return $manifestObj | Where-Object Name -Like $name | Where-Object Tags -Like $tag
         }
 
         function GetManifestsUnderPath([string]$rootPath, [bool]$recurse, [string]$name, [string]$tag) {
@@ -96,7 +94,7 @@ function Get-PlasterTemplate {
             if ($IncludeInstalledModules.IsPresent) {
                 # Search for templates in module path
                 $GetModuleExtensionParams = @{
-                    ModuleName    = "Plaster"
+                    ModuleName = "Plaster"
                     ModuleVersion = $PlasterVersion
                     ListAvailable = $ListAvailable
                 }
