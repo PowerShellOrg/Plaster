@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 permissions:
   checks: write
-  issues: write
+  pull-requests: write
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -56,7 +57,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     # the test job might be skipped, we don't need to run this job then
-    if: success() || failure()
+    if: (!cancelled())
 
     steps:
       - name: Download Artifacts
