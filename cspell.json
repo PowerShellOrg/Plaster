@@ -1,0 +1,21 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [
+        "powershell"
+    ],
+    "words": [
+        "psake",
+        "psakefile",
+        "psakefileps1",
+        "psbpreference",
+        "compilemodule",
+        "defaultlocale",
+        "testoutputfile",
+        "frommodule",
+        "minimumversion"
+    ],
+    "ignoreWords": [],
+    "import": []
+}
