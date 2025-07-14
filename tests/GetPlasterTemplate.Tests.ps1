@@ -1,4 +1,8 @@
 BeforeDiscovery {
+    if ($null -eq $env:BHProjectPath) {
+        $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+        . $path -Task Build
+    }
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -37,7 +41,7 @@ Describe 'Get-PlasterTemplate' {
     Context "when searching modules for templates" {
         It "finds built-in templates" {
             $templates = Get-PlasterTemplate
-            $templates | Where-Object Title -eq 'New PowerShell Manifest Module' | Should -Not -BeNullOrEmpty
+            $templates | Where-Object Title -EQ 'New PowerShell Manifest Module' | Should -Not -BeNullOrEmpty
         }
 
         It "finds built-in templates by name" {
@@ -52,10 +56,10 @@ Describe 'Get-PlasterTemplate' {
 
         It "finds templates included with modules" {
             $builtInTemplates = Get-PlasterTemplate
-            $oldPSModulePath = $env:PSModulePath;
+            $oldPSModulePath = $env:PSModulePath
             # Only use example path, because tester could have many templates
             # installed and ordering is Alphbetical.
-            $env:PSModulePath = $examplesPath;
+            $env:PSModulePath = $examplesPath
 
             $templates = Get-PlasterTemplate -IncludeInstalledModules
             $templates.Count -gt $builtInTemplates.Count | Should -Be $true
