@@ -13,5 +13,6 @@
     "powershell.scriptAnalysis.settingsPath": "ScriptAnalyzerSettings.psd1",
     //----------Code Formatting ----------------
     "powershell.codeFormatting.preset": "OTBS",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "powershell.scriptAnalysis.enable": true
 }
