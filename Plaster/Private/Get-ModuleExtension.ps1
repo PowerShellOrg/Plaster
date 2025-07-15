@@ -1,4 +1,29 @@
 function Get-ModuleExtension {
+    <#
+    .SYNOPSIS
+    Retrieves module extensions based on specified criteria.
+
+    .DESCRIPTION
+    This function retrieves module extensions that match the specified module
+    name and version criteria.
+
+    .PARAMETER ModuleName
+    The name of the module to retrieve extensions for.
+
+    .PARAMETER ModuleVersion
+    The version of the module to retrieve extensions for.
+
+    .PARAMETER ListAvailable
+    Indicates whether to list all available modules or only the the latest
+    version of each module.
+
+    .EXAMPLE
+    Get-ModuleExtension -ModuleName "MyModule" -ModuleVersion "1.0.0"
+
+    Retrieves extensions for the module "MyModule" with version "1.0.0".
+    .NOTES
+
+    #>
     [CmdletBinding()]
     param(
         [string]
@@ -11,9 +36,9 @@ function Get-ModuleExtension {
         $ListAvailable
     )
 
-    #Only get the latest version of each module
+    # Only get the latest version of each module
     $modules = Get-Module -ListAvailable
-    if (!$ListAvailable) {
+    if (!$ListAvailable.IsPresent) {
         $modules = $modules |
             Group-Object Name |
             ForEach-Object {
@@ -24,28 +49,6 @@ function Get-ModuleExtension {
     }
 
     Write-Verbose "Found $($modules.Length) installed modules to scan for extensions."
-
-    function ParseVersion($versionString) {
-        $parsedVersion = $null
-
-        if ($versionString) {
-            # We're targeting Semantic Versioning 2.0 so make sure the version has
-            # at least 3 components (X.X.X).  This logic ensures that the "patch"
-            # (third) component has been specified.
-            $versionParts = $versionString.Split('.')
-            if ($versionParts.Length -lt 3) {
-                $versionString = "$versionString.0"
-            }
-
-            if ($PSVersionTable.PSEdition -eq "Core") {
-                $parsedVersion = New-Object -TypeName "System.Management.Automation.SemanticVersion" -ArgumentList $versionString
-            } else {
-                $parsedVersion = New-Object -TypeName "System.Version" -ArgumentList $versionString
-            }
-        }
-
-        return $parsedVersion
-    }
 
     foreach ($module in $modules) {
         if ($module.PrivateData -and
@@ -58,8 +61,18 @@ function Get-ModuleExtension {
 
                 Write-Verbose "Comparing against module extension: $($extension.Module)"
 
-                $minimumVersion = ParseVersion $extension.MinimumVersion
-                $maximumVersion = ParseVersion $extension.MaximumVersion
+                if ([String]::IsNullOrEmpty($extension.MinimumVersion)) {
+                    # Fill with a default value if not specified
+                    $minimumVersion = $null
+                } else {
+                    $minimumVersion = Resolve-ModuleVersionString $extension.MinimumVersion
+                }
+                if ([String]::IsNullOrEmpty($extension.MaximumVersion)) {
+                    # Fill with a default value if not specified
+                    $maximumVersion = $null
+                } else {
+                    $maximumVersion = Resolve-ModuleVersionString $extension.MaximumVersion
+                }
 
                 if (($extension.Module -eq $ModuleName) -and
                     (!$minimumVersion -or $ModuleVersion -ge $minimumVersion) -and
