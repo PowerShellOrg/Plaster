@@ -1,4 +1,29 @@
-function InitializePredefinedVariables {
+function Initialize-PredefinedVariables {
+    <#
+    .SYNOPSIS
+    Initializes predefined variables used by Plaster.
+
+    .DESCRIPTION
+    This function sets up several predefined variables that are used throughout
+    the Plaster template processing. It includes variables for the template
+    path, destination path, and other relevant information.
+
+    .PARAMETER TemplatePath
+    The file system path to the Plaster template directory.
+
+    .PARAMETER DestPath
+    The file system path to the destination directory.
+
+    .EXAMPLE
+    Initialize-PredefinedVariables -TemplatePath "C:\Templates\MyTemplate" -DestPath "C:\Projects\MyProject"
+
+    This example initializes the predefined variables with the specified
+    template and destination paths.
+    .NOTES
+    This function is typically called at the beginning of the Plaster template
+    processing to ensure that all necessary variables are set up before any
+    template processing occurs.
+    #>
     [CmdletBinding()]
     param(
         [string]
@@ -6,6 +31,7 @@ function InitializePredefinedVariables {
         [string]
         $DestPath
     )
+
     # Always set these variables, even if the command has been run with -WhatIf
     $WhatIfPreference = $false
 

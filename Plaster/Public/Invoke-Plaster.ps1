@@ -207,7 +207,7 @@ function Invoke-Plaster {
         }
 
         # Create the pre-defined Plaster variables.
-        InitializePredefinedVariables $templateAbsolutePath $destinationAbsolutePath
+        Initialize-PredefinedVariables -TemplatePath $templateAbsolutePath -DestPath $destinationAbsolutePath
 
         # Check for any existing default value store file and load default values if file exists.
         $templateId = $manifest.plasterManifest.metadata.id
