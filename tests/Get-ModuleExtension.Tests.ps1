@@ -15,7 +15,7 @@ Describe 'Get-PlasterManifestPathForCulture' {
     InModuleScope $env:BHProjectName {
         BeforeEach {
             Mock Get-Module {
-                Get-Content -Raw $PSScriptRoot\Fixtures\ModuleList.xml | ConvertFrom-CliXml
+                Import-Clixml $PSScriptRoot\Fixtures\ModuleList.xml
             }
         }
 
