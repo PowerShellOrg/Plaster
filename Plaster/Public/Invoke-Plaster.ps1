@@ -75,7 +75,7 @@ function Invoke-Plaster {
             }
 
             # Load manifest file using culture lookup
-            $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+            $manifestPath = Get-PlasterManifestPathForCulture $templateAbsolutePath $PSCulture
             if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
                 return
             }
@@ -175,7 +175,7 @@ function Invoke-Plaster {
         # or it wasn't valid. If so, let's try to load it here. If anything, we can provide better errors here.
         if ($null -eq $manifest) {
             if ($null -eq $manifestPath) {
-                $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+                $manifestPath = Get-PlasterManifestPathForCulture $templateAbsolutePath $PSCulture
             }
 
             if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
