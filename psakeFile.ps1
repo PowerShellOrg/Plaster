@@ -12,6 +12,7 @@ $InformationPreference = 'Continue'
 '@
   $PSBPreference.Help.DefaultLocale = 'en-US'
   $PSBPreference.Test.OutputFile = 'out/testResults.xml'
+  $PSBPreference.Build.CopyDirectories = @('en-US', 'Schema', 'Templates')
 }
 
 Task Default -Depends Test

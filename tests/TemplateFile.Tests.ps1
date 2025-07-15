@@ -1,4 +1,8 @@
 BeforeDiscovery {
+    if ($null -eq $env:BHProjectPath) {
+        $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+        . $path -Task Build
+    }
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -41,7 +45,7 @@ Describe 'TemplateFile Directive Tests' {
 </plasterManifest>
 "@ | Out-File $PlasterManifestPath -Encoding utf8
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
-            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
+            Get-Item $OutDir\empty.txt | ForEach-Object Length | Should -BeExactly 0
         }
 
         It 'It does not crash when prompt evaluates to empty' {
@@ -65,7 +69,7 @@ Describe 'TemplateFile Directive Tests' {
 </plasterManifest>
 '@ | Out-File $PlasterManifestPath -Encoding utf8
             Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -Directory foo -NoLogo 6> $null
-            Get-Item $OutDir\empty.txt | Foreach-Object Length | Should -BeExactly 0
+            Get-Item $OutDir\empty.txt | ForEach-Object Length | Should -BeExactly 0
         }
     }
 }

@@ -79,5 +79,5 @@
             "command": "Invoke-psake build.psake.ps1 -taskList Publish",
             "problemMatcher": []
         }
-	]
+    ]
 }

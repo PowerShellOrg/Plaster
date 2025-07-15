@@ -1,4 +1,8 @@
 BeforeAll {
+    if ($null -eq $env:BHProjectPath) {
+        $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+        . $path -Task Build
+    }
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -11,14 +15,14 @@ Describe 'Condition Attribute Evaluation Tests' {
     BeforeEach {
         $TemplateDir = "TestDrive:\TemplateRootTemp"
         New-Item -ItemType Directory $TemplateDir | Out-Null
-        $OutDir = "TestDrive:\Out"
-        New-Item -ItemType Directory $OutDir | Out-Null
-        $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+        $script:OutDir = "TestDrive:\Out"
+        New-Item -ItemType Directory $script:OutDir | Out-Null
+        $script:PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
         Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
     }
     AfterEach {
-        Remove-Item $PlasterManifestPath -Confirm:$False
-        Remove-Item $outDir -Recurse -Confirm:$False
+        Remove-Item $script:PlasterManifestPath -Confirm:$False
+        Remove-Item $script:outDir -Recurse -Confirm:$False
         Remove-Item $TemplateDir -Recurse -Confirm:$False
     }
     Context 'Runspace FileSystem provider working' {
@@ -39,10 +43,10 @@ Describe 'Condition Attribute Evaluation Tests' {
         <file source='Recurse\foo.txt' destination='foo.txt' condition='Test-Path bar.txt'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
-            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -NoLogo 6> $null
             # condition should return false (file doesn't exist) which will not copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
 
         It 'Determines existing file is in destination path' {
@@ -62,11 +66,11 @@ Describe 'Condition Attribute Evaluation Tests' {
         <file source='Recurse\foo.txt' destination='foo.txt' condition='Test-Path bar.txt'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
-            New-Item $OutDir\bar.txt -ItemType File > $null
-            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
+            New-Item $script:OutDir\bar.txt -ItemType File > $null
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
         }
     }
 
@@ -88,10 +92,10 @@ Describe 'Condition Attribute Evaluation Tests' {
         <file source='Recurse\foo.txt' destination='foo.txt' condition='(Get-Content `$PLASTER_TemplatePath\Recurse\foo.txt -raw) -match "is foo"'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
-            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Get-Variable command is available' {
@@ -111,10 +115,10 @@ Describe 'Condition Attribute Evaluation Tests' {
         <file source='Recurse\foo.txt' destination='foo.txt' condition='Get-Variable PLASTER_TemplatePath'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
-            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
         }
 
         It 'Compare-Object command is available' {
@@ -134,10 +138,10 @@ Describe 'Condition Attribute Evaluation Tests' {
         <file source='Recurse\foo.txt' destination='foo.txt' condition='Compare-Object -IncludeEqual -ExcludeDifferent @("a","b") @("b","c")'/>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
-            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -NoLogo 6> $null
             # condition should return true which will copy over the file foo.txt
-            Get-Item $OutDir\foo.txt -ErrorAction SilentlyContinue | Foreach-Object Name | Should -BeExactly foo.txt
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
         }
     }
 }

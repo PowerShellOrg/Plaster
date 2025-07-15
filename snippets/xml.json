@@ -122,7 +122,7 @@
         "description": "Modify the specified file already in the destination path.",
         "body": [
             "        <modify path='$1'",
-			"                encoding='UTF8'",
+            "                encoding='UTF8'",
             "                condition='$PLASTER_PARAM_Editor -eq \"VSCode\"'>",
             "            <replace condition='$PLASTER_FileContent -notmatch \"// Author:\"'>",
             "                <original>(?s)^(.*)</original>",
