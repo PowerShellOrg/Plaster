@@ -61,8 +61,18 @@ function Get-ModuleExtension {
 
                 Write-Verbose "Comparing against module extension: $($extension.Module)"
 
-                $minimumVersion = Resolve-ModuleVersionString $extension.MinimumVersion
-                $maximumVersion = Resolve-ModuleVersionString $extension.MaximumVersion
+                if ([String]::IsNullOrEmpty($extension.MinimumVersion)) {
+                    # Fill with a default value if not specified
+                    $minimumVersion = $null
+                } else {
+                    $minimumVersion = Resolve-ModuleVersionString $extension.MinimumVersion
+                }
+                if ([String]::IsNullOrEmpty($extension.MaximumVersion)) {
+                    # Fill with a default value if not specified
+                    $maximumVersion = $null
+                } else {
+                    $maximumVersion = Resolve-ModuleVersionString $extension.MaximumVersion
+                }
 
                 if (($extension.Module -eq $ModuleName) -and
                     (!$minimumVersion -or $ModuleVersion -ge $minimumVersion) -and

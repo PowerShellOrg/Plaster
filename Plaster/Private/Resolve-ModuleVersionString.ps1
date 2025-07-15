@@ -23,36 +23,30 @@ function Resolve-ModuleVersionString {
     It is not intended for direct use outside of the Plaster context.
     #>
     param(
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [string]
-        $versionString
+        $VersionString
     )
-    $parsedVersion = $null
 
-    if ($versionString) {
-        # We're targeting Semantic Versioning 2.0 so make sure the version has
-        # at least 3 components (X.X.X).  This logic ensures that the "patch"
-        # (third) component has been specified.
-        $versionParts = $versionString.Split('.')
-        if ($versionParts.Length -lt 3) {
-            $versionString = "$versionString.0"
-        }
-
-        if ($PSVersionTable.PSEdition -eq "Core") {
-            $newObjectSplat = @{
-                TypeName = "System.Management.Automation.SemanticVersion"
-                ArgumentList = $versionString
-            }
-            $parsedVersion = New-Object @newObjectSplat
-        } else {
-            $newObjectSplat = @{
-                TypeName = "System.Version"
-                ArgumentList = $versionString
-            }
-            $parsedVersion = New-Object @newObjectSplat
-        }
+    # We're targeting Semantic Versioning 2.0 so make sure the version has
+    # at least 3 components (X.X.X).  This logic ensures that the "patch"
+    # (third) component has been specified.
+    $versionParts = $VersionString.Split('.')
+    if ($versionParts.Length -lt 3) {
+        $VersionString = "$VersionString.0"
     }
 
-    return $parsedVersion
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        $newObjectSplat = @{
+            TypeName = "System.Management.Automation.SemanticVersion"
+            ArgumentList = $VersionString
+        }
+        return New-Object @newObjectSplat
+    } else {
+        $newObjectSplat = @{
+            TypeName = "System.Version"
+            ArgumentList = $VersionString
+        }
+        return New-Object @newObjectSplat
+    }
 }
