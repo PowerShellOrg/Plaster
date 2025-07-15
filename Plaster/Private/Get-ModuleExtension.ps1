@@ -1,4 +1,29 @@
 function Get-ModuleExtension {
+    <#
+    .SYNOPSIS
+    Retrieves module extensions based on specified criteria.
+
+    .DESCRIPTION
+    This function retrieves module extensions that match the specified module
+    name and version criteria.
+
+    .PARAMETER ModuleName
+    The name of the module to retrieve extensions for.
+
+    .PARAMETER ModuleVersion
+    The version of the module to retrieve extensions for.
+
+    .PARAMETER ListAvailable
+    Indicates whether to list all available modules or only the the latest
+    version of each module.
+
+    .EXAMPLE
+    Get-ModuleExtension -ModuleName "MyModule" -ModuleVersion "1.0.0"
+
+    Retrieves extensions for the module "MyModule" with version "1.0.0".
+    .NOTES
+
+    #>
     [CmdletBinding()]
     param(
         [string]
@@ -11,9 +36,9 @@ function Get-ModuleExtension {
         $ListAvailable
     )
 
-    #Only get the latest version of each module
+    # Only get the latest version of each module
     $modules = Get-Module -ListAvailable
-    if (!$ListAvailable) {
+    if (!$ListAvailable.IsPresent) {
         $modules = $modules |
             Group-Object Name |
             ForEach-Object {
@@ -24,8 +49,6 @@ function Get-ModuleExtension {
     }
 
     Write-Verbose "Found $($modules.Length) installed modules to scan for extensions."
-
-
 
     foreach ($module in $modules) {
         if ($module.PrivateData -and
