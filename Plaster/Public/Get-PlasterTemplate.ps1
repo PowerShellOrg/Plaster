@@ -46,33 +46,6 @@ function Get-PlasterTemplate {
     )
 
     process {
-        function CreateTemplateObjectFromManifest([System.IO.FileInfo]$manifestPath, [string]$name, [string]$tag) {
-
-            $manifestXml = Test-PlasterManifest -Path $manifestPath
-            $metadata = $manifestXml["plasterManifest"]["metadata"]
-
-            $manifestObj = [PSCustomObject]@{
-                Name = $metadata["name"].InnerText
-                Title = $metadata["title"].InnerText
-                Author = $metadata["author"].InnerText
-                Version = New-Object -TypeName "System.Version" -ArgumentList $metadata["version"].InnerText
-                Description = $metadata["description"].InnerText
-                Tags = $metadata["tags"].InnerText.split(",") | ForEach-Object { $_.Trim() }
-                TemplatePath = $manifestPath.Directory.FullName
-            }
-
-            $manifestObj.PSTypeNames.Insert(0, "Microsoft.PowerShell.Plaster.PlasterTemplate")
-            Add-Member -MemberType ScriptMethod -InputObject $manifestObj -Name "InvokePlaster" -Value { Invoke-Plaster -TemplatePath $this.TemplatePath }
-            return $manifestObj | Where-Object Name -Like $name | Where-Object Tags -Like $tag
-        }
-
-        function GetManifestsUnderPath([string]$rootPath, [bool]$recurse, [string]$name, [string]$tag) {
-            $manifestPaths = Get-ChildItem -Path $rootPath -Include "plasterManifest.xml" -Recurse:$recurse
-            foreach ($manifestPath in $manifestPaths) {
-                CreateTemplateObjectFromManifest $manifestPath $name $tag -ErrorAction SilentlyContinue
-            }
-        }
-
         if ($Path) {
             # Is this a folder path or a Plaster manifest file path?
             if (!$Recurse.IsPresent) {
@@ -82,14 +55,31 @@ function Get-PlasterTemplate {
 
                 # Use Test-PlasterManifest to load the manifest file
                 Write-Verbose "Attempting to get Plaster template at path: $Path"
-                CreateTemplateObjectFromManifest $Path $Name $Tag
+                $newTemplateObjectFromManifestSplat = @{
+                    ManifestPath = $Path
+                    Name = $Name
+                    Tag = $Tag
+                }
+                New-TemplateObjectFromManifest @newTemplateObjectFromManifestSplat
             } else {
                 Write-Verbose "Attempting to get Plaster templates recursively under path: $Path"
-                GetManifestsUnderPath $Path $Recurse.IsPresent $Name $Tag
+                $getManifestsUnderPathSplat = @{
+                    RootPath = $Path
+                    Recurse = $Recurse.IsPresent
+                    Name = $Name
+                    Tag = $Tag
+                }
+                Get-ManifestsUnderPath @getManifestsUnderPathSplat
             }
         } else {
             # Return all templates included with Plaster
-            GetManifestsUnderPath "$PSScriptRoot\Templates" $true $Name $Tag
+            $getManifestsUnderPathSplat = @{
+                RootPath = "$PSScriptRoot\Templates"
+                Recurse = $true
+                Name = $Name
+                Tag = $Tag
+            }
+            Get-ManifestsUnderPath @getManifestsUnderPathSplat
 
             if ($IncludeInstalledModules.IsPresent) {
                 # Search for templates in module path
@@ -98,7 +88,6 @@ function Get-PlasterTemplate {
                     ModuleVersion = $PlasterVersion
                     ListAvailable = $ListAvailable
                 }
-
                 $extensions = Get-ModuleExtension @GetModuleExtensionParams
 
                 foreach ($extension in $extensions) {
@@ -110,7 +99,13 @@ function Get-PlasterTemplate {
                             $templatePath,
                             "plasterManifest.xml")
 
-                        CreateTemplateObjectFromManifest $expandedTemplatePath $Name $Tag -ErrorAction SilentlyContinue
+                        $newTemplateObjectFromManifestSplat = @{
+                            ManifestPath = $expandedTemplatePath
+                            Name = $Name
+                            Tag = $Tag
+                            ErrorAction = 'SilentlyContinue'
+                        }
+                        New-TemplateObjectFromManifest @newTemplateObjectFromManifestSplat
                     }
                 }
             }

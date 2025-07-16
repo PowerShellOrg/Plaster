@@ -8,7 +8,7 @@
     // -------- Search configuration --------
     // Exclude the Output folder from search results.
     "search.exclude": {
-        "Output": true,
+        "Output/**": true
     },
     //-------- PowerShell Configuration --------
     // Use a custom PowerShell Script Analyzer settings file for this workspace.
