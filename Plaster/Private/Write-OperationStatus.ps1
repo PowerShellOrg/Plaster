@@ -1,10 +1,10 @@
 function Write-OperationStatus {
     [CmdletBinding()]
     param(
-        $operation,
-        $message
+        $Operation,
+        $Message
     )
     $maxLen = Get-MaxOperationLabelLength
-    Write-Host ("{0,$maxLen} " -f $operation) -ForegroundColor (Get-ColorForOperation $operation) -NoNewline
-    Write-Host $message
+    Write-Host ("{0,$maxLen} " -f $Operation) -ForegroundColor (Get-ColorForOperation $Operation) -NoNewline
+    Write-Host $Message
 }

@@ -1,4 +1,10 @@
-function Read-PromptForInput($prompt, $default, $pattern) {
+function Read-PromptForInput {
+    [CmdletBinding()]
+    param(
+        $prompt,
+        $default,
+        $pattern
+    )
     if (!$pattern) {
         $patternMatch = $true
     }

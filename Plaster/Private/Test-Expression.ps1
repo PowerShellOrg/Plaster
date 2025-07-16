@@ -1,4 +1,9 @@
-function Test-Expression([string]$Expression, [string]$Location) {
+function Test-Expression {
+    [CmdletBinding()]
+    param(
+        [string]$Expression,
+        [string]$Location
+    )
     if ($null -eq $Expression) {
         return [string]::Empty
     } elseif ([string]::IsNullOrWhiteSpace($Expression)) {

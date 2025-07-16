@@ -1,25 +1,28 @@
 function Write-ContentWithEncoding {
     [CmdletBinding()]
     param(
-        [string]$path,
-        [string[]]$content,
-        [string]$encoding
+        [string]
+        $Path,
+        [string[]]
+        $Content,
+        [string]
+        $Encoding
     )
 
-    if ($encoding -match '-nobom') {
-        $encoding, $dummy = $encoding -split '-'
+    if ($Encoding -match '-nobom') {
+        $Encoding, $dummy = $Encoding -split '-'
 
         $noBomEncoding = $null
-        switch ($encoding) {
+        switch ($Encoding) {
             'utf8' { $noBomEncoding = New-Object System.Text.UTF8Encoding($false) }
         }
 
-        if ($null -eq $content) {
-            $content = [string]::Empty
+        if ($null -eq $Content) {
+            $Content = [string]::Empty
         }
 
-        [System.IO.File]::WriteAllLines($path, $content, $noBomEncoding)
+        [System.IO.File]::WriteAllLines($Path, $Content, $noBomEncoding)
     } else {
-        Set-Content -LiteralPath $path -Value $content -Encoding $encoding
+        Set-Content -LiteralPath $Path -Value $Content -Encoding $Encoding
     }
 }

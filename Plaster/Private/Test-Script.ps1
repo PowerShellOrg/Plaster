@@ -1,4 +1,9 @@
-function Test-Script([string]$Script, [string]$Location) {
+function Test-Script {
+    [CmdletBinding()]
+    param(
+        [string]$Script,
+        [string]$Location
+    )
     if ($null -eq $Script) {
         return @([string]::Empty)
     } elseif ([string]::IsNullOrWhiteSpace($Script)) {

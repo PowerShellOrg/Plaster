@@ -1,18 +1,24 @@
-function Expand-FileSourceSpec([string]$srcRelPath, [string]$dstRelPath) {
-    $srcPath = Join-Path $templateAbsolutePath $srcRelPath
-    $dstPath = Join-Path $destinationAbsolutePath $dstRelPath
+function Expand-FileSourceSpec {
+    [CmdletBinding()]
+    param(
+        [string]$SourceRelativePath,
+        [string]$DestinationRelativePath
+    )
+    $srcPath = Join-Path $templateAbsolutePath $SourceRelativePath
+    $dstPath = Join-Path $destinationAbsolutePath $DestinationRelativePath
 
-    if ($srcRelPath.IndexOfAny([char[]]('*', '?')) -lt 0) {
+    if ($SourceRelativePath.IndexOfAny([char[]]('*', '?')) -lt 0) {
         # No wildcard spec in srcRelPath so return info on single file.
         # Also, if dstRelPath is empty, then use source rel path.
-        if (!$dstRelPath) {
-            $dstPath = Join-Path $destinationAbsolutePath $srcRelPath
+        if (!$DestinationRelativePath) {
+            $dstPath = Join-Path $destinationAbsolutePath $SourceRelativePath
         }
 
-        return New-FileSystemCopyInfo $srcPath $dstPath
+        return (New-FileSystemCopyInfo $srcPath $dstPath)
     }
 
-    # Prepare parameter values for call to Get-ChildItem to get list of files based on wildcard spec.
+    # Prepare parameter values for call to Get-ChildItem to get list of files
+    # based on wildcard spec.
     $gciParams = @{}
     $parent = Split-Path $srcPath -Parent
     $leaf = Split-Path $srcPath -Leaf

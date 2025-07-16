@@ -37,7 +37,11 @@ function Start-ProcessFile {
 
     # Check if source specifies a wildcard and if so, expand the wildcard
     # and then process each file system object (file or empty directory).
-    $fileSystemCopyInfoObjs = Expand-FileSourceSpec $srcRelPath $dstRelPath
+    $expandFileSourceSpecSplat = @{
+        SourceRelativePath = $srcRelPath
+        DestinationRelativePath = $dstRelPath
+    }
+    $fileSystemCopyInfoObjs = Expand-FileSourceSpec @expandFileSourceSpecSplat
     foreach ($fileSystemCopyInfo in $fileSystemCopyInfoObjs) {
         $srcPath = $fileSystemCopyInfo.SrcFileName
         $dstPath = $fileSystemCopyInfo.DstFileName

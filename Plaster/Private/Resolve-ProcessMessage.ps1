@@ -1,6 +1,11 @@
-function Resolve-ProcessMessage([ValidateNotNull()]$Node) {
+function Resolve-ProcessMessage {
+    [CmdletBinding()]
+    param(
+        [ValidateNotNull()]
+        $Node
+    )
     $text = Resolve-AttributeValue $Node.InnerText '<message>'
-    $nonewline = $Node.nonewline -eq 'true'
+    $noNewLine = $Node.nonewline -eq 'true'
 
     # Eliminate whitespace before and after the text that just happens to get inserted because you want
     # the text on different lines than the start/end element tags.
@@ -14,5 +19,5 @@ function Resolve-ProcessMessage([ValidateNotNull()]$Node) {
         return
     }
 
-    Write-Host $trimmedText -NoNewline:($nonewline -eq 'true')
+    Write-Host $trimmedText -NoNewline:($noNewLine -eq 'true')
 }

@@ -30,7 +30,7 @@ function Start-ProcessModifyFile {
     }
 
     # Set a Plaster (non-parameter) variable in this and the constrained runspace.
-    Set-PlasterVariable -Name FileContent -Value $fileContent -IsParam $false
+    Set-PlasterVariable -Name 'FileContent' -Value $fileContent -IsParam $false
 
     $encoding = $Node.encoding
     if (!$encoding) {

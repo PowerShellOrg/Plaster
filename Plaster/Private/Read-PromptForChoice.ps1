@@ -1,11 +1,16 @@
 function Read-PromptForChoice {
     [CmdletBinding()]
     param(
-        [string]$ParameterName,
-        [ValidateNotNull()]$ChoiceNodes,
-        [string]$prompt,
-        [int[]]$defaults,
-        [switch]$IsMultiChoice
+        [string]
+        $ParameterName,
+        [ValidateNotNull()]
+        $ChoiceNodes,
+        [string]
+        $prompt,
+        [int[]]
+        $defaults,
+        [switch]
+        $IsMultiChoice
     )
     $choices = New-Object 'System.Collections.ObjectModel.Collection[System.Management.Automation.Host.ChoiceDescription]'
     $values = New-Object object[] $ChoiceNodes.Count
@@ -21,13 +26,13 @@ function Read-PromptForChoice {
         $values[$i++] = $value
     }
 
-    $retval = [PSCustomObject]@{Values = @(); Indices = @() }
+    $returnValue = [PSCustomObject]@{Values = @(); Indices = @() }
 
     if ($IsMultiChoice) {
         $selections = $Host.UI.PromptForChoice('', $prompt, $choices, $defaults)
         foreach ($selection in $selections) {
-            $retval.Values += $values[$selection]
-            $retval.Indices += $selection
+            $returnValue.Values += $values[$selection]
+            $returnValue.Indices += $selection
         }
     } else {
         if ($defaults.Count -gt 1) {
@@ -35,9 +40,9 @@ function Read-PromptForChoice {
         }
 
         $selection = $Host.UI.PromptForChoice('', $prompt, $choices, $defaults[0])
-        $retval.Values = $values[$selection]
-        $retval.Indices = $selection
+        $returnValue.Values = $values[$selection]
+        $returnValue.Indices = $selection
     }
 
-    $retval
+    $returnValue
 }

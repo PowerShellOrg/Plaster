@@ -1,4 +1,9 @@
-function Test-FilesIdentical($Path1, $Path2) {
+function Test-FilesIdentical {
+    [CmdletBinding()]
+    param(
+        $Path1,
+        $Path2
+    )
     $file1 = Get-Item -LiteralPath $Path1 -Force
     $file2 = Get-Item -LiteralPath $Path2 -Force
 
