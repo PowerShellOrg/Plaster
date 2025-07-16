@@ -36,6 +36,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 
 # Bootstrap dependencies
 if ($Bootstrap.IsPresent) {
