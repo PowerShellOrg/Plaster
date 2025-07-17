@@ -15,17 +15,12 @@
 ##  4. Please follow the scripting style of this file when adding new script.
 
 function Invoke-Plaster {
-    [CmdletBinding(DefaultParameterSetName = 'TemplatePath', SupportsShouldProcess = $true, DefaultParameterSetName = 'TemplatePath')]
+    [CmdletBinding(DefaultParameterSetName = 'TemplatePath', SupportsShouldProcess = $true)]
     param(
         [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplatePath')]
         [ValidateNotNullOrEmpty()]
         [string]
         $TemplatePath,
-
-        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplateDefinition')]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $TemplateDefinition,
 
         [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplateDefinition')]
         [ValidateNotNullOrEmpty()]
@@ -68,12 +63,17 @@ function Invoke-Plaster {
             # catch and format the error message as a warning.
             $ErrorActionPreference = 'Stop'
 
-            # The constrained runspace is not available in the dynamicparam block.  Shouldn't be needed
-            # since we are only evaluating the parameters in the manifest - no need for Test-ConditionAttribute as we
-            # are not building up multiple parametersets.  And no need for EvaluateAttributeValue since we are only
-            # grabbing the parameter's value which is static.
+            <# The constrained runspace is not available in the dynamicparam
+            block. Shouldn't be needed since we are only evaluating the
+            parameters in the manifest - no need for Test-ConditionAttribute as
+            we are not building up multiple parametersets. And no need for
+            EvaluateAttributeValue since we are only grabbing the parameter's
+            value which is static.#>
+
+            $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
+
             # Load manifest file using culture lookup - try both JSON and XML formats
-            $manifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+            $manifestPath = Get-PlasterManifestPathForCulture -TemplatePath $templateAbsolutePath -Culture $PSCulture
 
             # If XML not found, try JSON
             if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
@@ -83,9 +83,6 @@ function Invoke-Plaster {
                 }
             }
 
-            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
-                return
-            }
             # Determine manifest type and process accordingly
             try {
                 $manifestType = Get-PlasterManifestType -ManifestPath $manifestPath
@@ -95,8 +92,7 @@ function Invoke-Plaster {
                 return
             }
 
-            #
-            Process JSON manifests
+            #Process JSON manifests
             if ($manifestType -eq 'JSON') {
                 try {
                     $jsonContent = Get-Content -LiteralPath $manifestPath -Raw -ErrorAction Stop
@@ -107,16 +103,9 @@ function Invoke-Plaster {
                     return
                 }
             } else {
-                #
-                Process XML manifests (existing logic)
+                # Process XML manifests (existing logic)
                 $manifest = Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
-            }ture
-            if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath))) {
-
-                return
             }
-
-            $
 
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
@@ -213,7 +202,7 @@ function Invoke-Plaster {
 
             # Determine manifest type and path
             $jsonManifestPath = Join-Path $templateAbsolutePath 'plasterManifest.json'
-            $xmlManifestPath = GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+            $xmlManifestPath = Get-PlasterManifestPathForCulture $templateAbsolutePath $PSCulture
 
             if (Test-Path -LiteralPath $jsonManifestPath) {
                 $manifestPath = $jsonManifestPath
@@ -274,16 +263,16 @@ function Invoke-Plaster {
         # Prepare output object if user has specified the -PassThru parameter.
         if ($PassThru) {
             $InvokePlasterInfo = [PSCustomObject]@{
-                TemplatePath    = if ($templateAbsolutePath) { $templateAbsolutePath } else { 'Inline Definition' }
+                TemplatePath = if ($templateAbsolutePath) { $templateAbsolutePath } else { 'Inline Definition' }
                 DestinationPath = $destinationAbsolutePath
-                ManifestType    = $manifestType
-                Success         = $false
-                TemplateType    = if ($manifest.plasterManifest.templateType) { $manifest.plasterManifest.templateType } else { 'Unspecified' }
-                CreatedFiles    = [string[]]@()
-                UpdatedFiles    = [string[]]@()
-                MissingModules  = [string[]]@()
-                OpenFiles       = [string[]]@()
-                ProcessingTime  = $null
+                ManifestType = $manifestType
+                Success = $false
+                TemplateType = if ($manifest.plasterManifest.templateType) { $manifest.plasterManifest.templateType } else { 'Unspecified' }
+                CreatedFiles = [string[]]@()
+                UpdatedFiles = [string[]]@()
+                MissingModules = [string[]]@()
+                OpenFiles = [string[]]@()
+                ProcessingTime = $null
             }
         }
 
