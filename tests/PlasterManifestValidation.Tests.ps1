@@ -234,7 +234,7 @@ Describe 'Module Error Handling Tests' {
         <tags></tags>
     </metadata>
     <content>
-        <modify path='$env:LOCALAPPDATA\tasks-should-not-be-here.json' encoding='UTF8'
+        <modify path='{0}tasks-should-not-be-here.json' encoding='UTF8'
                 condition="$false">
             <replace>
                 <original>(?s)^(.*)</original>
