@@ -221,7 +221,7 @@ Describe 'Module Error Handling Tests' {
 
     Context 'Template cannot write outside of the user-specified DestinationPath' {
         It 'Throws on modify path that is absolute path' {
-
+            $root = if ($IsWindows) { $env:LOCALAPPDATA } else { '/' }
             @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
@@ -243,7 +243,7 @@ Describe 'Module Error Handling Tests' {
         </modify>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ -f $root | Out-File $PlasterManifestPath -Encoding utf8
 
             { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }
