@@ -1,3 +1,4 @@
+# TODO: What is this? GS
 # Phase 2 Test: JSON Template Creation and Execution
 
 Write-Host "=== Plaster 2.0 Phase 2 - JSON Template Test ===" -ForegroundColor Cyan
