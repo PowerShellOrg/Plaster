@@ -20,7 +20,7 @@ function Get-PlasterManifestPathForCulture {
     The culture information for which to retrieve the Plaster manifest file.
 
     .EXAMPLE
-    GetPlasterManifestPathForCulture -TemplatePath "C:\Templates" -Culture (Get-Culture)
+    Get-PlasterManifestPathForCulture -TemplatePath "C:\Templates" -Culture (Get-Culture)
 
     This example retrieves the path to the Plaster manifest file for the current culture.
     .NOTES

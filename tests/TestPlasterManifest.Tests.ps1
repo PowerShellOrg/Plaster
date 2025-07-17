@@ -211,8 +211,8 @@ Describe 'Test-PlasterManifest Command Tests' {
       $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "attribute value 'None'"
-      $verboseRecord.Message | Should -Match "a zero-based"
+      ($verboseRecord.Message -join "`n") | Should -Match "attribute value 'None'"
+      ($verboseRecord.Message -join "`n") | Should -Match "a zero-based"
     }
 
     It 'Detects invalid default value for multichoice parameters' {
@@ -262,8 +262,8 @@ Describe 'Test-PlasterManifest Command Tests' {
       $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "attribute value 'Git,psake'"
-      $verboseRecord.Message | Should -Match "one or more zero-based"
+      ($verboseRecord.Message -join "`n") | Should -Match "attribute value 'Git,psake'"
+      ($verboseRecord.Message -join "`n") | Should -Match "one or more zero-based"
     }
 
     It 'Detects invalid condition attribute value' {
@@ -292,7 +292,7 @@ Describe 'Test-PlasterManifest Command Tests' {
       $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "Invalid condition '`"foo`" -eq `"bar'"
+      ($verboseRecord.Message -join "`n") | Should -Match "Invalid condition '`"foo`" -eq `"bar'"
     }
 
     It 'Detects invalid content attribute value' {
@@ -320,7 +320,7 @@ Describe 'Test-PlasterManifest Command Tests' {
       $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
+      ($verboseRecord.Message -join "`n") | Should -Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
     }
   }
 }

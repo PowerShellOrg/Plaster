@@ -9,10 +9,10 @@ function New-ConstrainedRunspace {
     $iss.DisableFormatUpdates = $true
 
     # Add providers
-    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment',([Microsoft.PowerShell.Commands.EnvironmentProvider]),$null
+    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'Environment', ([Microsoft.PowerShell.Commands.EnvironmentProvider]), $null
     $iss.Providers.Add($sspe)
 
-    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem',([Microsoft.PowerShell.Commands.FileSystemProvider]),$null
+    $sspe = New-Object System.Management.Automation.Runspaces.SessionStateProviderEntry 'FileSystem', ([Microsoft.PowerShell.Commands.FileSystemProvider]), $null
     $iss.Providers.Add($sspe)
 
     # Add cmdlets with enhanced set for JSON processing
@@ -23,7 +23,8 @@ function New-ConstrainedRunspace {
     )
 
     foreach ($cmdletName in $cmdlets) {
-        $cmdletType = [Microsoft.PowerShell.Commands.GetContentCommand].Assembly.GetType("Microsoft.PowerShell.Commands.$($cmdletName -replace '-')Command")
+        #$cmdletType = [Microsoft.PowerShell.Commands.GetContentCommand].Assembly.GetType("Microsoft.PowerShell.Commands.$($cmdletName -replace '-')Command")
+        $cmdletType = "Microsoft.PowerShell.Commands.$($cmdletName -replace '-')Command" -as [Type]
         if ($cmdletType) {
             $ssce = New-Object System.Management.Automation.Runspaces.SessionStateCmdletEntry $cmdletName, $cmdletType, $null
             $iss.Commands.Add($ssce)
@@ -32,7 +33,7 @@ function New-ConstrainedRunspace {
 
     # Add enhanced variable set including JSON manifest type
     $scopedItemOptions = [System.Management.Automation.ScopedItemOptions]::AllScope
-    $plasterVars = Get-Variable -Name PLASTER_*,PSVersionTable
+    $plasterVars = Get-Variable -Name PLASTER_*, PSVersionTable
 
     # Add platform detection variables
     if (Test-Path Variable:\IsLinux) { $plasterVars += Get-Variable -Name IsLinux }
@@ -46,7 +47,7 @@ function New-ConstrainedRunspace {
 
     foreach ($var in $plasterVars) {
         $ssve = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry `
-                    $var.Name,$var.Value,$var.Description,$scopedItemOptions
+            $var.Name, $var.Value, $var.Description, $scopedItemOptions
         $iss.Variables.Add($ssve)
     }
 

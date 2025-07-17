@@ -12,8 +12,15 @@ Invokes the specified Plaster template which will scaffold out a file or a set o
 
 ## SYNTAX
 
+### TemplatePath (Default)
 ```
 Invoke-Plaster [-TemplatePath] <String> [-DestinationPath] <String> [-Force] [-NoLogo] [-PassThru]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### TemplateDefinition
+```
+Invoke-Plaster [-TemplateDefinition] <String> [-DestinationPath] <String> [-Force] [-NoLogo] [-PassThru]
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -131,12 +138,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -TemplateDefinition
+{{ Fill TemplateDefinition Description }}
+
+```yaml
+Type: String
+Parameter Sets: TemplateDefinition
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -TemplatePath
 Specifies the path to the template directory.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: TemplatePath
 Aliases:
 
 Required: True

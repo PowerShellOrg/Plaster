@@ -15,8 +15,8 @@ Creates a new Plaster template manifest file.
 ```
 New-PlasterManifest [[-Path] <String>] [-TemplateName] <String> [-TemplateType] <String> [[-Id] <Guid>]
  [[-TemplateVersion] <String>] [[-Title] <String>] [[-Description] <String>] [[-Tags] <String[]>]
- [[-Author] <String>] [-AddContent] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [[-Author] <String>] [-AddContent] [[-Format] <String>] [-ConvertFromXml] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -118,6 +118,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ConvertFromXml
+{{ Fill ConvertFromXml Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Description
 Description of the Plaster template.
 This describes what the template is for.
@@ -133,6 +148,22 @@ Aliases:
 
 Required: False
 Position: 6
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Format
+{{ Fill Format Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+Accepted values: XML, JSON
+
+Required: False
+Position: 9
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

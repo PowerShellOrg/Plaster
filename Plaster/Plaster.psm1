@@ -115,42 +115,6 @@ $ParameterDefaultValueStoreRootPath = switch ($true) {
         "$Home/.plaster"
     }
 }
-# Dot source the individual module command scripts with error handling
-$commandFiles = @(
-    'writePlasterLog.ps1'
-    'PlasterVariables.ps1'
-    'JsonManifestHandler.ps1'
-    'NewPlasterManifest.ps1'
-    'TestPlasterManifest.ps1'
-    'GetPlasterTemplate.ps1'
-    'InvokePlaster.ps1'
-
-)
-foreach ($file in $commandFiles) {
-    $filePath = Join-Path $PSScriptRoot $file
-    if (Test-Path $filePath) {
-        try {
-            Write-Verbose "Loading command file: $file"
-            . $filePath
-            Write-Verbose "Successfully loaded: $file"
-        } catch {
-            $errorMessage = "Failed to load command file '$file': $($_.Exception.Message)"
-            if (Get-Command Write-PlasterLog -ErrorAction SilentlyContinue) {
-                Write-PlasterLog -Level Error -Message $errorMessage
-            } else {
-                Write-Error $errorMessage
-            }
-            throw $_
-        }
-    } else {
-        $warningMessage = "Command file not found: $filePath"
-        if (Get-Command Write-PlasterLog -ErrorAction SilentlyContinue) {
-            Write-PlasterLog -Level Warning -Message $warningMessage
-        } else {
-            Write-Warning $warningMessage
-        }
-    }
-}
 
 # Enhanced platform detection with fallback
 if (-not (Get-Variable -Name 'IsWindows' -ErrorAction SilentlyContinue)) {
@@ -174,6 +138,26 @@ if (-not $script:XmlSchemaValidationSupported) {
 
 # Module logging configuration
 $script:LogLevel = if ($env:PLASTER_LOG_LEVEL) { $env:PLASTER_LOG_LEVEL } else { 'Information' }
+
+# Global variables and constants for Plaster 2.0
+
+# Enhanced $TargetNamespace definition with proper scoping
+if (-not (Get-Variable -Name 'TargetNamespace' -Scope Script -ErrorAction SilentlyContinue)) {
+    Set-Variable -Name 'TargetNamespace' -Value 'http://www.microsoft.com/schemas/PowerShell/Plaster/v1' -Scope Script -Option ReadOnly
+}
+
+# Enhanced $DefaultEncoding definition
+if (-not (Get-Variable -Name 'DefaultEncoding' -Scope Script -ErrorAction SilentlyContinue)) {
+    Set-Variable -Name 'DefaultEncoding' -Value 'UTF8-NoBOM' -Scope Script -Option ReadOnly
+}
+
+# JSON Schema version for new manifests
+if (-not (Get-Variable -Name 'JsonSchemaVersion' -Scope Script -ErrorAction SilentlyContinue)) {
+    Set-Variable -Name 'JsonSchemaVersion' -Value '2.0' -Scope Script -Option ReadOnly
+}
+
+# Export the variables that need to be available globally
+Export-ModuleMember -Variable @('TargetNamespace', 'DefaultEncoding', 'JsonSchemaVersion')
 
 # Module cleanup on removal
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {

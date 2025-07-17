@@ -7,7 +7,7 @@ function Invoke-ExpressionImpl {
         $powershell = [PowerShell]::Create()
 
         if ($null -eq $constrainedRunspace) {
-            $constrainedRunspace = NewConstrainedRunspace
+            $constrainedRunspace = New-ConstrainedRunspace
         }
         $powershell.Runspace = $constrainedRunspace
 
@@ -21,17 +21,15 @@ function Invoke-ExpressionImpl {
             }
 
             return $res
-        }
-        catch {
-            throw ($LocalizedData.ExpressionInvalid_F2 -f $Expression,$_)
+        } catch {
+            throw ($LocalizedData.ExpressionInvalid_F2 -f $Expression, $_)
         }
 
         if ($powershell.Streams.Error.Count -gt 0) {
             $err = $powershell.Streams.Error[0]
-            throw ($LocalizedData.ExpressionNonTermErrors_F2 -f $Expression,$err)
+            throw ($LocalizedData.ExpressionNonTermErrors_F2 -f $Expression, $err)
         }
-    }
-    finally {
+    } finally {
         if ($powershell) {
             $powershell.Dispose()
         }
