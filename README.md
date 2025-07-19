@@ -5,7 +5,9 @@
 ![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)
 ![PowerShell Support](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207.x-blue)
 
-> **Plaster 2.0 is here!** Fully modernized for PowerShell 7.x with complete cross-platform support while maintaining 100% backward compatibility with existing templates.
+> **Plaster 2.0 is here!** Fully modernized for PowerShell 7.x with complete
+> cross-platform support while maintaining 100% backward compatibility with
+> existing templates.
 
 ## What's New in 2.0
 
@@ -18,25 +20,33 @@
 
 ## Overview
 
-Plaster is a template-based file and project generator written in PowerShell. Its purpose is to streamline the creation of PowerShell module projects, Pester tests, DSC configurations, and more. File generation is performed using crafted templates which allow users to fill in details and choose from options to get their desired output.
+Plaster is a template-based file and project generator written in PowerShell.
+Its purpose is to streamline the creation of PowerShell module projects, Pester
+tests, DSC configurations, and more. File generation is performed using crafted
+templates which allow users to fill in details and choose from options to get
+their desired output.
 
 Think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
 
 ## Key Features
 
 ### Template-Based Generation
-- **Flexible Templates**: Create files, directories, and entire project structures
+
+- **Flexible Templates**: Create files, directories, and entire project
+  structures
 - **Parameter Substitution**: Dynamic content based on user input
 - **Conditional Logic**: Smart templates that adapt based on choices
 - **Localization Support**: Multi-language template support
 
 ### Cross-Platform Ready
+
 - **Universal Compatibility**: Works on Windows, Linux, and macOS
 - **Path Normalization**: Automatic handling of platform-specific paths
 - **Encoding Support**: UTF-8 with proper BOM handling
 - **Line Ending Management**: Consistent line endings across platforms
 
 ### Developer Friendly
+
 - **Modern PowerShell**: Leverages PowerShell 5.1+ and 7.x features
 - **Rich Validation**: Comprehensive parameter and template validation
 - **Detailed Logging**: Configurable logging for debugging and monitoring
@@ -45,6 +55,7 @@ Think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
 ## Installation
 
 ### PowerShell Gallery (Recommended)
+
 ```powershell
 # Install for current user
 Install-Module Plaster -Scope CurrentUser
@@ -57,9 +68,12 @@ Update-Module Plaster
 ```
 
 ### Manual Installation
-Download the latest release from our [Releases](https://github.com/PowerShellOrg/Plaster/releases) page.
+
+Download the latest release from our
+[Releases](https://github.com/PowerShellOrg/Plaster/releases) page.
 
 ### Development Version
+
 ```powershell
 # Clone and build from source
 git clone https://github.com/PowerShellOrg/Plaster.git
@@ -70,6 +84,7 @@ cd Plaster
 ## Quick Start
 
 ### 1. Explore Available Templates
+
 ```powershell
 # List built-in templates
 Get-PlasterTemplate
@@ -82,6 +97,7 @@ Get-PlasterTemplate -Name "*Module*" -Tag "PowerShell"
 ```
 
 ### 2. Create a New Project
+
 ```powershell
 # Interactive mode - Plaster will prompt for parameters
 Invoke-Plaster -TemplatePath BuiltinTemplate -DestinationPath C:\MyNewProject
@@ -98,6 +114,7 @@ Invoke-Plaster @templateParams
 ```
 
 ### 3. Create Your Own Template
+
 ```powershell
 # Generate a new template manifest
 New-PlasterManifest -TemplateName 'MyTemplate' -TemplateType 'Project'
@@ -109,22 +126,29 @@ Test-PlasterManifest -Path .\plasterManifest.xml
 ## Documentation
 
 ### Core Documentation
+
 - **[Getting Started Guide](docs/en-US/about_Plaster.help.md)** - Learn the basics
-- **[Creating Templates](docs/en-US/about_Plaster_CreatingAManifest.help.md)** - Template authoring guide
+- **[Creating Templates](docs/en-US/about_Plaster_CreatingAManifest.help.md)** -
+  Template authoring guide
 - **[Cmdlet Reference](docs/en-US/Plaster.md)** - Complete API documentation
 - **[Migration Guide](docs/Migration-v2.md)** - Upgrading from v1.x
 
 ### Learning Resources
+
 - **[Template Gallery](docs/Templates.md)** - Community templates
 - **[Best Practices](docs/BestPractices.md)** - Template design guidelines
 - **[Examples](examples/)** - Sample templates and usage
 - **[FAQ](docs/FAQ.md)** - Common questions and answers
 
 ### Video Resources
-- [Working with Plaster Presentation](https://youtu.be/16CYGTKH73U) by David Christian
+
+- [Working with Plaster Presentation](https://youtu.be/16CYGTKH73U) by David
+  Christian
 
 ### Blog Posts
-- [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by David Christian
+
+- [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by
+  David Christian
 
 ## Template Structure
 
@@ -138,6 +162,7 @@ MyTemplate/
 ```
 
 ### Basic Manifest Example
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="1.2" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
@@ -167,6 +192,7 @@ MyTemplate/
 ## Usage Examples
 
 ### Creating a PowerShell Module
+
 ```powershell
 # Use the built-in module template
 $moduleParams = @{
@@ -181,12 +207,14 @@ Invoke-Plaster @moduleParams
 ```
 
 ### Creating a Custom Script
+
 ```powershell
 # Create a new script from template
 Invoke-Plaster -TemplatePath .\MyScriptTemplate -DestinationPath .\Scripts -ScriptName 'ProcessData' -Author 'Jane Smith'
 ```
 
 ### Batch Project Creation
+
 ```powershell
 # Create multiple projects from a template
 $projects = @('ProjectA', 'ProjectB', 'ProjectC')
@@ -198,12 +226,14 @@ foreach ($project in $projects) {
 ## Development and Testing
 
 ### Prerequisites
+
 - PowerShell 5.1 or higher
 - Pester 5.0+ (for testing)
 - PSScriptAnalyzer (for code quality)
 - InvokeBuild (for building)
 
 ### Building from Source
+
 ```powershell
 # Clone the repository
 git clone https://github.com/PowerShellOrg/Plaster.git
@@ -223,6 +253,7 @@ cd Plaster
 ```
 
 ### Running Tests
+
 ```powershell
 # Run all tests
 Invoke-Pester
@@ -251,22 +282,27 @@ Plaster 2.0 provides full cross-platform support:
 ### Platform-Specific Considerations
 
 #### Windows
+
 - Full XML schema validation support
 - Uses `$env:LOCALAPPDATA\Plaster` for parameter storage
 
 #### Linux
+
 - Uses `$HOME/.local/share/plaster` for parameter storage
 - Follows XDG Base Directory Specification
 
 #### macOS
+
 - Uses `$HOME/.plaster` for parameter storage
 - Full Unicode support for file names
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our
+[Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ### Ways to Contribute
+
 - **Report Bugs** - File issues with detailed reproduction steps
 - **Suggest Features** - Share ideas for new functionality
 - **Improve Documentation** - Help make our docs better
@@ -274,6 +310,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Create Templates** - Share useful templates with the community
 
 ### Development Setup
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -284,11 +321,13 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## Compatibility
 
 ### PowerShell Versions
+
 - ✅ **PowerShell 5.1** (Windows PowerShell)
 - ✅ **PowerShell 7.0+** (Cross-platform)
 - ❌ **PowerShell 3.0-5.0** (No longer supported)
 
 ### Breaking Changes from v1.x
+
 - Minimum PowerShell version increased to 5.1
 - Default encoding changed to UTF8-NoBOM
 - Pester 5.x required for development/testing
@@ -297,29 +336,44 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## Support
 
 ### Getting Help
+
 - **Documentation** - Check our comprehensive docs
-- **Discussions** - Ask questions in [GitHub Discussions](https://github.com/PowerShellOrg/Plaster/discussions)
-- **Issues** - Report bugs in [GitHub Issues](https://github.com/PowerShellOrg/Plaster/issues)
-- **Community** - Join the PowerShell community on [Discord](https://discord.gg/powershell)
+- **Discussions** - Ask questions in
+  [GitHub Discussions](https://github.com/PowerShellOrg/Plaster/discussions)
+- **Issues** - Report bugs in
+  [GitHub Issues](https://github.com/PowerShellOrg/Plaster/issues)
+- **Community** - Join the PowerShell community on
+  [Discord](https://discord.gg/powershell)
 
 ### Commercial Support
+
 For enterprise support and consulting, contact the maintainers through GitHub.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE) - see the license file for details.
+This project is licensed under the [MIT License](LICENSE) - see the license file
+for details.
 
 ## Acknowledgments
 
 ### Maintainers
-- [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
-- [James Petty](https://github.com/psjamess) - [@PSJamesP](http://twitter.com/PSJamesP)
+
+- [Jeff Hicks](https://github.com/jdhitsolutions) -
+  [@jeffhicks](http://twitter.com/jeffhicks)
+- [James Petty](https://github.com/psjamess) -
+  [@PSJamesP](http://twitter.com/PSJamesP)
 
 ### Contributors
-Special thanks to all the community contributors who have helped make Plaster better. See our [Contributors](https://github.com/PowerShellOrg/Plaster/contributors) page for the full list.
+
+Special thanks to all the community contributors who have helped make Plaster
+better. See our
+[Contributors](https://github.com/PowerShellOrg/Plaster/contributors) page for
+the full list.
 
 ### Legacy
-Originally created by the PowerShell team at Microsoft and transferred to PowerShell.org in 2020 to ensure continued community development.
+
+Originally created by the PowerShell team at Microsoft and transferred to
+PowerShell.org in 2020 to ensure continued community development.
 
 ---
 

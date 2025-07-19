@@ -1,12 +1,42 @@
 # Processes both the <file> and <templateFile> directives.
 function Start-ProcessFile {
+    <#
+    .SYNOPSIS
+    Processes the <file> and <templateFile> directives in a Plaster template.
+
+    .DESCRIPTION
+    This function processes the <file> and <templateFile> directives in a
+    Plaster template.
+    It resolves the source and destination paths, checks conditions, expands
+    file source specifications,
+
+    .PARAMETER Node
+    The XML node representing the <file> or <templateFile> directive.
+
+    .EXAMPLE
+    Start-ProcessFile -Node $fileNode
+
+    Processes the specified file node, resolving paths and handling conditions.
+    .NOTES
+    This function is part of the Plaster module and is used internally to handle
+    file processing in templates.
+    #>
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [ValidateNotNull()]
         $Node
     )
-    $srcRelPath = Resolve-AttributeValue $Node.source (Get-ErrorLocationFileAttrVal $Node.localName source)
-    $dstRelPath = Resolve-AttributeValue $Node.destination (Get-ErrorLocationFileAttrVal $Node.localName destination)
+    $resolveAttributeValueSplat = @{
+        Value = $Node.source
+        Location = (Get-ErrorLocationFileAttrVal $Node.localName source)
+    }
+    $srcRelPath = Resolve-AttributeValue @resolveAttributeValueSplat
+
+    $resolveAttributeValueSplat = @{
+        Value = $Node.destination
+        Location = (Get-ErrorLocationFileAttrVal $Node.localName destination)
+    }
+    $dstRelPath = Resolve-AttributeValue @resolveAttributeValueSplat
 
     $condition = $Node.condition
     if ($condition -and !(Test-ConditionAttribute $condition "'<$($Node.LocalName)>'")) {
