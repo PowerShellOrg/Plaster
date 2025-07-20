@@ -1,0 +1,277 @@
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "id": "dcd95744-8abc-4ecb-a439-bf2cd37821bb",
+        "name": "NewModule",
+        "title": "New Module",
+        "description": "Scaffolds the files required for a PowerShell module.",
+        "version": "1.0.0",
+        "templateType": "Project",
+        "author": "Plaster Project",
+        "tags": [
+            "Module",
+            "ModuleManifest",
+            "Build"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "ModuleName",
+            "type": "text",
+            "prompt": "Enter the name of the module"
+        },
+        {
+            "name": "ModuleDesc",
+            "type": "text",
+            "prompt": "Enter a description of the module (required for publishing to the PowerShell Gallery)"
+        },
+        {
+            "name": "Version",
+            "type": "text",
+            "prompt": "Enter the version number of the module",
+            "default": "0.1.0"
+        },
+        {
+            "name": "FullName",
+            "type": "user-fullname",
+            "prompt": "Enter your full name",
+            "store": "text"
+        },
+        {
+            "name": "License",
+            "type": "choice",
+            "prompt": "Select a license (see http://choosealicense.com for help choosing):",
+            "default": 0,
+            "store": "text",
+            "choices": [
+                {
+                    "label": "&None",
+                    "help": "No license.",
+                    "value": "None"
+                },
+                {
+                    "label": "&Apache",
+                    "help": "Adds an Apache license file.",
+                    "value": "Apache"
+                },
+                {
+                    "label": "&MIT",
+                    "help": "Adds an MIT license file.",
+                    "value": "MIT"
+                }
+            ]
+        },
+        {
+            "name": "Options",
+            "type": "multichoice",
+            "prompt": "Select one or more of the following tooling options:",
+            "default": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "store": "text",
+            "choices": [
+                {
+                    "label": "&None",
+                    "help": "No tooling options specified.",
+                    "value": "None"
+                },
+                {
+                    "label": "Add &Git .gitignore file",
+                    "help": "Adds a .gitignore file.",
+                    "value": "Git"
+                },
+                {
+                    "label": "Add p&sake build script",
+                    "help": "Adds psake build script that generates the module directory for publishing to the PowerShell Gallery.",
+                    "value": "psake"
+                },
+                {
+                    "label": "Add &Pester test support",
+                    "help": "Adds test directory and Pester test for the module manifest file.",
+                    "value": "Pester"
+                },
+                {
+                    "label": "Add PSScript&Analyzer support",
+                    "help": "Adds script analysis support using PSScriptAnalyzer.",
+                    "value": "PSScriptAnalyzer"
+                },
+                {
+                    "label": "Add plat&yPS help generation support",
+                    "help": "Adds help build support using platyPS.",
+                    "value": "platyPS"
+                }
+            ]
+        },
+        {
+            "name": "Editor",
+            "type": "choice",
+            "prompt": "Select one of the supported script editors for better editor integration (or None):",
+            "default": 0,
+            "store": "text",
+            "choices": [
+                {
+                    "label": "&None",
+                    "help": "No editor specified.",
+                    "value": "None"
+                },
+                {
+                    "label": "Visual Studio &Code",
+                    "help": "Your editor is Visual Studio Code.",
+                    "value": "VSCode"
+                }
+            ]
+        }
+    ],
+    "content": [
+        {
+            "type": "message",
+            "text": "\n\n\nScaffolding your PowerShell Module...\n\n\n"
+        },
+        {
+            "type": "newModuleManifest",
+            "destination": "src\\${ModuleName}.psd1",
+            "moduleVersion": "${Version}",
+            "rootModule": "${ModuleName}.psm1",
+            "author": "${FullName}",
+            "description": "${ModuleDesc}",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "file",
+            "condition": "${Options} -contains 'Git'",
+            "source": "_gitignore",
+            "destination": ".gitignore"
+        },
+        {
+            "type": "file",
+            "condition": "${Options} -contains 'psake'",
+            "source": "build*.ps1",
+            "destination": ""
+        },
+        {
+            "type": "file",
+            "source": "ReleaseNotes.md",
+            "destination": ""
+        },
+        {
+            "type": "file",
+            "source": "src\\Module.psm1",
+            "destination": "src\\${ModuleName}.psm1"
+        },
+        {
+            "type": "file",
+            "source": "ScriptAnalyzerSettings.psd1",
+            "destination": ""
+        },
+        {
+            "type": "templateFile",
+            "condition": "${Options} -contains 'platyPS'",
+            "source": "docs\\en-US\\about_Module.help.md",
+            "destination": "docs\\en-US\\about_${ModuleName}.help.md"
+        },
+        {
+            "type": "templateFile",
+            "condition": "${Options} -notcontains 'platyPS'",
+            "source": "docs\\en-US\\about_Module.help.txt",
+            "destination": "src\\en-US\\about_${ModuleName}.help.txt"
+        },
+        {
+            "type": "templateFile",
+            "condition": "${Options} -contains 'Pester'",
+            "source": "test\\Module.T.ps1",
+            "destination": "test\\${ModuleName}.Tests.ps1"
+        },
+        {
+            "type": "templateFile",
+            "condition": "${Options} -contains 'Pester'",
+            "source": "test\\Shared.ps1",
+            "destination": "test\\Shared.ps1"
+        },
+        {
+            "type": "templateFile",
+            "condition": "${License} -eq 'Apache'",
+            "source": "license\\Apache.txt",
+            "destination": "LICENSE.txt",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "templateFile",
+            "condition": "${License} -eq 'MIT'",
+            "source": "license\\MIT.txt",
+            "destination": "LICENSE.txt"
+        },
+        {
+            "type": "file",
+            "condition": "(${Editor} -eq 'VSCode') -and (${Options} -notcontains 'psake') -and (${Options} -contains 'Pester')",
+            "source": "editor\\VSCode\\tasks_pester.json",
+            "destination": ".vscode\\tasks.json"
+        },
+        {
+            "type": "file",
+            "condition": "(${Editor} -eq 'VSCode') -and (${Options} -contains 'psake') -and (${Options} -notcontains 'Pester')",
+            "source": "editor\\VSCode\\tasks_psake.json",
+            "destination": ".vscode\\tasks.json"
+        },
+        {
+            "type": "file",
+            "condition": "(${Editor} -eq 'VSCode') -and (${Options} -contains 'psake') -and (${Options} -contains 'Pester')",
+            "source": "editor\\VSCode\\tasks_psake_pester.json",
+            "destination": ".vscode\\tasks.json"
+        },
+        {
+            "type": "file",
+            "condition": "(${Editor} -eq 'VSCode') -and (${Options} -contains 'PSScriptAnalyzer')",
+            "source": "editor\\VSCode\\settings.json",
+            "destination": ".vscode\\settings.json"
+        },
+        {
+            "type": "requireModule",
+            "name": "Pester",
+            "condition": "${Options} -contains 'Pester'",
+            "minimumVersion": "3.4.0",
+            "message": "Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.\nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."
+        },
+        {
+            "type": "requireModule",
+            "name": "psake",
+            "condition": "${Options} -contains 'psake'",
+            "message": "Without psake, you will not be able to run the provided build script to build and/or publish your module."
+        },
+        {
+            "type": "requireModule",
+            "name": "PSScriptAnalyzer",
+            "condition": "${Options} -contains 'PSScriptAnalyzer'",
+            "message": "Without PSScriptAnalyzer, you will not be able to perform script analysis, or use the provided options to control script analysis."
+        },
+        {
+            "type": "requireModule",
+            "name": "platyPS",
+            "condition": "${Options} -contains 'platyPS'",
+            "minimumVersion": "0.7.2",
+            "message": "Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."
+        },
+        {
+            "type": "message",
+            "text": "\nYour new PowerShell module project '${ModuleName}' has been created.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'Pester'",
+            "text": "A Pester test has been created to validate the module's manifest file. Add additional tests to the test directory.\nYou can run the Pester tests in your project by executing the 'test' task. Press Ctrl+P, then type 'task test'.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'psake'",
+            "text": "You can build your project by executing the 'build' task. Press Ctrl+P, then type 'task build'.\nYou can publish your project to the PSGallery by pressing Ctrl+P, then type 'task publish'.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "(${Options} -contains 'psake') -and (${Options} -contains 'platyPS')",
+            "text": "You can generate help and additional documentation using platyPS by running the 'build help' task. Press Ctrl+P,\nthen type 'task build help'. Add additional documentation written in platyPS markdown to the docs directory. You can\nupdate the help by running the 'build help' task again.\n\n"
+        }
+    ]
+}

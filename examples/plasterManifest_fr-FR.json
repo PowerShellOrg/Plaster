@@ -1,0 +1,242 @@
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "id": "38bd80d9-3a47-4916-9220-bed383d90876",
+        "name": "NewPowerShellModule",
+        "title": "Nouveau PowerShell Module",
+        "description": "Modèle de plâtre pour créer les fichiers d'un module de PowerShell.",
+        "version": "0.2.0",
+        "templateType": "Project",
+        "author": "Projet Plaster",
+        "tags": [
+            "Module",
+            "ModuleManifest",
+            "Build"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "ModuleName",
+            "type": "text",
+            "prompt": "Entrez le nom du module"
+        },
+        {
+            "name": "ModuleDesc",
+            "type": "text",
+            "prompt": "Entrez une description du module (requis pour la publication de la Galerie de PowerShell)"
+        },
+        {
+            "name": "Version",
+            "type": "text",
+            "default": "1.0.0",
+            "prompt": "Entrez le numéro de version du module"
+        },
+        {
+            "name": "FullName",
+            "type": "user-fullname",
+            "store": "text",
+            "prompt": "Entrez votre nom et prénom"
+        },
+        {
+            "name": "Email",
+            "type": "user-email",
+            "store": "text",
+            "prompt": "Entrez votre adresse e-mail"
+        },
+        {
+            "name": "Options",
+            "type": "multichoice",
+            "default": [
+                0,
+                1,
+                2
+            ],
+            "store": "text",
+            "prompt": "Sélectionnez les options souhaitées",
+            "choices": [
+                {
+                    "label": "&Pester en charge les tests",
+                    "help": "Ajoute des Tests répertoire et un fichier de Tests Pester de démarreur.",
+                    "value": "Pester"
+                },
+                {
+                    "label": "P&Sake créer script",
+                    "help": "Ajoute un script de compilation PSake qui génère le répertoire du module pour la publication de la PSGallery.",
+                    "value": "PSake"
+                },
+                {
+                    "label": "&Git",
+                    "help": "Ajoute un fichier .gitignore.",
+                    "value": "Git"
+                },
+                {
+                    "label": "Aucu&n",
+                    "help": "Pas d'options précisées.",
+                    "value": "None"
+                }
+            ]
+        },
+        {
+            "name": "Editor",
+            "type": "choice",
+            "default": 2,
+            "store": "text",
+            "prompt": "Quel éditeur Utilisez-vous",
+            "choices": [
+                {
+                    "label": "&ISE",
+                    "help": "Votre éditeur est PowerShell ISE.",
+                    "value": "ISE"
+                },
+                {
+                    "label": "Visual Studio &Code",
+                    "help": "Est de votre éditeur de Code de Visual Studio.",
+                    "value": "VSCode"
+                },
+                {
+                    "label": "Aucu&n",
+                    "help": "Aucun éditeur spécifié.",
+                    "value": "None"
+                }
+            ]
+        },
+        {
+            "name": "License",
+            "type": "choice",
+            "default": 2,
+            "store": "text",
+            "prompt": "Sélectionner une licence pour votre module",
+            "choices": [
+                {
+                    "label": "&Apache",
+                    "help": "Ajoute un fichier de licence Apache.",
+                    "value": "Apache"
+                },
+                {
+                    "label": "&MIT",
+                    "help": "Ajoute un fichier de licence MIT.",
+                    "value": "MIT"
+                },
+                {
+                    "label": "Aucu&n",
+                    "help": "Aucune licence spécifiée.",
+                    "value": "None"
+                }
+            ]
+        }
+    ],
+    "content": [
+        {
+            "type": "message",
+            "text": "\nÉchafaudage un PowerShell Module avec les fichiers requis pour exécuter des tests de Pester, de construire avec PSake et de publier sur le PSGallery.\n\n"
+        },
+        {
+            "type": "newModuleManifest",
+            "destination": "${ModuleName}.psd1",
+            "moduleVersion": "${Version}",
+            "rootModule": "${ModuleName}.psm1",
+            "author": "${FullName}",
+            "description": "${ModuleDesc}",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "file",
+            "source": "Module.psm1",
+            "destination": "${ModuleName}.psm1"
+        },
+        {
+            "type": "file",
+            "source": "_gitignore",
+            "destination": ".gitignore",
+            "condition": "${Options} -contains 'Git'"
+        },
+        {
+            "type": "file",
+            "source": "Build.ps1",
+            "destination": "Build.ps1",
+            "condition": "${Options} -contains 'PSake'"
+        },
+        {
+            "type": "file",
+            "source": "RecurseFile\\**",
+            "destination": "Recurse"
+        },
+        {
+            "type": "templateFile",
+            "source": "ApacheLicense.txt",
+            "destination": "LICENSE.txt",
+            "condition": "${License} -eq 'Apache'",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "templateFile",
+            "source": "MITLicense.txt",
+            "destination": "LICENSE.txt",
+            "condition": "${License} -eq 'MIT'"
+        },
+        {
+            "type": "templateFile",
+            "source": "en-US\\about_Module.help.txt",
+            "destination": "en-US\\about_${ModuleName}.help.txt"
+        },
+        {
+            "type": "templateFile",
+            "source": "Tests\\Module.T.ps1",
+            "destination": "Tests\\${ModuleName}.Tests.ps1",
+            "condition": "${Options} -contains 'Pester'"
+        },
+        {
+            "type": "templateFile",
+            "source": "RecurseTemplateFile\\**",
+            "destination": "Recurse",
+            "encoding": "Ascii"
+        },
+        {
+            "type": "file",
+            "source": "tasks.json",
+            "destination": ".vscode\\tasks.json",
+            "condition": "${Editor} -eq 'VSCode'"
+        },
+        {
+            "type": "modify",
+            "path": ".vscode\\tasks.json",
+            "encoding": "UTF8",
+            "condition": "${Editor} -eq 'VSCode'",
+            "modifications": [
+                {
+                    "type": "replace",
+                    "condition": "${PLASTER_FileContent} -notmatch '// Author:'",
+                    "search": "(?s)^(.*)",
+                    "replace": "$1\r\n// Author: ${FullName}",
+                    "expand": true
+                }
+            ]
+        },
+        {
+            "type": "message",
+            "text": "\n\nVotre nouveau projet de module de PowerShell ${ModuleName}",
+            "noNewLine": true
+        },
+        {
+            "type": "message",
+            "text": "avec le contrôle de version Git ",
+            "condition": "${Options} -contains 'Git'",
+            "noNewLine": true
+        },
+        {
+            "type": "message",
+            "text": "a été créé."
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'PSake'",
+            "text": "Vous pouvez générer votre projet en exécutant la tâche de « chantier » en appuyant sur Ctrl + P, puis tapez 'task build'.\nVous pouvez publier votre projet à le PSGallery en appuyant sur Ctrl + P, puis tapez 'task publish'.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'Pester'",
+            "text": "Un test de Pester a été créé pour valider le fichier de manifeste du module. Essai supplémentaire s'ajoute le répertoire de Tests.\nVous pouvez exécuter les tests de Pester dans votre projet en exécutant la tâche « test » en appuyant sur Ctrl + P, puis tapez 'task test'.\n\n"
+        }
+    ]
+}

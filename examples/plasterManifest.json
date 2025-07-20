@@ -1,0 +1,289 @@
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "id": "38bd80d9-3a47-4916-9220-bed383d90876",
+        "name": "NewPowerShellModule",
+        "title": "New PowerShell Module",
+        "description": "Plaster template for creating the files for a PowerShell module.",
+        "version": "0.2.0",
+        "templateType": "Project",
+        "author": "Plaster Project",
+        "tags": [
+            "Module",
+            "ModuleManifest",
+            "Build"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "ModuleName",
+            "type": "text",
+            "prompt": "Enter the name of the module"
+        },
+        {
+            "name": "ModuleDesc",
+            "type": "text",
+            "prompt": "Enter a description of the module (required for publishing to the PowerShell Gallery)"
+        },
+        {
+            "name": "Version",
+            "type": "text",
+            "default": "1.0.0",
+            "prompt": "Enter the version number for the module"
+        },
+        {
+            "name": "FullName",
+            "type": "user-fullname",
+            "store": "text",
+            "prompt": "Enter your full name"
+        },
+        {
+            "name": "Email",
+            "type": "user-email",
+            "store": "text",
+            "prompt": "Enter your email address"
+        },
+        {
+            "name": "Options",
+            "type": "multichoice",
+            "default": [
+                0,
+                1,
+                3
+            ],
+            "store": "text",
+            "prompt": "Select desired options",
+            "choices": [
+                {
+                    "label": "&Pester test support",
+                    "help": "Adds Tests directory and a starter Pester Tests file.",
+                    "value": "Pester"
+                },
+                {
+                    "label": "P&Sake build script",
+                    "help": "Adds a PSake build script that generates the module directory for publishing to the PSGallery.",
+                    "value": "PSake"
+                },
+                {
+                    "label": "platyPS &documentation support",
+                    "help": "Adds documentation support using platyPS.",
+                    "value": "platyPS"
+                },
+                {
+                    "label": "&Git",
+                    "help": "Adds a .gitignore file.",
+                    "value": "Git"
+                },
+                {
+                    "label": "&None",
+                    "help": "No options specified.",
+                    "value": "None"
+                }
+            ]
+        },
+        {
+            "name": "Editor",
+            "type": "choice",
+            "default": 2,
+            "store": "text",
+            "prompt": "Which editor do you use",
+            "choices": [
+                {
+                    "label": "&ISE",
+                    "help": "Your editor is PowerShell ISE.",
+                    "value": "ISE"
+                },
+                {
+                    "label": "Visual Studio &Code",
+                    "help": "Your editor is Visual Studio Code.",
+                    "value": "VSCode"
+                },
+                {
+                    "label": "&None",
+                    "help": "No editor specified.",
+                    "value": "None"
+                }
+            ]
+        },
+        {
+            "name": "License",
+            "type": "choice",
+            "default": 2,
+            "store": "text",
+            "prompt": "Select a license for your module",
+            "choices": [
+                {
+                    "label": "&Apache",
+                    "help": "Adds an Apache license file.",
+                    "value": "Apache"
+                },
+                {
+                    "label": "&MIT",
+                    "help": "Adds an MIT license file.",
+                    "value": "MIT"
+                },
+                {
+                    "label": "&None",
+                    "help": "No license specified.",
+                    "value": "None"
+                }
+            ]
+        }
+    ],
+    "content": [
+        {
+            "type": "message",
+            "text": "\nScaffold a PowerShell Module with the files required to run Pester tests, build with PSake and publish to the PSGallery.\n\n"
+        },
+        {
+            "type": "newModuleManifest",
+            "destination": "src\\${ModuleName}.psd1",
+            "moduleVersion": "${Version}",
+            "rootModule": "${ModuleName}.psm1",
+            "author": "${FullName}",
+            "description": "${ModuleDesc}",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "file",
+            "source": "Module.psm1",
+            "destination": "src\\${ModuleName}.psm1"
+        },
+        {
+            "type": "file",
+            "source": "_gitignore",
+            "destination": ".gitignore",
+            "condition": "${Options} -contains 'Git'"
+        },
+        {
+            "type": "file",
+            "source": "build*.ps1",
+            "destination": "",
+            "condition": "${Options} -contains 'PSake'"
+        },
+        {
+            "type": "file",
+            "source": "",
+            "destination": "docs\\",
+            "condition": "${Options} -contains 'platyPS'"
+        },
+        {
+            "type": "file",
+            "source": "RecurseFile\\**",
+            "destination": "Recurse"
+        },
+        {
+            "type": "templateFile",
+            "source": "ApacheLicense.txt",
+            "destination": "LICENSE.txt",
+            "condition": "${License} -eq 'Apache'",
+            "encoding": "UTF8-NoBOM"
+        },
+        {
+            "type": "templateFile",
+            "source": "MITLicense.txt",
+            "destination": "LICENSE.txt",
+            "condition": "${License} -eq 'MIT'"
+        },
+        {
+            "type": "templateFile",
+            "source": "en-US\\about_Module.help.txt",
+            "destination": "en-US\\about_${ModuleName}.help.txt"
+        },
+        {
+            "type": "templateFile",
+            "source": "Tests\\Module.T.ps1",
+            "destination": "test\\${ModuleName}.Tests.ps1",
+            "condition": "${Options} -contains 'Pester'"
+        },
+        {
+            "type": "templateFile",
+            "source": "RecurseTemplateFile\\**",
+            "destination": "Recurse",
+            "encoding": "Ascii"
+        },
+        {
+            "type": "file",
+            "source": "tasks.json",
+            "destination": ".vscode\\tasks.json",
+            "condition": "${Editor} -eq 'VSCode'"
+        },
+        {
+            "type": "modify",
+            "path": ".vscode\\tasks.json",
+            "encoding": "UTF8",
+            "condition": "${Editor} -eq 'VSCode'",
+            "modifications": [
+                {
+                    "type": "replace",
+                    "condition": "${PLASTER_FileContent} -notmatch '// Author:'",
+                    "search": "(?s)^(.*)",
+                    "replace": "// Author: ${FullName}\r\n$1",
+                    "expand": true
+                },
+                {
+                    "type": "replace",
+                    "condition": "${Options} -contains 'Pester' -and ${PLASTER_FileContent} -notmatch 'taskName\":s*\"Test\"'",
+                    "search": "(?si)(?<=\"tasks\":\\s*\\[)(\\s*)(?=\\{)",
+                    "replace": "$1{\n            \"taskName\": \"Test\",\n            \"suppressTaskName\": true,\n            \"isTestCommand\": true,\n            \"showOutput\": \"always\",\n            \"args\": [\n                \"Write-Host 'Invoking Pester...'; Invoke-Pester -PesterOption @{IncludeVSCodeMarker=$true};\",\n                \"Invoke-Command { Write-Host 'Completed Test task in task runner.' }\"\n            ],\n            \"problemMatcher\": [\n                {\n                    \"owner\": \"powershell\",\n                    \"fileLocation\": [\"absolute\"],\n                    \"severity\": \"error\",\n                    \"pattern\": [\n                        {\n                            \"regexp\": \"^\\\\s*(\\\\[-\\\\]\\\\s*.*?)(\\\\d+)ms\\\\s*$\",\n                            \"message\": 1\n                        },\n                        {\n                            \"regexp\": \"^\\\\s+at\\\\s+[^,]+,\\\\s*(.*?):\\\\s+line\\\\s+(\\\\d+)$\",\n                            \"file\": 1,\n                            \"line\": 2\n                        }\n                    ]\n                }\n            ]\n        },$1"
+                },
+                {
+                    "type": "replace",
+                    "condition": "${Options} -contains 'PSake' -and ${PLASTER_FileContent} -notmatch 'taskName\":s*\"Build\"'",
+                    "search": "(?si)(?<=\"tasks\":\\s*\\[)(\\s*)(?=\\{)",
+                    "replace": "$1{\n            \"taskName\": \"Build\",\n            \"suppressTaskName\": true,\n            \"isBuildCommand\": true,\n            \"showOutput\": \"always\",\n            \"args\": [\n                \"Write-Host 'Invoking PSake...'; Invoke-PSake build.ps1 -taskList Build;\",\n                \"Invoke-Command { Write-Host 'Completed Build task in task runner.' }\"\n            ]\n        },$1"
+                }
+            ]
+        },
+        {
+            "type": "requireModule",
+            "name": "Pester",
+            "condition": "${Options} -contains 'Pester'",
+            "minimumVersion": "3.4.0",
+            "message": "Without Pester, you will not be able to run the provided Pester test to validate your module manifest file.\nWithout version 3.4.0, VS Code will not display Pester warnings and errors in the Problems panel."
+        },
+        {
+            "type": "requireModule",
+            "name": "psake",
+            "condition": "${Options} -contains 'PSake'",
+            "message": "Without psake, you will not be able to run the provided build script to build and/or publish your module."
+        },
+        {
+            "type": "requireModule",
+            "name": "platyPS",
+            "condition": "${Options} -contains 'platyPS'",
+            "message": "Without platyPS, you will not be able to generate PowerShell external help for your module using markdown."
+        },
+        {
+            "type": "message",
+            "text": "\n\nYour new PowerShell module project ${ModuleName}",
+            "noNewLine": true
+        },
+        {
+            "type": "message",
+            "text": "with Git version control ",
+            "condition": "${Options} -contains 'Git'",
+            "noNewLine": true
+        },
+        {
+            "type": "message",
+            "text": "has been created."
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'PSake'",
+            "text": "You can build your project by executing the 'build' task by pressing Ctrl+P, then type 'task build'.\nYou can publish your project to the PSGallery by pressing Ctrl+P, then type 'task publish'.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'Pester'",
+            "text": "A Pester test has been created to validate the module's manifest file.  Add additional test to the Tests directory.\nYou can run the Pester tests in your project by executing the 'test' task by pressing Ctrl+P, then type 'task test'.\n\n"
+        },
+        {
+            "type": "message",
+            "condition": "${Options} -contains 'platyPS'",
+            "text": "You can generate help and additional documentation using platyPS by running the 'docs' task by pressing Ctrl+P,\nthen type 'task docs'.  Add additional documentation written in platyPS markdown to the docs directory. You can\nupdate the docs by running the 'docs' task again.\n\n"
+        }
+    ]
+}

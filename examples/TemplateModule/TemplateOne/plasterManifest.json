@@ -1,0 +1,33 @@
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "id": "635046f0-a59b-46a0-b6b3-892084707467",
+        "name": "TemplateOneTemplate",
+        "title": "TemplateOne Template",
+        "description": "An example Plaster template from a PowerShell module.",
+        "version": "0.1.0",
+        "templateType": "Project",
+        "author": "Plaster project",
+        "tags": [
+            "Module",
+            "ModuleManifest"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "ModuleName",
+            "type": "text",
+            "prompt": "Enter the name of the module"
+        }
+    ],
+    "content": [
+        {
+            "type": "newModuleManifest",
+            "destination": "${ModuleName}.psd1",
+            "moduleVersion": "${Version}",
+            "rootModule": "${ModuleName}.psm1",
+            "encoding": "UTF8-NoBOM"
+        }
+    ]
+}
