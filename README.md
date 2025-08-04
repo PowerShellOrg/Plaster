@@ -1,330 +1,281 @@
-# Plaster 2.0
+# Plaster
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/PowerShellOrg/Plaster/ci.yml?branch=master)
-![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Plaster?logo=powershell)
-![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)
-![PowerShell Support](https://img.shields.io/badge/PowerShell-5.1%2B%20%7C%207.x-blue)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Plaster.svg)](https://www.powershellgallery.com/packages/Plaster)
+[![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/Plaster.svg)](https://www.powershellgallery.com/packages/Plaster)
+[![Build Status](https://github.com/PowerShell/Plaster/workflows/CI/badge.svg)](https://github.com/PowerShell/Plaster/actions)
 
-> **Plaster 2.0 is here!** Fully modernized for PowerShell 7.x with complete cross-platform support while maintaining 100% backward compatibility with existing templates.
+Plaster is a template-based file and project generator written in PowerShell. Its purpose is to streamline the creation of PowerShell module projects, Pester tests, DSC configurations, and more. File generation is performed using crafted templates which allow the user to fill in details and choose from options to get their desired output.
 
-## What's New in 2.0
+## What's New in Plaster 2.0
 
-- **Full Cross-Platform Support**: Windows, Linux, and macOS
-- **PowerShell 7.x Optimized**: Enhanced performance and reliability
-- **Modern Build System**: InvokeBuild with comprehensive CI/CD
-- **Pester 5.x Integration**: Modern testing framework
-- **Better Package Management**: Enhanced module distribution
-- **Improved Security**: Enhanced validation and error handling
+Plaster 2.0 introduces **JSON manifest support** alongside the traditional XML format, bringing modern tooling and improved developer experience:
 
-## Overview
+### 🆕 JSON Manifest Format
+- **Modern Syntax**: Clean, readable JSON instead of verbose XML
+- **Better Tooling**: VS Code IntelliSense with JSON Schema validation
+- **Simplified Variables**: Use `${ParameterName}` instead of `${PLASTER_PARAM_ParameterName}`
+- **Native Arrays**: No more comma-separated strings for multichoice defaults
+- **No Escaping**: No XML entity escaping required (`&` instead of `&amp;`)
 
-Plaster is a template-based file and project generator written in PowerShell. Its purpose is to streamline the creation of PowerShell module projects, Pester tests, DSC configurations, and more. File generation is performed using crafted templates which allow users to fill in details and choose from options to get their desired output.
+### 🔄 Backwards Compatibility
+- **Zero Breaking Changes**: All existing XML templates continue to work
+- **Automatic Detection**: Plaster automatically detects and processes both formats
+- **Side-by-Side Support**: Templates can include both XML and JSON manifests
+- **Seamless Migration**: Convert existing XML templates to JSON when ready
 
-Think of Plaster as [Yeoman](http://yeoman.io) for the PowerShell community.
+### 📊 Format Comparison
 
-## Key Features
-
-### Template-Based Generation
-- **Flexible Templates**: Create files, directories, and entire project structures
-- **Parameter Substitution**: Dynamic content based on user input
-- **Conditional Logic**: Smart templates that adapt based on choices
-- **Localization Support**: Multi-language template support
-
-### Cross-Platform Ready
-- **Universal Compatibility**: Works on Windows, Linux, and macOS
-- **Path Normalization**: Automatic handling of platform-specific paths
-- **Encoding Support**: UTF-8 with proper BOM handling
-- **Line Ending Management**: Consistent line endings across platforms
-
-### Developer Friendly
-- **Modern PowerShell**: Leverages PowerShell 5.1+ and 7.x features
-- **Rich Validation**: Comprehensive parameter and template validation
-- **Detailed Logging**: Configurable logging for debugging and monitoring
-- **IntelliSense Support**: Enhanced tab completion and help
+| Feature | XML Format | JSON Format |
+|---------|------------|-------------|
+| Compatibility | Plaster 1.x+ | Plaster 2.0+ |
+| Variable Syntax | `${PLASTER_PARAM_Name}` | `${Name}` |
+| Multichoice Defaults | `"0,1,2"` | `[0, 1, 2]` |
+| Schema Validation | ✅ XSD | ✅ JSON Schema |
+| VS Code IntelliSense | Limited | Full Support |
+| Special Characters | Requires escaping | No escaping needed |
 
 ## Installation
 
-### PowerShell Gallery (Recommended)
+### From PowerShell Gallery (Recommended)
 ```powershell
-# Install for current user
-Install-Module Plaster -Scope CurrentUser
-
-# Install globally (requires admin)
-Install-Module Plaster -Scope AllUsers
-
-# Update from v1.x
-Update-Module Plaster
+Install-Module -Name Plaster -Scope CurrentUser
 ```
 
-### Manual Installation
-Download the latest release from our [Releases](https://github.com/PowerShellOrg/Plaster/releases) page.
-
-### Development Version
+### From Source
 ```powershell
-# Clone and build from source
-git clone https://github.com/PowerShellOrg/Plaster.git
-cd Plaster
-./build.ps1
+git clone https://github.com/PowerShell/Plaster.git
+Import-Module .\Plaster\Plaster\Plaster.psd1
 ```
 
 ## Quick Start
 
-### 1. Explore Available Templates
+### Using an Existing Template
 ```powershell
-# List built-in templates
+# Discover available templates
 Get-PlasterTemplate
 
-# Include templates from installed modules
-Get-PlasterTemplate -IncludeInstalledModules
+# Create a new PowerShell module (interactive)
+$template = Get-PlasterTemplate | Where-Object Name -eq NewPowerShellModule
+Invoke-Plaster -TemplatePath $template.TemplatePath -DestinationPath .\MyNewModule
 
-# Search for specific templates
-Get-PlasterTemplate -Name "*Module*" -Tag "PowerShell"
+# Non-interactive with parameters
+Invoke-Plaster -TemplatePath $template.TemplatePath -DestinationPath .\MyModule `
+    -ModuleName 'MyModule' -ModuleDesc 'My awesome module' -Version '1.0.0' `
+    -FullName 'Your Name' -License MIT -Options Git,Pester,PSScriptAnalyzer
 ```
 
-### 2. Create a New Project
-```powershell
-# Interactive mode - Plaster will prompt for parameters
-Invoke-Plaster -TemplatePath BuiltinTemplate -DestinationPath C:\MyNewProject
+### Creating Your First Template
 
-# Non-interactive mode - provide all parameters
-$templateParams = @{
-    TemplatePath    = 'BuiltinTemplate'
-    DestinationPath = 'C:\MyNewProject'
-    ModuleName      = 'MyAwesomeModule'
-    ModuleAuthor    = 'Your Name'
-    ModuleVersion   = '1.0.0'
+#### Option 1: JSON Format (Recommended for new templates)
+```powershell
+# Create a new JSON manifest
+New-PlasterManifest -TemplateName MyTemplate -TemplateType Project -Format JSON
+
+# Edit the generated plasterManifest.json with VS Code for full IntelliSense
+code plasterManifest.json
+```
+
+#### Option 2: XML Format (Traditional)
+```powershell
+# Create a new XML manifest
+New-PlasterManifest -TemplateName MyTemplate -TemplateType Project
+
+# Edit the generated plasterManifest.xml
+code plasterManifest.xml
+```
+
+### JSON Manifest Example
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+  "schemaVersion": "2.0",
+  "metadata": {
+    "name": "MyTemplate",
+    "title": "My PowerShell Template",
+    "description": "Creates a new PowerShell project",
+    "version": "1.0.0",
+    "templateType": "Project"
+  },
+  "parameters": [
+    {
+      "name": "ProjectName",
+      "type": "text",
+      "prompt": "Enter the project name"
+    },
+    {
+      "name": "Features",
+      "type": "multichoice",
+      "prompt": "Select features to include",
+      "default": [0, 1],
+      "choices": [
+        {"label": "&Tests", "value": "Tests"},
+        {"label": "&Build Script", "value": "Build"}
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "file",
+      "source": "template.ps1",
+      "destination": "${ProjectName}.ps1"
+    }
+  ]
 }
-Invoke-Plaster @templateParams
 ```
 
-### 3. Create Your Own Template
+## Core Concepts
+
+### Templates
+Templates are directories containing:
+- **Manifest File**: `plasterManifest.xml` or `plasterManifest.json` (or both)
+- **Source Files**: Files and directories to be copied/processed
+- **Template Files**: Files with variable substitution (using `<%=` and `%>` delimiters)
+
+### Parameters
+Define user inputs with various types:
+- **text**: Free-form text input
+- **choice**: Single selection from options
+- **multichoice**: Multiple selections from options
+- **user-fullname**: User's full name (with git integration)
+- **user-email**: User's email (with git integration)
+
+### Content Actions
+Define what the template does:
+- **file**: Copy files/directories
+- **templateFile**: Copy and expand template files
+- **modify**: Modify existing files with search/replace
+- **newModuleManifest**: Generate PowerShell module manifests
+- **requireModule**: Verify required modules are installed
+- **message**: Display messages to users
+
+## Migration Guide
+
+### Converting XML to JSON
 ```powershell
-# Generate a new template manifest
-New-PlasterManifest -TemplateName 'MyTemplate' -TemplateType 'Project'
+# Automatic conversion
+$xmlManifest = Test-PlasterManifest -Path .\plasterManifest.xml
+ConvertTo-JsonManifest -InputObject $xmlManifest -OutputPath .\plasterManifest.json
 
-# Test your template
-Test-PlasterManifest -Path .\plasterManifest.xml
+# Or use New-PlasterManifest with conversion
+New-PlasterManifest -TemplateName MyTemplate -TemplateType Project -ConvertFromXml
 ```
+
+### Variable Syntax Updates
+When converting to JSON, update variable references:
+
+**XML Format:**
+```xml
+<file source="template.ps1" destination="${PLASTER_PARAM_ModuleName}.ps1"/>
+```
+
+**JSON Format:**
+```json
+{
+  "type": "file",
+  "source": "template.ps1",
+  "destination": "${ModuleName}.ps1"
+}
+```
+
+## Advanced Features
+
+### Conditional Logic
+```json
+{
+  "type": "file",
+  "source": "tests.ps1",
+  "destination": "Tests/${ProjectName}.Tests.ps1",
+  "condition": "${Features} -contains 'Tests'"
+}
+```
+
+### Pattern Validation
+```json
+{
+  "name": "ModuleName",
+  "type": "text",
+  "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+  "prompt": "Enter a valid module name"
+}
+```
+
+### Localization
+Create culture-specific manifests:
+- `plasterManifest.json` (default)
+- `plasterManifest_fr-FR.json` (French)
+- `plasterManifest_de-DE.json` (German)
+
+### Module Integration
+Embed templates in PowerShell modules:
+```powershell
+# Module manifest (*.psd1)
+PrivateData = @{
+    PSData = @{
+        Extensions = @(
+            @{
+                Module = "Plaster"
+                MinimumVersion = "2.0.0"
+                Details = @{
+                    TemplatePaths = @("Templates")
+                }
+            }
+        )
+    }
+}
+```
+
+## Examples
+
+The `examples` directory contains comprehensive examples:
+
+- **NewModuleTemplate**: Full-featured module template (XML + JSON)
+- **NewModule**: Simplified module template
+- **NewDscResourceScript**: DSC resource template
+- **TemplateModule**: PowerShell module with embedded templates
+- **Validation Examples**: Input validation patterns
+- **Localization Examples**: Multi-language support
 
 ## Documentation
 
-### Core Documentation
-- **[Getting Started Guide](docs/en-US/about_Plaster.help.md)** - Learn the basics
-- **[Creating Templates](docs/en-US/about_Plaster_CreatingAManifest.help.md)** - Template authoring guide
-- **[Cmdlet Reference](docs/en-US/Plaster.md)** - Complete API documentation
-- **[Migration Guide](docs/Migration-v2.md)** - Upgrading from v1.x
+- **Getting Started**: `Get-Help about_Plaster`
+- **Creating XML Manifests**: `Get-Help about_Plaster_CreatingAManifest`
+- **Creating JSON Manifests**: `Get-Help about_Plaster_CreatingJsonManifest`
+- **Cmdlet Reference**: `Get-Help Invoke-Plaster`, `Get-Help New-PlasterManifest`
 
-### Learning Resources
-- **[Template Gallery](docs/Templates.md)** - Community templates
-- **[Best Practices](docs/BestPractices.md)** - Template design guidelines
-- **[Examples](examples/)** - Sample templates and usage
-- **[FAQ](docs/FAQ.md)** - Common questions and answers
+## Editor Integration
 
-### Video Resources
-- [Working with Plaster Presentation](https://youtu.be/16CYGTKH73U) by David Christian
+### Visual Studio Code
+- **JSON Schema**: Automatic validation and IntelliSense for JSON manifests
+- **PowerShell Extension**: Template discovery and scaffolding support
+- **File Association**: Associate `.json` files with Plaster schema
 
-### Blog Posts
-- [Working with Plaster](http://overpoweredshell.com/Working-with-Plaster/) by David Christian
-
-## Template Structure
-
-A Plaster template consists of:
-
-```
-MyTemplate/
-├── plasterManifest.xml    # Template definition
-├── template files/        # Files to be copied/processed
-└── assets/               # Additional resources
-```
-
-### Basic Manifest Example
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<plasterManifest schemaVersion="1.2" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
-    <metadata>
-        <n>MyTemplate</n>
-        <id>12345678-1234-1234-1234-123456789012</id>
-        <version>1.0.0</version>
-        <title>My Custom Template</title>
-        <description>A template for creating awesome projects</description>
-        <author>Your Name</author>
-        <tags>PowerShell, Module</tags>
-    </metadata>
-    <parameters>
-        <parameter name="ProjectName" type="text" prompt="Enter project name"/>
-        <parameter name="IncludeTests" type="choice" prompt="Include tests?">
-            <choice label="&amp;Yes" help="Include Pester tests" value="Yes"/>
-            <choice label="&amp;No" help="Skip tests" value="No"/>
-        </parameter>
-    </parameters>
-    <content>
-        <file source="template.ps1" destination="${ProjectName}.ps1"/>
-        <templateFile source="README.md" destination="README.md"/>
-    </content>
-</plasterManifest>
-```
-
-## Usage Examples
-
-### Creating a PowerShell Module
-```powershell
-# Use the built-in module template
-$moduleParams = @{
-    TemplatePath      = (Get-PlasterTemplate | Where-Object Name -eq 'NewPowerShellScriptModule').TemplatePath
-    DestinationPath   = 'C:\Dev\MyModule'
-    ModuleName        = 'MyModule'
-    ModuleAuthor      = 'John Doe'
-    ModuleDescription = 'An awesome PowerShell module'
-    ModuleVersion     = '0.1.0'
-}
-Invoke-Plaster @moduleParams
-```
-
-### Creating a Custom Script
-```powershell
-# Create a new script from template
-Invoke-Plaster -TemplatePath .\MyScriptTemplate -DestinationPath .\Scripts -ScriptName 'ProcessData' -Author 'Jane Smith'
-```
-
-### Batch Project Creation
-```powershell
-# Create multiple projects from a template
-$projects = @('ProjectA', 'ProjectB', 'ProjectC')
-foreach ($project in $projects) {
-    Invoke-Plaster -TemplatePath .\BaseTemplate -DestinationPath ".\$project" -ProjectName $project
-}
-```
-
-## Development and Testing
-
-### Prerequisites
-- PowerShell 5.1 or higher
-- Pester 5.0+ (for testing)
-- PSScriptAnalyzer (for code quality)
-- InvokeBuild (for building)
-
-### Building from Source
-```powershell
-# Clone the repository
-git clone https://github.com/PowerShellOrg/Plaster.git
-cd Plaster
-
-# Install build dependencies
-./build.ps1 -Task Bootstrap
-
-# Build the module
-./build.ps1 -Task Build
-
-# Run tests
-./build.ps1 -Task Test
-
-# Full build pipeline
-./build.ps1 -Task Pipeline
-```
-
-### Running Tests
-```powershell
-# Run all tests
-Invoke-Pester
-
-# Run specific test categories
-Invoke-Pester -Tag Unit
-Invoke-Pester -Tag Integration
-Invoke-Pester -Tag CrossPlatform
-
-# Run with code coverage
-Invoke-Pester -CodeCoverage
-```
-
-## Cross-Platform Support
-
-Plaster 2.0 provides full cross-platform support:
-
-| Feature | Windows | Linux | macOS | Notes |
-|---------|---------|-------|-------|-------|
-| Core Functionality | ✅ | ✅ | ✅ | All features work |
-| Path Handling | ✅ | ✅ | ✅ | Automatic normalization |
-| File Encoding | ✅ | ✅ | ✅ | UTF-8 with BOM support |
-| Parameter Store | ✅ | ✅ | ✅ | Platform-specific locations |
-| XML Schema Validation | ✅ | ⚠️ | ⚠️ | Limited on non-Windows |
-
-### Platform-Specific Considerations
-
-#### Windows
-- Full XML schema validation support
-- Uses `$env:LOCALAPPDATA\Plaster` for parameter storage
-
-#### Linux
-- Uses `$HOME/.local/share/plaster` for parameter storage
-- Follows XDG Base Directory Specification
-
-#### macOS
-- Uses `$HOME/.plaster` for parameter storage
-- Full Unicode support for file names
+### PowerShell ISE
+- **Template Discovery**: Built-in template browser
+- **Parameter Input**: GUI for template parameters
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Ways to Contribute
-- **Report Bugs** - File issues with detailed reproduction steps
-- **Suggest Features** - Share ideas for new functionality
-- **Improve Documentation** - Help make our docs better
-- **Submit Pull Requests** - Fix bugs or add features
-- **Create Templates** - Share useful templates with the community
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Development Setup
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## Compatibility
-
-### PowerShell Versions
-- ✅ **PowerShell 5.1** (Windows PowerShell)
-- ✅ **PowerShell 7.0+** (Cross-platform)
-- ❌ **PowerShell 3.0-5.0** (No longer supported)
-
-### Breaking Changes from v1.x
-- Minimum PowerShell version increased to 5.1
-- Default encoding changed to UTF8-NoBOM
-- Pester 5.x required for development/testing
-- Some internal APIs changed (public APIs remain compatible)
-
-## Support
-
-### Getting Help
-- **Documentation** - Check our comprehensive docs
-- **Discussions** - Ask questions in [GitHub Discussions](https://github.com/PowerShellOrg/Plaster/discussions)
-- **Issues** - Report bugs in [GitHub Issues](https://github.com/PowerShellOrg/Plaster/issues)
-- **Community** - Join the PowerShell community on [Discord](https://discord.gg/powershell)
-
-### Commercial Support
-For enterprise support and consulting, contact the maintainers through GitHub.
+```powershell
+git clone https://github.com/PowerShell/Plaster.git
+cd Plaster
+Import-Module .\Plaster\Plaster.psd1
+Invoke-Pester # Run tests
+```
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE) - see the license file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+## Related Projects
 
-### Maintainers
-- [Jeff Hicks](https://github.com/jdhitsolutions) - [@jeffhicks](http://twitter.com/jeffhicks)
-- [James Petty](https://github.com/psjamess) - [@PSJamesP](http://twitter.com/PSJamesP)
-
-### Contributors
-Special thanks to all the community contributors who have helped make Plaster better. See our [Contributors](https://github.com/PowerShellOrg/Plaster/contributors) page for the full list.
-
-### Legacy
-Originally created by the PowerShell team at Microsoft and transferred to PowerShell.org in 2020 to ensure continued community development.
+- **PowerShell**: https://github.com/PowerShell/PowerShell
+- **Pester**: https://github.com/pester/Pester
+- **PSScriptAnalyzer**: https://github.com/PowerShell/PSScriptAnalyzer
+- **platyPS**: https://github.com/PowerShell/platyPS
 
 ---
 
-**Made with ❤️ by the PowerShell Community**
-
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/Plaster)](https://www.powershellgallery.com/packages/Plaster/)
-[![GitHub stars](https://img.shields.io/github/stars/PowerShellOrg/Plaster)](https://github.com/PowerShellOrg/Plaster/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/PowerShellOrg/Plaster)](https://github.com/PowerShellOrg/Plaster/network/members)
+**Plaster 2.0** - Modern template scaffolding for PowerShell with JSON support, better tooling, and enhanced developer experience. 🚀
