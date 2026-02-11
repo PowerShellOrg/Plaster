@@ -8,11 +8,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install and cache PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v6.0
+      - name: ⚡ ModuleFast with Specification
+        uses: JustinGrote/ModuleFast-action
         with:
-          modules-to-cache: BuildHelpers, PowerShellBuild, psake, PSScriptAnalyzer, platyPS
+          specification: |
+            BuildHelpers
+            PowerShellBuild
+            psake
+            PSScriptAnalyzer
+            platyPS
       - shell: pwsh
         # Give an id to the step, so we can reference it later
         id: check_if_versions_bumped
