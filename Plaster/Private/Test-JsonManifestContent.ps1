@@ -23,12 +23,26 @@ function Test-JsonManifestContent {
                 }
             }
             'file' {
-                if (-not $action.source -or -not $action.destination) {
+                # Both source and destination cannot be empty/missing
+                # Empty destination means copy to root, empty source would be directory (but should use 'directory' type)
+                if ((-not $action.source -and -not $action.destination) -or
+                    (-not $action.PSObject.Properties['source'] -and -not $action.PSObject.Properties['destination'])) {
+                    throw "File action missing required 'source' or 'destination' property"
+                }
+                # At least one must be non-empty
+                if ([string]::IsNullOrWhiteSpace($action.source) -and [string]::IsNullOrWhiteSpace($action.destination)) {
                     throw "File action missing required 'source' or 'destination' property"
                 }
             }
             'templateFile' {
-                if (-not $action.source -or -not $action.destination) {
+                # Both source and destination cannot be empty/missing
+                # Empty destination means copy to root
+                if ((-not $action.source -and -not $action.destination) -or
+                    (-not $action.PSObject.Properties['source'] -and -not $action.PSObject.Properties['destination'])) {
+                    throw "TemplateFile action missing required 'source' or 'destination' property"
+                }
+                # At least one must be non-empty
+                if ([string]::IsNullOrWhiteSpace($action.source) -and [string]::IsNullOrWhiteSpace($action.destination)) {
                     throw "TemplateFile action missing required 'source' or 'destination' property"
                 }
             }

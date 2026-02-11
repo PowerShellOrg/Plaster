@@ -163,8 +163,7 @@
             "condition": "${Options} -contains 'PSake'"
         },
         {
-            "type": "file",
-            "source": "",
+            "type": "directory",
             "destination": "docs\\",
             "condition": "${Options} -contains 'platyPS'"
         },

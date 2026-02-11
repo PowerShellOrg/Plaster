@@ -82,18 +82,18 @@ function ConvertFrom-JsonContentAction {
                     if ($modification.isRegex) {
                         $originalElement.SetAttribute('expand', 'true')
                     }
-                    $replaceElement.AppendChild($originalElement)
+                    [void]$replaceElement.AppendChild($originalElement)
 
                     $substituteElement = $XmlDocument.CreateElement('substitute', $TargetNamespace)
                     $substituteElement.InnerText = $modification.replace
                     $substituteElement.SetAttribute('expand', 'true')
-                    $replaceElement.AppendChild($substituteElement)
+                    [void]$replaceElement.AppendChild($substituteElement)
 
                     if ($modification.condition) {
                         $replaceElement.SetAttribute('condition', $modification.condition)
                     }
 
-                    $element.AppendChild($replaceElement)
+                    [void]$element.AppendChild($replaceElement)
                 }
             }
         }

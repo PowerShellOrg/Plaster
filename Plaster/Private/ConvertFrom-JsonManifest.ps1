@@ -39,7 +39,7 @@ function ConvertFrom-JsonManifest {
 
             # Add metadata
             $metadataElement = $xmlDoc.CreateElement('metadata', $TargetNamespace)
-            $manifest.AppendChild($metadataElement)
+            [void]$manifest.AppendChild($metadataElement)
 
             # Add metadata properties
             $metadataProperties = @('name', 'id', 'version', 'title', 'description', 'author', 'tags')
@@ -53,13 +53,13 @@ function ConvertFrom-JsonManifest {
                     } else {
                         $element.InnerText = $value
                     }
-                    $metadataElement.AppendChild($element)
+                    [void]$metadataElement.AppendChild($element)
                 }
             }
 
             # Add parameters
             $parametersElement = $xmlDoc.CreateElement('parameters', $TargetNamespace)
-            $manifest.AppendChild($parametersElement)
+            [void]$manifest.AppendChild($parametersElement)
 
             if ($jsonObject.parameters) {
                 foreach ($param in $jsonObject.parameters) {
@@ -98,21 +98,21 @@ function ConvertFrom-JsonManifest {
                                 $choiceElement.SetAttribute('help', $choice.help)
                             }
 
-                            $paramElement.AppendChild($choiceElement)
+                            [void]$paramElement.AppendChild($choiceElement)
                         }
                     }
 
-                    $parametersElement.AppendChild($paramElement)
+                    [void]$parametersElement.AppendChild($paramElement)
                 }
             }
 
             # Add content
             $contentElement = $xmlDoc.CreateElement('content', $TargetNamespace)
-            $manifest.AppendChild($contentElement)
+            [void]$manifest.AppendChild($contentElement)
 
             foreach ($action in $jsonObject.content) {
                 $actionElement = ConvertFrom-JsonContentAction -Action $action -XmlDocument $xmlDoc
-                $contentElement.AppendChild($actionElement)
+                [void]$contentElement.AppendChild($actionElement)
             }
 
             Write-PlasterLog -Level Debug -Message "JSON to XML conversion completed successfully"
