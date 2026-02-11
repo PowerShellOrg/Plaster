@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: ⚡ ModuleFast with Specification
-        uses: JustinGrote/ModuleFast-action
+        uses: JustinGrote/ModuleFast-action@v0.0.1
         with:
           specification: |
             BuildHelpers
