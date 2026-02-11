@@ -6,7 +6,7 @@
     GUID = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
 
     # Version number of this module.
-    ModuleVersion = '2.0.0'
+    ModuleVersion = '2.0.0-beta1'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Desktop', 'Core')
@@ -28,35 +28,7 @@
             #IconUri = 'https://github.com/PowerShell/Plaster/icon.png'
 
             # ReleaseNotes of this module
-            ReleaseNotes = @'
-Plaster 2.0.0 Release Notes:
-
-BREAKING CHANGES:
-- Minimum PowerShell version updated to 5.1
-- Updated to support PowerShell 7.x across all platforms
-
-NEW FEATURES:
-- Full PowerShell 7.x compatibility (Windows, Linux, macOS)
-- Enhanced cross-platform support
-- Modern parameter validation
-- Improved error handling and logging
-- Updated build system with PowerShellBuild
-
-IMPROVEMENTS:
-- Better performance on PowerShell Core
-- Enhanced XML schema validation
-- Improved template processing
-- Modern PowerShell coding practices
-- Comprehensive test coverage with Pester 5.x
-
-BUG FIXES:
-- Fixed .NET Core XML schema validation issues
-- Resolved path handling on non-Windows platforms
-- Fixed constrained runspace compatibility issues
-- Improved error messages and debugging
-
-For the complete changelog, see: https://github.com/PowerShellOrg/Plaster/blob/master/CHANGELOG.md
-'@
+            ReleaseNotes = 'https://github.com/PowerShellOrg/Plaster/blob/master/CHANGELOG.md'
         }
     }
 
