@@ -1,32 +1,22 @@
 name: Publish Module
 on:
-  pull_request:
-    branches: [ master ]
+  # Only on workflow dispatch, so that we can control when to publish.
   workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install and cache PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v5.1
+      - name: ⚡ ModuleFast with Specification
+        uses: JustinGrote/ModuleFast-action@v0.0.1
         with:
-          modules-to-cache: BuildHelpers, PowerShellBuild, psake, PSScriptAnalyzer, platyPS
-      - shell: pwsh
-        # Give an id to the step, so we can reference it later
-        id: check_if_versions_bumped
-        run: |
-          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name Plaster -ErrorAction Stop
-          [version]$GithubVersion = Get-MetaData -Path ./Plaster/Plaster.psd1 -PropertyName ModuleVersion -ErrorAction Stop
-          $bumped = $GithubVersion -ge $GalleryVersion
-
-          # Set the output named "version_bumped"
-          Write-Host "::set-output name=version_bumped::$bumped"
-
-      # Only publish (from master) if versions
+          specification: |
+            BuildHelpers
+            PowerShellBuild
+            psake
+            PSScriptAnalyzer
+            platyPS
       - name: Build and publish
-        if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
         env:
           PSGALLERY_API_KEY: ${{ secrets.GALLERY_KEY }}
         shell: pwsh
