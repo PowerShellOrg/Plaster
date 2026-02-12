@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] 2025-06-18
+## [2.0.0-alpha.1] 2026-02-12
+
+### Fixed
+
+- Null-coalescing operators replaced with PS5.1-compatible syntax in
+  Write-PlasterLog to fix PowerShell 5.1 compatibility
+  ([#442](https://github.com/PowerShellOrg/Plaster/issues/442))
+
+## [2.0.0-alpha] 2025-06-18
 
 ### Added
 
