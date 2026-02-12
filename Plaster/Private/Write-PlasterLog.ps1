@@ -49,9 +49,9 @@ function Write-PlasterLog {
         'Debug'       = 4
     }
 
-    $currentLogLevel = $script:LogLevel ?? 'Information'
-    $currentLevelValue = $logLevels[$currentLogLevel] ?? 2
-    $messageLevelValue = $logLevels[$Level] ?? 2
+    $currentLogLevel = if ($null -ne $script:LogLevel) { $script:LogLevel } else { 'Information' }
+    $currentLevelValue = if ($null -ne $logLevels[$currentLogLevel]) { $logLevels[$currentLogLevel] } else { 2 }
+    $messageLevelValue = if ($null -ne $logLevels[$Level]) { $logLevels[$Level] } else { 2 }
 
     if ($messageLevelValue -gt $currentLevelValue) {
         return
