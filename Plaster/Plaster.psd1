@@ -15,7 +15,7 @@
     # PSData hashtable with additional module metadata used by PowerShell.
     PrivateData = @{
         PSData = @{
-            Prerelease   = 'alpha.1'
+            Prerelease   = 'alpha1'
 
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags = @('Plaster', 'CodeGenerator', 'Scaffold', 'Template', 'JSON', 'PowerShell7')
