@@ -11,7 +11,13 @@ function Test-ConditionAttribute {
     }
 
     try {
-        $res = @(Invoke-ExpressionImpl $Expression)
+        $expressionToEvaluate = $Expression
+
+        if ($manifestType -eq 'JSON') {
+            $expressionToEvaluate = $expressionToEvaluate -replace '\$\{(?!PLASTER_)([A-Za-z][A-Za-z0-9_]*)\}', '${PLASTER_PARAM_$1}'
+        }
+
+        $res = @(Invoke-ExpressionImpl $expressionToEvaluate)
         [bool]$res[0]
     } catch {
         throw ($LocalizedData.ExpressionInvalidCondition_F3 -f $Expression, $Location, $_)

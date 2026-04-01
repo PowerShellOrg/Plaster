@@ -144,4 +144,148 @@ Describe 'Condition Attribute Evaluation Tests' {
             Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
         }
     }
+
+    Context 'JSON manifest conditions' {
+        It 'Evaluates JSON content conditions that reference parameters' {
+            $script:PlasterManifestPath = "$TemplateDir\plasterManifest.json"
+
+            @'
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "name": "TemplateName",
+        "id": "513d2fdc-3cce-47d9-9531-d85114efb224",
+        "version": "0.2.0",
+        "title": "Testing",
+        "description": "Manifest file for testing.",
+        "author": "Plaster",
+        "tags": [
+            "Test"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "Feature",
+            "type": "text",
+            "prompt": "Feature",
+            "default": "CopyFile"
+        }
+    ],
+    "content": [
+        {
+            "type": "file",
+            "source": "Recurse\\foo.txt",
+            "destination": "foo.txt",
+            "condition": "${Feature} -eq 'CopyFile'"
+        }
+    ]
+}
+'@ | Out-File $script:PlasterManifestPath -Encoding utf8
+
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -Feature CopyFile -NoLogo 6> $null
+
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
+        }
+
+        It 'Evaluates JSON parameter conditions that reference other parameters' {
+            $script:PlasterManifestPath = "$TemplateDir\plasterManifest.json"
+
+            @'
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "name": "TemplateName",
+        "id": "513d2fdc-3cce-47d9-9531-d85114efb224",
+        "version": "0.2.0",
+        "title": "Testing",
+        "description": "Manifest file for testing.",
+        "author": "Plaster",
+        "tags": [
+            "Test"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "Primary",
+            "type": "text",
+            "prompt": "Primary",
+            "default": "EnableSecondary"
+        },
+        {
+            "name": "Secondary",
+            "type": "text",
+            "prompt": "Secondary",
+            "default": "CopyFile",
+            "condition": "${Primary} -eq 'EnableSecondary'"
+        }
+    ],
+    "content": [
+        {
+            "type": "file",
+            "source": "Recurse\\foo.txt",
+            "destination": "foo.txt",
+            "condition": "${Secondary} -eq 'CopyFile'"
+        }
+    ]
+}
+'@ | Out-File $script:PlasterManifestPath -Encoding utf8
+
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -Primary EnableSecondary -Secondary CopyFile -NoLogo 6> $null
+
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
+        }
+
+        It 'Evaluates JSON multichoice conditions that use parameter values' {
+            $script:PlasterManifestPath = "$TemplateDir\plasterManifest.json"
+
+            @'
+{
+    "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+    "schemaVersion": "2.0",
+    "metadata": {
+        "name": "TemplateName",
+        "id": "513d2fdc-3cce-47d9-9531-d85114efb224",
+        "version": "0.2.0",
+        "title": "Testing",
+        "description": "Manifest file for testing.",
+        "author": "Plaster",
+        "tags": [
+            "Test"
+        ]
+    },
+    "parameters": [
+        {
+            "name": "Options",
+            "type": "multichoice",
+            "prompt": "Options",
+            "choices": [
+                {
+                    "label": "&Git",
+                    "value": "Git"
+                },
+                {
+                    "label": "&None",
+                    "value": "None"
+                }
+            ]
+        }
+    ],
+    "content": [
+        {
+            "type": "file",
+            "source": "Recurse\\foo.txt",
+            "destination": "foo.txt",
+            "condition": "${Options} -contains 'Git'"
+        }
+    ]
+}
+'@ | Out-File $script:PlasterManifestPath -Encoding utf8
+
+            Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $script:OutDir -Options Git -NoLogo 6> $null
+
+            Get-Item $script:OutDir\foo.txt -ErrorAction SilentlyContinue | ForEach-Object Name | Should -BeExactly foo.txt
+        }
+    }
 }
