@@ -67,7 +67,7 @@ For the complete changelog, see: https://github.com/PowerShellOrg/Plaster/blob/m
     CompanyName = 'PowerShell.org'
 
     # Copyright statement for this module
-    Copyright = '(c) PowerShell.org 2016-2025. All rights reserved.'
+    Copyright = '(c) PowerShell.org 2016-2026. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'Plaster is a template-based file and project generator written in PowerShell. Create consistent PowerShell projects with customizable templates supporting both XML and JSON formats.'
@@ -99,10 +99,15 @@ For the complete changelog, see: https://github.com/PowerShellOrg/Plaster/blob/m
     # Functions to export from this module - explicitly list each function that should be
     # exported.  This improves performance of PowerShell when discovering the commands in
     # module.
-    FunctionsToExport = '*'
+    FunctionsToExport = @(
+        'Get-PlasterTemplate',
+        'Invoke-Plaster',
+        'New-PlasterManifest',
+        'Test-PlasterManifest'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-    CmdletsToExport = '*'
+    CmdletsToExport = @()
 
     # Variables to export from this module
     VariablesToExport = @()

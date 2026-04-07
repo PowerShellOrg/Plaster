@@ -78,14 +78,4 @@ function Write-PlasterLog {
             Write-Debug $logMessage
         }
     }
-
-    # Also write to host for immediate feedback during interactive sessions
-    if ($Level -in @('Error', 'Warning') -and $Host.Name -ne 'ServerRemoteHost') {
-        $color = switch ($Level) {
-            'Error' { 'Red' }
-            'Warning' { 'Yellow' }
-            default { 'White' }
-        }
-        Write-Host $logMessage -ForegroundColor $color
-    }
 }

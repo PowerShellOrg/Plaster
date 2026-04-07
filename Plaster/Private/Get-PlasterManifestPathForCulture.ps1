@@ -63,7 +63,7 @@ function Get-PlasterManifestPathForCulture {
         return $plasterManifestPath
     }
 
-    # If no manifest is found, return $null.
-    # TODO: Should we throw an error instead?
+    # If no manifest is found, return $null. Callers (Invoke-Plaster, etc.)
+    # handle the missing manifest case and may fall back to JSON format.
     return $null
 }

@@ -23,8 +23,12 @@ function Test-JsonManifestContent {
                 }
             }
             'file' {
-                if (-not $action.source -or -not $action.destination) {
-                    throw "File action missing required 'source' or 'destination' property"
+                if (-not $action.source) {
+                    throw "File action missing required 'source' property"
+                }
+                # destination can be empty string (means use source path)
+                if (-not $action.PSObject.Properties['destination']) {
+                    throw "File action missing required 'destination' property"
                 }
             }
             'templateFile' {

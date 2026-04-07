@@ -27,7 +27,6 @@ BeforeDiscovery {
         $actualManifest | Should -BeExactly $expectedManifest
     }
 }
-# TODO: Add JSON tests
 Describe 'New-PlasterManifest Command Tests' {
     BeforeEach {
         $TemplateDir = "TestDrive:\TemplateRootTemp"
@@ -213,4 +212,110 @@ Describe 'New-PlasterManifest Command Tests' {
     }
   }
   #>
+}
+
+Describe 'New-PlasterManifest JSON Format Tests' {
+    BeforeEach {
+        $TemplateDir = "TestDrive:\JsonTemplateDir"
+        New-Item -ItemType Directory $TemplateDir | Out-Null
+        $PlasterManifestPath = "$TemplateDir\plasterManifest.json"
+    }
+    AfterEach {
+        Remove-Item $TemplateDir -Recurse -Confirm:$false -ErrorAction SilentlyContinue
+    }
+
+    Context 'Generates a valid JSON manifest' {
+        It 'Creates JSON with basic parameters' {
+            $newPlasterManifestSplat = @{
+                Path         = $PlasterManifestPath
+                Id           = '1a1b0933-78b2-4a3e-bf48-492591e69521'
+                TemplateName = 'JsonTemplate'
+                TemplateType = 'Project'
+                Format       = 'JSON'
+                Author       = 'TestAuthor'
+                Description  = 'A JSON test template'
+            }
+            New-PlasterManifest @newPlasterManifestSplat
+
+            Test-Path $PlasterManifestPath | Should -Be $true
+            $content = Get-Content $PlasterManifestPath -Raw | ConvertFrom-Json
+            $content.schemaVersion | Should -Be '2.0'
+            $content.metadata.name | Should -Be 'JsonTemplate'
+            $content.metadata.id | Should -Be '1a1b0933-78b2-4a3e-bf48-492591e69521'
+            $content.metadata.version | Should -Be '1.0.0'
+            $content.metadata.templateType | Should -Be 'Project'
+            $content.metadata.author | Should -Be 'TestAuthor'
+            $content.metadata.description | Should -Be 'A JSON test template'
+        }
+
+        It 'Handles tags in JSON format' {
+            $newPlasterManifestSplat = @{
+                Path         = $PlasterManifestPath
+                Id           = '1a1b0933-78b2-4a3e-bf48-492591e69521'
+                TemplateName = 'TagTest'
+                TemplateType = 'Item'
+                Format       = 'JSON'
+                Author       = 'Test'
+                Tags         = 'Module', 'PowerShell', 'Template'
+            }
+            New-PlasterManifest @newPlasterManifestSplat
+
+            $content = Get-Content $PlasterManifestPath -Raw | ConvertFrom-Json
+            $content.metadata.tags | Should -HaveCount 3
+            $content.metadata.tags | Should -Contain 'Module'
+            $content.metadata.tags | Should -Contain 'PowerShell'
+        }
+
+        It 'JSON manifest does not require XML entity escaping' {
+            $newPlasterManifestSplat = @{
+                Path         = $PlasterManifestPath
+                Id           = '1a1b0933-78b2-4a3e-bf48-492591e69521'
+                TemplateName = 'EscapeTest'
+                TemplateType = 'Project'
+                Format       = 'JSON'
+                Author       = 'Test'
+                Description  = 'This is <cool> & awesome.'
+            }
+            New-PlasterManifest @newPlasterManifestSplat
+
+            $content = Get-Content $PlasterManifestPath -Raw | ConvertFrom-Json
+            $content.metadata.description | Should -Be 'This is <cool> & awesome.'
+        }
+
+        It 'AddContent parameter works with JSON format' {
+            Copy-Item $PSScriptRoot\Recurse $TemplateDir -Recurse
+
+            $newPlasterManifestSplat = @{
+                Path         = $PlasterManifestPath
+                Id           = '1a1b0933-78b2-4a3e-bf48-492591e69521'
+                TemplateName = 'ContentTest'
+                TemplateType = 'Project'
+                Format       = 'JSON'
+                Author       = 'Test'
+                AddContent   = $true
+            }
+            New-PlasterManifest @newPlasterManifestSplat
+
+            $content = Get-Content $PlasterManifestPath -Raw | ConvertFrom-Json
+            $content.content.Count | Should -BeGreaterThan 0
+            $content.content[0].type | Should -Be 'file'
+            $content.content[0].source | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Defaults to JSON format when Format not specified' {
+            $defaultPath = "$TemplateDir\plasterManifest.json"
+            $newPlasterManifestSplat = @{
+                Path         = $defaultPath
+                Id           = '1a1b0933-78b2-4a3e-bf48-492591e69521'
+                TemplateName = 'DefaultFormat'
+                TemplateType = 'Item'
+                Author       = 'Test'
+            }
+            New-PlasterManifest @newPlasterManifestSplat
+
+            Test-Path $defaultPath | Should -Be $true
+            $content = Get-Content $defaultPath -Raw | ConvertFrom-Json
+            $content.schemaVersion | Should -Be '2.0'
+        }
+    }
 }

@@ -66,13 +66,10 @@ function Test-JsonManifest {
             }
 
             # Parameters validation
-            # Parameters validation
             if ($jsonObject.PSObject.Properties['parameters'] -and $jsonObject.parameters -and $jsonObject.parameters.Count -gt 0) {
                 Test-JsonManifestParameters -Parameters $jsonObject.parameters
             }
 
-            # Content validation
-            # Content validation
             # Content validation
             if ($jsonObject.content -and $jsonObject.content.Count -gt 0) {
                 Test-JsonManifestContent -Content $jsonObject.content

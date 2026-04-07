@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -1 /c/scripts/Plaster-1/Plaster/Private/*.ps1)",
+      "Bash(pwsh:*)"
+    ]
+  }
+}

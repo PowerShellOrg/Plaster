@@ -2,7 +2,7 @@
 
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Plaster.svg)](https://www.powershellgallery.com/packages/Plaster)
 [![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/Plaster.svg)](https://www.powershellgallery.com/packages/Plaster)
-[![Build Status](https://github.com/PowerShell/Plaster/workflows/CI/badge.svg)](https://github.com/PowerShell/Plaster/actions)
+[![Build Status](https://github.com/PowerShellOrg/Plaster/actions/workflows/PesterReports.yml/badge.svg)](https://github.com/PowerShellOrg/Plaster/actions)
 
 Plaster is a template-based file and project generator written in PowerShell. Its purpose is to streamline the creation of PowerShell module projects, Pester tests, DSC configurations, and more. File generation is performed using crafted templates which allow the user to fill in details and choose from options to get their desired output.
 
@@ -43,7 +43,7 @@ Install-Module -Name Plaster -Scope CurrentUser
 
 ### From Source
 ```powershell
-git clone https://github.com/PowerShell/Plaster.git
+git clone https://github.com/PowerShellOrg/Plaster.git
 Import-Module .\Plaster\Plaster\Plaster.psd1
 ```
 
@@ -87,7 +87,7 @@ code plasterManifest.xml
 ### JSON Manifest Example
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+  "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
   "schemaVersion": "2.0",
   "metadata": {
     "name": "MyTemplate",
@@ -259,7 +259,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ### Development Setup
 ```powershell
-git clone https://github.com/PowerShell/Plaster.git
+git clone https://github.com/PowerShellOrg/Plaster.git
 cd Plaster
 Import-Module .\Plaster\Plaster.psd1
 Invoke-Pester # Run tests
@@ -278,4 +278,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ---
 
-**Plaster 2.0** - Modern template scaffolding for PowerShell with JSON support, better tooling, and enhanced developer experience. 🚀
+**Plaster 2.0** - Modern template scaffolding for PowerShell with JSON support, cross-platform compatibility, and enhanced developer experience.

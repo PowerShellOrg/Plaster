@@ -37,7 +37,7 @@ data LocalizedData {
     ManifestNotValid_F1=The Plaster manifest '{0}' is not valid.
     ManifestNotValidVerbose_F1=The Plaster manifest '{0}' is not valid. Specify -Verbose to see the specific schema errors.
     ManifestNotWellFormedXml_F2=The Plaster manifest '{0}' is not a well-formed XML file. {1}
-    ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml' or 'plasterManifest_<culture>.xml'. Change the Plaster manifest filename and then try again.
+    ManifestWrongFilename_F1=The Plaster manifest filename '{0}' is not valid. The value of the Path argument must refer to a file named 'plasterManifest.xml', 'plasterManifest.json', or a culture-specific variant (e.g., 'plasterManifest_en-US.xml'). Change the Plaster manifest filename and then try again.
     MissingParameterPrompt_F1=<Missing prompt value for parameter '{0}'>
     NewModManifest_CreatingDir_F1=Creating destination directory for module manifest: {0}
     OpConflict=Conflict
@@ -138,6 +138,22 @@ if (-not $script:XmlSchemaValidationSupported) {
 
 # Module logging configuration
 $script:LogLevel = if ($env:PLASTER_LOG_LEVEL) { $env:PLASTER_LOG_LEVEL } else { 'Information' }
+
+# Dot-source functions when running from source (not compiled build)
+# The build system (PowerShellBuild) compiles all functions into this PSM1.
+# When running from source, we need to dot-source them from Private/ and Public/.
+$privatePath = Join-Path $PSScriptRoot 'Private'
+$publicPath = Join-Path $PSScriptRoot 'Public'
+if (Test-Path $privatePath) {
+    foreach ($file in (Get-ChildItem -Path $privatePath -Filter '*.ps1' -Recurse)) {
+        . $file.FullName
+    }
+}
+if (Test-Path $publicPath) {
+    foreach ($file in (Get-ChildItem -Path $publicPath -Filter '*.ps1' -Recurse)) {
+        . $file.FullName
+    }
+}
 
 # Global variables and constants for Plaster 2.0
 

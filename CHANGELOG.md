@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.0.0] - 2025-06-18
+## [2.0.0] - 2026-04-07
 
 ### Major Release - Plaster 2.0
 
@@ -40,7 +40,7 @@ maintaining full backward compatibility with existing templates and workflows.
 
 #### Build and Development
 
-- **Modern Build System**: InvokeBuild-based build system replacing legacy psake
+- **Modern Build System**: PowerShellBuild/psake-based build system with compiled module support
 - **Pester 5.x Support**: Updated test framework with modern Pester 5.x syntax
 - **Cross-Platform CI/CD**: GitHub Actions workflow supporting all platforms
 - **Code Coverage**: Integrated code coverage reporting with configurable
