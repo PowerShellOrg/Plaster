@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(ls -1 /c/scripts/Plaster-1/Plaster/Private/*.ps1)",
-      "Bash(pwsh:*)"
+      "Bash(pwsh:*)",
+      "WebFetch(domain:pester.dev)",
+      "Bash(xargs head:*)",
+      "Bash(hugo server:*)",
+      "Bash(hugo --printPathWarnings)"
     ]
   }
 }
