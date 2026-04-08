@@ -24,6 +24,12 @@ Invoke-Plaster [-TemplateDefinition] <String> [-DestinationPath] <String> [-Forc
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+### TemplateName
+```
+Invoke-Plaster [-TemplateName] <String> [-DestinationPath] <String> [-Force] [-NoLogo] [-PassThru]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 Invokes the specified Plaster template which will scaffold out a file or a
 set of files and directories.
@@ -159,6 +165,23 @@ Specifies the path to the template directory.
 ```yaml
 Type: String
 Parameter Sets: TemplatePath
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TemplateName
+
+Specifies the name of an available plaster template. Use Get-PlasterTemplate to
+list the available templates.
+
+```yaml
+Type: String
+Parameter Sets: TemplateName
 Aliases:
 
 Required: True

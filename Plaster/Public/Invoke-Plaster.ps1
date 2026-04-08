@@ -27,6 +27,11 @@ function Invoke-Plaster {
         [string]
         $TemplateDefinition,
 
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = 'TemplateName')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $TemplateName,
+
         [Parameter(Position = 1, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -69,6 +74,10 @@ function Invoke-Plaster {
             we are not building up multiple parametersets. And no need for
             EvaluateAttributeValue since we are only grabbing the parameter's
             value which is static.#>
+
+            if ($PSCmdlet.ParameterSetName -eq 'TemplateName') {
+                $TemplatePath = (Get-PlasterTemplate -Name $TemplateName).TemplatePath
+            }
 
             $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
 
@@ -194,7 +203,10 @@ function Invoke-Plaster {
         #endregion Script Scope Variables
 
         # Determine template source and type
-        if ($PSCmdlet.ParameterSetName -eq 'TemplatePath') {
+        if ($PSCmdlet.ParameterSetName -eq 'TemplateName') {
+            $TemplatePath = (Get-PlasterTemplate -Name $TemplateName).TemplatePath
+        }
+        if ($PSCmdlet.ParameterSetName -in @('TemplatePath', 'TemplateName')) {
             $templateAbsolutePath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($TemplatePath)
             if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container)) {
                 throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)

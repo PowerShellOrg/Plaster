@@ -171,5 +171,25 @@ $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
     Remove-Variable -Name 'ParameterDefaultValueStoreRootPath' -Scope Script -ErrorAction SilentlyContinue
 }
 
+# Register argument completers
+Register-ArgumentCompleter -CommandName Invoke-Plaster -ParameterName TemplateName -ScriptBlock {
+    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+    # Trim single, or double quotes from the start/end of the word to complete.
+    if ($wordToComplete -match '^[''"]') {
+        $wordToComplete = $wordToComplete.Trim($Matches.Values[0])
+    }
+
+    # Get all unique names starting with the characters provided, if any.
+    Get-PlasterTemplate -Name "$wordToComplete*" | Select-Object Name -Unique | ForEach-Object {
+        # Wrap the completion in single quotes if it contains any whitespace.
+        if ($_.Name -match '\s') {
+            "'{0}'" -f $_.Name
+        } else {
+            $_.Name
+        }
+    }
+}
+
 # Module initialization complete
 Write-PlasterLog -Level Information -Message "Plaster v$PlasterVersion module loaded successfully (PowerShell $($PSVersionTable.PSVersion))"
