@@ -159,12 +159,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TemplatePath
-Specifies the path to the template directory.
+### -TemplateName
+
+Specifies the name of an available plaster template. Use Get-PlasterTemplate to
+list the available templates.
 
 ```yaml
 Type: String
-Parameter Sets: TemplatePath
+Parameter Sets: TemplateName
 Aliases:
 
 Required: True
@@ -174,14 +176,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TemplateName
-
-Specifies the name of an available plaster template. Use Get-PlasterTemplate to
-list the available templates.
+### -TemplatePath
+Specifies the path to the template directory.
 
 ```yaml
 Type: String
-Parameter Sets: TemplateName
+Parameter Sets: TemplatePath
 Aliases:
 
 Required: True
