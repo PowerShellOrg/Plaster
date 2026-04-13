@@ -12,7 +12,7 @@
     }
   }
   'psake' = @{
-    Version = '4.9.1'
+    Version = '5.0.0'
   }
   'BuildHelpers' = @{
     Version = '2.0.16'

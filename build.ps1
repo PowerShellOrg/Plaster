@@ -25,10 +25,9 @@ param(
             param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
             try {
                 Get-PSakeScriptTasks -BuildFile './psakeFile.ps1' -ErrorAction 'Stop' |
-                Where-Object { $_.Name -like "$WordToComplete*" } |
-                Select-Object -ExpandProperty 'Name'
-            }
-            catch {
+                    Where-Object { $_.Name -like "$WordToComplete*" } |
+                    Select-Object -ExpandProperty 'Name'
+            } catch {
                 @()
             }
         })]
@@ -59,10 +58,10 @@ if ($Bootstrap) {
         Select-Object -First 1
 
     $powerShellGetModuleParameters = @{
-        Name           = 'PowerShellGet'
+        Name = 'PowerShellGet'
         MinimumVersion = '2.0.0'
         MaximumVersion = '2.99.99'
-        Force          = $true
+        Force = $true
     }
 
     if (-not $powerShellGetModule) {
@@ -77,12 +76,12 @@ if ($Bootstrap) {
 
     # Try-import-first pattern
     $psDependParameters = @{
-        Path          = $PSScriptRoot
-        Recurse       = $False
+        Path = $PSScriptRoot
+        Recurse = $False
         WarningAction = 'SilentlyContinue'
-        Import        = $True
-        Force         = $True
-        ErrorAction   = 'Stop'
+        Import = $True
+        Force = $True
+        ErrorAction = 'Stop'
     }
 
     $importSucceeded = $false
@@ -90,8 +89,7 @@ if ($Bootstrap) {
         Invoke-PSDepend @psDependParameters
         $importSucceeded = $true
         Write-Verbose 'Successfully imported existing modules.' -Verbose
-    }
-    catch {
+    } catch {
         Write-Verbose "Could not import all required modules: $_" -Verbose
         Write-Verbose 'Attempting to install missing or outdated dependencies...' -Verbose
     }
@@ -99,8 +97,7 @@ if ($Bootstrap) {
     if (-not $importSucceeded) {
         try {
             Invoke-PSDepend @psDependParameters -Install
-        }
-        catch {
+        } catch {
             Write-Error "Failed to install and import required dependencies: $_"
             Write-Error 'This may be due to locked module files. Please restart the build environment or clear module locks.'
             if ($_.Exception.InnerException) {
@@ -109,8 +106,7 @@ if ($Bootstrap) {
             throw
         }
     }
-}
-else {
+} else {
     if (-not (Get-Module -Name 'PSDepend' -ListAvailable)) {
         throw 'Missing dependencies. Please run with the "-Bootstrap" flag to install dependencies.'
     }
@@ -118,11 +114,18 @@ else {
 }
 
 if ($PSCmdlet.ParameterSetName -eq 'Help') {
-    Get-PSakeScriptTasks -buildFile $psakeFile |
+    Get-PSakeScriptTasks -BuildFile $psakeFile |
         Format-Table -Property Name, Description, Alias, DependsOn
-}
-else {
+} else {
     Set-BuildEnvironment -Force
-    Invoke-psake -buildFile $psakeFile -taskList $Task -nologo
+    $invokepsakeSplat = @{
+        BuildFile = $psakeFile
+        TaskList = $Task
+        NoLogo = $true
+    }
+    if ($Env:GITHUB_ACTIONS) {
+        $invokepsakeSplat['OutputFormat'] = 'GitHubActions'
+    }
+    Invoke-Psake @invokepsakeSplat
     exit ([int](-not $psake.build_success))
 }
