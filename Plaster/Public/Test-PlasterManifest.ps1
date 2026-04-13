@@ -2,11 +2,11 @@ function Test-PlasterManifest {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlDocument])]
     param(
-        [Parameter(Position=0,
-                   ParameterSetName="Path",
-                   ValueFromPipeline=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   HelpMessage="Specifies a path to a plasterManifest.xml file.")]
+        [Parameter(Position = 0,
+            ParameterSetName = "Path",
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = "Specifies a path to a plasterManifest.xml or plasterManifest.json file.")]
         [Alias("PSPath")]
         [ValidateNotNullOrEmpty()]
         [string[]]
@@ -20,8 +20,7 @@ function Test-PlasterManifest {
         if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
             $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet
             $xmlSchemaSet.Add($TargetNamespace, $schemaPath) > $null
-        }
-        else {
+        } else {
             $PSCmdLet.WriteWarning($LocalizedData.TestPlasterNoXmlSchemaValidationWarning)
         }
     }
@@ -33,7 +32,7 @@ function Test-PlasterManifest {
             if (!(Test-Path -LiteralPath $aPath)) {
                 $ex = New-Object System.Management.Automation.ItemNotFoundException ($LocalizedData.ErrorPathDoesNotExist_F1 -f $aPath)
                 $category = [System.Management.Automation.ErrorCategory]::ObjectNotFound
-                $errRecord = New-Object System.Management.Automation.ErrorRecord $ex,'PathNotFound',$category,$aPath
+                $errRecord = New-Object System.Management.Automation.ErrorRecord $ex, 'PathNotFound', $category, $aPath
                 $PSCmdLet.WriteError($errRecord)
                 return
             }
@@ -41,20 +40,58 @@ function Test-PlasterManifest {
             $filename = Split-Path $aPath -Leaf
 
             # Verify the manifest has the correct filename. Allow for localized template manifest files as well.
-            if (!(($filename -eq 'plasterManifest.xml') -or ($filename -match 'plasterManifest_[a-zA-Z]+(-[a-zA-Z]+){0,2}.xml'))) {
+            $isXmlManifest = ($filename -eq 'plasterManifest.xml') -or ($filename -match 'plasterManifest_[a-zA-Z]+(-[a-zA-Z]+){0,2}.xml')
+            $isJsonManifest = ($filename -eq 'plasterManifest.json') -or ($filename -match 'plasterManifest_[a-zA-Z]+(-[a-zA-Z]+){0,2}.json')
+
+            if (!$isXmlManifest -and !$isJsonManifest) {
                 Write-Error ($LocalizedData.ManifestWrongFilename_F1 -f $filename)
                 return
             }
 
+            # Detect manifest format and process accordingly
+            try {
+                $manifestType = Get-PlasterManifestType -ManifestPath $aPath
+                Write-Verbose "Detected manifest format: $manifestType"
+            } catch {
+                Write-Error "Failed to determine manifest format for '$aPath': $($_.Exception.Message)"
+                return
+            }
+
+            # Handle JSON manifests
+            if ($manifestType -eq 'JSON') {
+                Write-Verbose "Processing JSON manifest: $aPath"
+
+                try {
+                    $jsonContent = Get-Content -LiteralPath $aPath -Raw -ErrorAction Stop
+                    $validationResult = Test-JsonManifest -JsonContent $jsonContent -Detailed
+
+                    if ($validationResult) {
+                        Write-Verbose "JSON manifest validation passed"
+                        # Convert JSON to XML for consistent return type
+                        $xmlManifest = ConvertFrom-JsonManifest -JsonContent $jsonContent
+                        return $xmlManifest
+                    } else {
+                        Write-Error "JSON manifest validation failed for '$aPath'"
+                        return $null
+                    }
+                } catch {
+                    $ex = New-Object System.Exception ("JSON manifest validation failed for '$aPath': $($_.Exception.Message)"), $_.Exception
+                    $category = [System.Management.Automation.ErrorCategory]::InvalidData
+                    $errRecord = New-Object System.Management.Automation.ErrorRecord $ex, 'InvalidJsonManifestFile', $category, $aPath
+                    $PSCmdLet.WriteError($errRecord)
+                    return $null
+                }
+            }
+
+            # Handle XML manifests (existing logic)
             # Verify the manifest loads into an XmlDocument i.e. verify it is well-formed.
             $manifest = $null
             try {
                 $manifest = [xml](Get-Content $aPath)
-            }
-            catch {
+            } catch {
                 $ex = New-Object System.Exception ($LocalizedData.ManifestNotWellFormedXml_F2 -f $aPath, $_.Exception.Message), $_.Exception
                 $category = [System.Management.Automation.ErrorCategory]::InvalidData
-                $errRecord = New-Object System.Management.Automation.ErrorRecord $ex,'InvalidManifestFile',$category,$aPath
+                $errRecord = New-Object System.Management.Automation.ErrorRecord $ex, 'InvalidManifestFile', $category, $aPath
                 $psCmdlet.WriteError($errRecord)
                 return
             }
@@ -62,17 +99,17 @@ function Test-PlasterManifest {
             # Validate the manifest contains the required root element and target namespace that the following
             # XML schema validation will apply to.
             if (!$manifest.plasterManifest) {
-                Write-Error ($LocalizedData.ManifestMissingDocElement_F2 -f $aPath,$TargetNamespace)
+                Write-Error ($LocalizedData.ManifestMissingDocElement_F2 -f $aPath, $TargetNamespace)
                 return
             }
 
             if ($manifest.plasterManifest.NamespaceURI -cne $TargetNamespace) {
-                Write-Error ($LocalizedData.ManifestMissingDocTargetNamespace_F2 -f $aPath,$TargetNamespace)
+                Write-Error ($LocalizedData.ManifestMissingDocTargetNamespace_F2 -f $aPath, $TargetNamespace)
                 return
             }
 
             # Valid flag is stashed in a hashtable so the ValidationEventHandler scriptblock can set the value.
-            $manifestIsValid = @{Value = $true}
+            $manifestIsValid = @{Value = $true }
 
             # Configure an XmlReader and XmlReaderSettings to perform schema validation on xml file.
             $xmlReaderSettings = New-Object System.Xml.XmlReaderSettings
@@ -90,9 +127,8 @@ function Test-PlasterManifest {
                 $validationEventHandler = {
                     param($sender, $eventArgs)
 
-                    if ($eventArgs.Severity -eq [System.Xml.Schema.XmlSeverityType]::Error)
-                    {
-                        Write-Verbose ($LocalizedData.ManifestSchemaValidationError_F2 -f $aPath,$eventArgs.Message)
+                    if ($eventArgs.Severity -eq [System.Xml.Schema.XmlSeverityType]::Error) {
+                        Write-Verbose ($LocalizedData.ManifestSchemaValidationError_F2 -f $aPath, $eventArgs.Message)
                         $manifestIsValid.Value = $false
                     }
                 }
@@ -104,12 +140,10 @@ function Test-PlasterManifest {
             try {
                 $xmlReader = [System.Xml.XmlReader]::Create($aPath, $xmlReaderSettings)
                 while ($xmlReader.Read()) {}
-            }
-            catch {
+            } catch {
                 Write-Error ($LocalizedData.ManifestErrorReading_F1 -f $_)
                 $manifestIsValid.Value = $false
-            }
-            finally {
+            } finally {
                 # Schema validation is not available on .NET Core - at the moment.
                 if ($xmlSchemaSet) {
                     $xmlReaderSettings.remove_ValidationEventHandler($validationEventHandler)
@@ -119,20 +153,19 @@ function Test-PlasterManifest {
 
             # Validate default values for choice/multichoice parameters containing 1 or more ints
             $xpath = "//tns:parameter[@type='choice'] | //tns:parameter[@type='multichoice']"
-            $choiceParameters = Select-Xml -Xml $manifest -XPath $xpath  -Namespace @{tns=$TargetNamespace}
+            $choiceParameters = Select-Xml -Xml $manifest -XPath $xpath  -Namespace @{tns = $TargetNamespace }
             foreach ($choiceParameterXmlInfo in $choiceParameters) {
                 $choiceParameter = $choiceParameterXmlInfo.Node
                 if (!$choiceParameter.default) { continue }
 
                 if ($choiceParameter.type -eq 'choice') {
                     if ($null -eq ($choiceParameter.default -as [int])) {
-                        $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidChoiceDefault_F3 -f $choiceParameter.default,$choiceParameter.name,$aPath))
+                        $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidChoiceDefault_F3 -f $choiceParameter.default, $choiceParameter.name, $aPath))
                         $manifestIsValid.Value = $false
                     }
-                }
-                else {
+                } else {
                     if ($null -eq (($choiceParameter.default -split ',') -as [int[]])) {
-                        $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidMultichoiceDefault_F3 -f $choiceParameter.default,$choiceParameter.name,$aPath))
+                        $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidMultichoiceDefault_F3 -f $choiceParameter.default, $choiceParameter.name, $aPath))
                         $manifestIsValid.Value = $false
                     }
                 }
@@ -140,11 +173,11 @@ function Test-PlasterManifest {
 
             # Validate that the requireModule attribute requiredVersion is mutually exclusive from both
             # the version and maximumVersion attributes.
-            $requireModules = Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $TargetNamespace}
+            $requireModules = Select-Xml -Xml $manifest -XPath '//tns:requireModule' -Namespace @{tns = $TargetNamespace }
             foreach ($requireModuleInfo in $requireModules) {
                 $requireModuleNode = $requireModuleInfo.Node
                 if ($requireModuleNode.requiredVersion -and ($requireModuleNode.minimumVersion -or $requireModuleNode.maximumVersion)) {
-                    $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidRequireModuleAttrs_F2 -f $requireModuleNode.name,$aPath))
+                    $PSCmdLet.WriteVerbose(($LocalizedData.ManifestSchemaInvalidRequireModuleAttrs_F2 -f $requireModuleNode.name, $aPath))
                     $manifestIsValid.Value = $false
                 }
             }
@@ -162,9 +195,9 @@ function Test-PlasterManifest {
             }
 
             # Validate all interpolated attribute values are valid within a PowerShell string interpolation context.
-            $interpolatedAttrs  = @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@default' -Namespace @{tns = $TargetNamespace})
-            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@prompt' -Namespace @{tns = $TargetNamespace})
-            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $TargetNamespace})
+            $interpolatedAttrs = @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@default' -Namespace @{tns = $TargetNamespace })
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:parameter/@prompt' -Namespace @{tns = $TargetNamespace })
+            $interpolatedAttrs += @(Select-Xml -Xml $manifest -XPath '//tns:content/tns:*/@*' -Namespace @{tns = $TargetNamespace })
             foreach ($interpolatedAttr in $interpolatedAttrs) {
                 $name = $interpolatedAttr.Node.LocalName
                 if ($name -eq 'condition') { continue }
@@ -189,7 +222,7 @@ function Test-PlasterManifest {
                     (($manifestSchemaVersion.Major -eq $LatestSupportedSchemaVersion.Major) -and
                      ($manifestSchemaVersion.Minor -gt $LatestSupportedSchemaVersion.Minor))) {
 
-                    Write-Error ($LocalizedData.ManifestSchemaVersionNotSupported_F2 -f $manifestSchemaVersion,$aPath)
+                    Write-Error ($LocalizedData.ManifestSchemaVersionNotSupported_F2 -f $manifestSchemaVersion, $aPath)
                     return
                 }
 
@@ -204,18 +237,16 @@ function Test-PlasterManifest {
 
                     if ($requiredPlasterVersion -gt $MyInvocation.MyCommand.Module.Version) {
                         $plasterVersion = $manifest.plasterManifest.plasterVersion
-                        Write-Error ($LocalizedData.ManifestPlasterVersionNotSupported_F2 -f $aPath,$plasterVersion)
+                        Write-Error ($LocalizedData.ManifestPlasterVersionNotSupported_F2 -f $aPath, $plasterVersion)
                         return
                     }
                 }
 
                 $manifest
-            }
-            else {
+            } else {
                 if ($PSBoundParameters['Verbose']) {
                     Write-Error ($LocalizedData.ManifestNotValid_F1 -f $aPath)
-                }
-                else {
+                } else {
                     Write-Error ($LocalizedData.ManifestNotValidVerbose_F1 -f $aPath)
                 }
             }

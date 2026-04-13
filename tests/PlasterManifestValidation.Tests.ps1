@@ -1,4 +1,8 @@
 BeforeDiscovery {
+    if ($null -eq $env:BHProjectPath) {
+        $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+        . $path -Task Build
+    }
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -217,7 +221,7 @@ Describe 'Module Error Handling Tests' {
 
     Context 'Template cannot write outside of the user-specified DestinationPath' {
         It 'Throws on modify path that is absolute path' {
-
+            $root = if ($IsWindows) { $env:LOCALAPPDATA } else { '/' }
             @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest schemaVersion="0.3" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
@@ -230,7 +234,7 @@ Describe 'Module Error Handling Tests' {
         <tags></tags>
     </metadata>
     <content>
-        <modify path='$env:LOCALAPPDATA\tasks-should-not-be-here.json' encoding='UTF8'
+        <modify path='{0}tasks-should-not-be-here.json' encoding='UTF8'
                 condition="$false">
             <replace>
                 <original>(?s)^(.*)</original>
@@ -239,7 +243,7 @@ Describe 'Module Error Handling Tests' {
         </modify>
     </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ -f $root | Out-File $PlasterManifestPath -Encoding utf8
 
             { Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6> $null } | Should -Throw
         }

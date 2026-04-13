@@ -1,4 +1,8 @@
 BeforeDiscovery {
+  if ($null -eq $env:BHProjectPath) {
+    $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+    . $path -Task Build
+  }
   $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
   $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
   $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -8,20 +12,20 @@ BeforeDiscovery {
   $global:module = Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop -PassThru
 
   $global:SchemaVersion = $global:module.Invoke( { $LatestSupportedSchemaVersion })
-
 }
+
 Describe 'Test-PlasterManifest Command Tests' {
   BeforeEach {
-    $TemplateDir = "TestDrive:\TemplateRootTemp"
-    New-Item -ItemType Directory $TemplateDir | Out-Null
-    $OutDir = "TestDrive:\Out"
-    New-Item -ItemType Directory $OutDir | Out-Null
-    $PlasterManifestPath = "$TemplateDir\plasterManifest.xml"
+    $script:TemplateDir = "TestDrive:\TemplateRootTemp"
+    New-Item -ItemType Directory $script:TemplateDir | Out-Null
+    $script:OutDir = "TestDrive:\Out"
+    New-Item -ItemType Directory $script:OutDir | Out-Null
+    $script:PlasterManifestPath = "$script:TemplateDir\plasterManifest.xml"
   }
   AfterEach {
-    Remove-Item $PlasterManifestPath -Confirm:$False
-    Remove-Item $outDir -Recurse -Confirm:$False
-    Remove-Item $TemplateDir -Recurse -Confirm:$False
+    Remove-Item $script:PlasterManifestPath -Confirm:$False
+    Remove-Item $script:outDir -Recurse -Confirm:$False
+    Remove-Item $script:TemplateDir -Recurse -Confirm:$False
   }
   Context 'Verifies plasterVersion correctly' {
     It 'Works with the current Plaster version.' {
@@ -41,9 +45,9 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      Test-PlasterManifest -Path ($PlasterManifestPath -replace 'TestDrive:', (Get-PSDrive TestDrive).Root) -OutVariable xmldoc | Should -Not -BeNullOrEmpty
+      Test-PlasterManifest -Path ($script:PlasterManifestPath -replace 'TestDrive:', (Get-PSDrive TestDrive).Root) -OutVariable xmldoc | Should -Not -BeNullOrEmpty
       $xmldoc.plasterManifest.plasterVersion | Should -Be $global:module.Version
     }
 
@@ -64,9 +68,9 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      Test-PlasterManifest -Path ($PlasterManifestPath -replace 'TestDrive:', (Get-PSDrive TestDrive).Root) -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+      Test-PlasterManifest -Path ($script:PlasterManifestPath -replace 'TestDrive:', (Get-PSDrive TestDrive).Root) -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
       $TestErr.Exception.Message -match "specifies a plasterVersion of 9999\.0" | Should -Be $true
     }
   }
@@ -89,9 +93,9 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+      Test-PlasterManifest -Path $script:PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
       $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should -Be $true
     }
 
@@ -112,9 +116,9 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+      Test-PlasterManifest -Path $script:PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
       $TestErr.Exception.Message -match "requires a newer version of Plaster" | Should -Be $true
     }
 
@@ -135,9 +139,9 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+      Test-PlasterManifest -Path $script:PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
       $TestErr | Should -BeNullOrEmpty
     }
 
@@ -158,11 +162,11 @@ Describe 'Test-PlasterManifest Command Tests' {
   <parameters></parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
       try {
         $global:module.Invoke( { $script:LatestSupportedSchemaVersion = New-Object System.Version $LatestSupportedSchemaVersion.Major, ($LatestSupportedSchemaVersion.Minor + 1) })
-        Test-PlasterManifest -Path $PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+        Test-PlasterManifest -Path $script:PlasterManifestPath -ErrorVariable TestErr -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         $TestErr | Should -BeNullOrEmpty
       } finally {
         $global:module.Invoke( { $script:LatestSupportedSchemaVersion = $global:SchemaVersion })
@@ -202,13 +206,13 @@ Describe 'Test-PlasterManifest Command Tests' {
   </parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+      $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "attribute value 'None'"
-      $verboseRecord.Message | Should -Match "a zero-based"
+      ($verboseRecord.Message -join "`n") | Should -Match "attribute value 'None'"
+      ($verboseRecord.Message -join "`n") | Should -Match "a zero-based"
     }
 
     It 'Detects invalid default value for multichoice parameters' {
@@ -253,13 +257,13 @@ Describe 'Test-PlasterManifest Command Tests' {
   </parameters>
   <content></content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+      $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "attribute value 'Git,psake'"
-      $verboseRecord.Message | Should -Match "one or more zero-based"
+      ($verboseRecord.Message -join "`n") | Should -Match "attribute value 'Git,psake'"
+      ($verboseRecord.Message -join "`n") | Should -Match "one or more zero-based"
     }
 
     It 'Detects invalid condition attribute value' {
@@ -283,12 +287,12 @@ Describe 'Test-PlasterManifest Command Tests' {
         destination='foo.txt'/>
   </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+      $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "Invalid condition '`"foo`" -eq `"bar'"
+      ($verboseRecord.Message -join "`n") | Should -Match "Invalid condition '`"foo`" -eq `"bar'"
     }
 
     It 'Detects invalid content attribute value' {
@@ -311,12 +315,12 @@ Describe 'Test-PlasterManifest Command Tests' {
         destination='foo.txt'/>
   </content>
 </plasterManifest>
-"@ | Out-File $PlasterManifestPath -Encoding utf8
+"@ | Out-File $script:PlasterManifestPath -Encoding utf8
 
-      $verboseRecord = Test-PlasterManifest -Path $PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
+      $verboseRecord = Test-PlasterManifest -Path $script:PlasterManifestPath -Verbose -ErrorVariable TestErr -ErrorAction SilentlyContinue 4>&1
       $TestErr | Should -Not -BeNullOrEmpty
       $verboseRecord | Should -Not -BeNullOrEmpty
-      $verboseRecord.Message | Should -Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
+      ($verboseRecord.Message -join "`n") | Should -Match "Invalid 'source' attribute value 'Recurse\\`"foo.txt'"
     }
   }
 }

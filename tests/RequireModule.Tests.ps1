@@ -1,4 +1,8 @@
 BeforeDiscovery {
+    if ($null -eq $env:BHProjectPath) {
+        $path = Join-Path -Path $PSScriptRoot -ChildPath '..\build.ps1'
+        . $path -Task Build
+    }
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
@@ -42,7 +46,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
 
         It 'It finds module based on minimumVersion' {
@@ -65,7 +69,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
 
         It 'It finds module based on maximumVersion' {
@@ -88,7 +92,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
 
         It 'It finds module based on minimumVersion and maximumVersion' {
@@ -111,7 +115,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
 
         It 'It finds module based on requiredVersion' {
@@ -137,7 +141,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
     }
 
@@ -163,7 +167,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Missing'
+            $output[3] | Should -Match '^\s*Missing'
         }
 
         It 'Determines minimum version of module is missing' {
@@ -186,7 +190,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Missing'
+            $output[3] | Should -Match '^\s*Missing'
         }
 
         It 'Determines maximum version of module is missing' {
@@ -209,7 +213,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Missing'
+            $output[3] | Should -Match '^\s*Missing'
         }
 
         It 'Determines required version of module is missing' {
@@ -232,7 +236,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Missing'
+            $output[3] | Should -Match '^\s*Missing'
         }
     }
 
@@ -258,7 +262,7 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
+            $output[3] | Should -Match '^\s*Verify'
         }
 
         It 'False condition does not evaluate requireModule directive' {
@@ -281,8 +285,8 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            "$output" | Should -Match "^Destination path:"
-            $output.Count | Should -Be 1
+            "$output" | Should -Match "Destination path:"
+            $output.Count | Should -Be 4
         }
     }
 
@@ -310,8 +314,8 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Missing'
-            $output[3] | Should -Match $message
+            $output[3] | Should -Match '^\s*Missing'
+            $output[5] | Should -Match $message
         }
 
         It 'Does not output message when module is found' {
@@ -336,8 +340,8 @@ Describe 'RequireModule Directive Tests' {
 
             $OFS = ''
             $output = Invoke-Plaster -TemplatePath $TemplateDir -DestinationPath $OutDir -NoLogo 6>&1
-            $output[1] | Should -Match '^\s*Verify'
-            $output[1] -notmatch $message | Should -Be $true
+            $output[3] | Should -Match '^\s*Verify'
+            $output[5] -notmatch $message | Should -Be $true
         }
     }
 

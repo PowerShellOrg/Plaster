@@ -1,0 +1,3895 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>ModuleInfoGrouping</T>
+      <T>System.Management.Automation.PSModuleInfo</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>PSStucco</ToString>
+    <Props>
+      <B N="LogPipelineExecutionDetails">false</B>
+      <S N="Name">PSStucco</S>
+      <S N="Path">C:\Users\me\OneDrive\Documents\PowerShell\Modules\PSStucco\0.6.0\PSStucco.psd1</S>
+      <Nil N="ImplementingAssembly" />
+      <S N="Definition"></S>
+      <S N="Description">An opinionated Plaster template for high-quality PowerShell modules</S>
+      <G N="Guid">24effa48-ac05-4efd-872d-40d556089ce0</G>
+      <Nil N="HelpInfoUri" />
+      <S N="ModuleBase">C:\Users\me\OneDrive\Documents\PowerShell\Modules\PSStucco\0.6.1</S>
+      <Obj N="PrivateData" RefId="1">
+        <TN RefId="1">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">PSData</S>
+            <Obj N="Value" RefId="2">
+              <TNRef RefId="1" />
+              <DCT>
+                <En>
+                  <S N="Key">IconUri</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/Stucco/main/media/trowel.png</S>
+                </En>
+                <En>
+                  <S N="Key">Tags</S>
+                  <Obj N="Value" RefId="3">
+                    <TN RefId="2">
+                      <T>System.Object[]</T>
+                      <T>System.Array</T>
+                      <T>System.Object</T>
+                    </TN>
+                    <LST>
+                      <S>Plaster</S>
+                      <S>Module</S>
+                      <S>Template</S>
+                      <S>PSEdition_Core</S>
+                      <S>PSEdition_Desktop</S>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">LicenseUri</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/PSStucco/main/LICENSE</S>
+                </En>
+                <En>
+                  <S N="Key">ReleaseNotes</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/Stucco/main/CHANGELOG.md</S>
+                </En>
+                <En>
+                  <S N="Key">Extensions</S>
+                  <Obj N="Value" RefId="4">
+                    <TNRef RefId="2" />
+                    <LST>
+                      <Obj RefId="5">
+                        <TNRef RefId="1" />
+                        <DCT>
+                          <En>
+                            <S N="Key">Module</S>
+                            <S N="Value">Plaster</S>
+                          </En>
+                          <En>
+                            <S N="Key">MinimumVersion</S>
+                            <S N="Value">1.1.4</S>
+                          </En>
+                          <En>
+                            <S N="Key">Details</S>
+                            <Obj N="Value" RefId="6">
+                              <TNRef RefId="1" />
+                              <DCT>
+                                <En>
+                                  <S N="Key">TemplatePaths</S>
+                                  <Obj N="Value" RefId="7">
+                                    <TNRef RefId="2" />
+                                    <LST>
+                                      <S>.</S>
+                                    </LST>
+                                  </Obj>
+                                </En>
+                              </DCT>
+                            </Obj>
+                          </En>
+                        </DCT>
+                      </Obj>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">ProjectUri</S>
+                  <S N="Value">https://github.com/jimbrig/PSStucco</S>
+                </En>
+              </DCT>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Obj N="ExperimentalFeatures" RefId="8">
+        <TN RefId="3">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.ExperimentalFeature, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="Tags" RefId="9">
+        <TN RefId="4">
+          <T>System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>Plaster</S>
+          <S>Module</S>
+          <S>Template</S>
+          <S>PSEdition_Core</S>
+          <S>PSEdition_Desktop</S>
+        </LST>
+      </Obj>
+      <URI N="ProjectUri">https://github.com/jimbrig/PSStucco</URI>
+      <URI N="IconUri">https://raw.githubusercontent.com/jimbrig/Stucco/main/media/trowel.png</URI>
+      <URI N="LicenseUri">https://raw.githubusercontent.com/jimbrig/PSStucco/main/LICENSE</URI>
+      <S N="ReleaseNotes">https://raw.githubusercontent.com/jimbrig/Stucco/main/CHANGELOG.md</S>
+      <URI N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</URI>
+      <Version N="Version">0.6.1</Version>
+      <Obj N="ModuleType" RefId="10">
+        <TN RefId="5">
+          <T>System.Management.Automation.ModuleType</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Script</ToString>
+        <I32>0</I32>
+      </Obj>
+      <S N="Author">Jimmy Briggs</S>
+      <Obj N="AccessMode" RefId="11">
+        <TN RefId="6">
+          <T>System.Management.Automation.ModuleAccessMode</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>ReadWrite</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Nil N="ClrVersion" />
+      <S N="CompanyName">Community</S>
+      <S N="Copyright">(c) Jimmy Briggs. All rights reserved.</S>
+      <Nil N="DotNetFrameworkVersion" />
+      <Obj N="ExportedFunctions" RefId="12">
+        <TN RefId="7">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.FunctionInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Get-StuccoTemplate</S>
+            <Obj N="Value" RefId="13">
+              <TN RefId="8">
+                <T>System.Management.Automation.FunctionInfo</T>
+                <T>System.Management.Automation.CommandInfo</T>
+                <T>System.Object</T>
+              </TN>
+              <ToString>Get-StuccoTemplate</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">StuccoTemplate</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="14">
+                  <TN RefId="9">
+                    <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.PSTypeName, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <LST />
+                </Obj>
+                <S N="Name">Get-StuccoTemplate</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.1</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="15">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="16">
+                  <TN RefId="10">
+                    <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.ParameterMetadata, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="17">
+                  <TN RefId="11">
+                    <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.CommandParameterSetInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-StuccoModule</S>
+            <Obj N="Value" RefId="18">
+              <TNRef RefId="8" />
+              <ToString>New-StuccoModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">StuccoModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="19">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-StuccoModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.1</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="20">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="21">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="22">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <S N="Prefix"></S>
+      <Obj N="ExportedCmdlets" RefId="23">
+        <TN RefId="12">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.CmdletInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedCommands" RefId="24">
+        <TN RefId="13">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.CommandInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Get-StuccoTemplate</S>
+            <Obj N="Value" RefId="25">
+              <TNRef RefId="8" />
+              <ToString>Get-StuccoTemplate</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">StuccoTemplate</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="26">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-StuccoTemplate</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.1</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="27">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="28">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="29">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-StuccoModule</S>
+            <Obj N="Value" RefId="30">
+              <TNRef RefId="8" />
+              <ToString>New-StuccoModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">StuccoModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="31">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-StuccoModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.1</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="32">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="33">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="34">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Obj N="FileList" RefId="35">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="CompatiblePSEditions" RefId="36">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="ModuleList" RefId="37">
+        <TN RefId="14">
+          <T>System.Collections.ObjectModel.Collection`1[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="NestedModules" RefId="38">
+        <TN RefId="15">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.PSModuleInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Nil N="PowerShellHostName" />
+      <Nil N="PowerShellHostVersion" />
+      <Version N="PowerShellVersion">3.0</Version>
+      <Obj N="ProcessorArchitecture" RefId="39">
+        <TN RefId="16">
+          <T>System.Reflection.ProcessorArchitecture</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>None</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Obj N="Scripts" RefId="40">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="RequiredAssemblies" RefId="41">
+        <TN RefId="17">
+          <T>System.Collections.ObjectModel.Collection`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="RequiredModules" RefId="42">
+        <TNRef RefId="15" />
+        <LST />
+      </Obj>
+      <S N="RootModule">PSStucco.psm1</S>
+      <Obj N="ExportedVariables" RefId="43">
+        <TN RefId="18">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.PSVariable, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedAliases" RefId="44">
+        <TN RefId="19">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.AliasInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedDscResources" RefId="45">
+        <TN RefId="20">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Nil N="SessionState" />
+      <Nil N="OnRemove" />
+      <Obj N="ExportedFormatFiles" RefId="46">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+      <Obj N="ExportedTypeFiles" RefId="47">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+    </Props>
+  </Obj>
+  <Obj RefId="10">
+    <TN RefId="0">
+      <T>ModuleInfoGrouping</T>
+      <T>System.Management.Automation.PSModuleInfo</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>PSStucco</ToString>
+    <Props>
+      <B N="LogPipelineExecutionDetails">false</B>
+      <S N="Name">PSStucco</S>
+      <S N="Path">C:\Users\me\OneDrive\Documents\PowerShell\Modules\PSStucco\0.6.0\PSStucco.psd1</S>
+      <Nil N="ImplementingAssembly" />
+      <S N="Definition"></S>
+      <S N="Description">An opinionated Plaster template for high-quality PowerShell modules</S>
+      <G N="Guid">24effa48-ac05-4efd-872d-40d556089ce0</G>
+      <Nil N="HelpInfoUri" />
+      <S N="ModuleBase">C:\Users\me\OneDrive\Documents\PowerShell\Modules\PSStucco\0.6.0</S>
+      <Obj N="PrivateData" RefId="1">
+        <TN RefId="1">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">PSData</S>
+            <Obj N="Value" RefId="2">
+              <TNRef RefId="1" />
+              <DCT>
+                <En>
+                  <S N="Key">IconUri</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/Stucco/main/media/trowel.png</S>
+                </En>
+                <En>
+                  <S N="Key">Tags</S>
+                  <Obj N="Value" RefId="3">
+                    <TN RefId="2">
+                      <T>System.Object[]</T>
+                      <T>System.Array</T>
+                      <T>System.Object</T>
+                    </TN>
+                    <LST>
+                      <S>Plaster</S>
+                      <S>Module</S>
+                      <S>Template</S>
+                      <S>PSEdition_Core</S>
+                      <S>PSEdition_Desktop</S>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">LicenseUri</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/PSStucco/main/LICENSE</S>
+                </En>
+                <En>
+                  <S N="Key">ReleaseNotes</S>
+                  <S N="Value">https://raw.githubusercontent.com/jimbrig/Stucco/main/CHANGELOG.md</S>
+                </En>
+                <En>
+                  <S N="Key">Extensions</S>
+                  <Obj N="Value" RefId="4">
+                    <TNRef RefId="2" />
+                    <LST>
+                      <Obj RefId="5">
+                        <TNRef RefId="1" />
+                        <DCT>
+                          <En>
+                            <S N="Key">Module</S>
+                            <S N="Value">Plaster</S>
+                          </En>
+                          <En>
+                            <S N="Key">MinimumVersion</S>
+                            <S N="Value">1.1.4</S>
+                          </En>
+                          <En>
+                            <S N="Key">Details</S>
+                            <Obj N="Value" RefId="6">
+                              <TNRef RefId="1" />
+                              <DCT>
+                                <En>
+                                  <S N="Key">TemplatePaths</S>
+                                  <Obj N="Value" RefId="7">
+                                    <TNRef RefId="2" />
+                                    <LST>
+                                      <S>.</S>
+                                    </LST>
+                                  </Obj>
+                                </En>
+                              </DCT>
+                            </Obj>
+                          </En>
+                        </DCT>
+                      </Obj>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">ProjectUri</S>
+                  <S N="Value">https://github.com/jimbrig/PSStucco</S>
+                </En>
+              </DCT>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Obj N="ExperimentalFeatures" RefId="8">
+        <TN RefId="3">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.ExperimentalFeature, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="Tags" RefId="9">
+        <TN RefId="4">
+          <T>System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>Plaster</S>
+          <S>Module</S>
+          <S>Template</S>
+          <S>PSEdition_Core</S>
+          <S>PSEdition_Desktop</S>
+        </LST>
+      </Obj>
+      <URI N="ProjectUri">https://github.com/jimbrig/PSStucco</URI>
+      <URI N="IconUri">https://raw.githubusercontent.com/jimbrig/Stucco/main/media/trowel.png</URI>
+      <URI N="LicenseUri">https://raw.githubusercontent.com/jimbrig/PSStucco/main/LICENSE</URI>
+      <S N="ReleaseNotes">https://raw.githubusercontent.com/jimbrig/Stucco/main/CHANGELOG.md</S>
+      <URI N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</URI>
+      <Version N="Version">0.6.0</Version>
+      <Obj N="ModuleType" RefId="10">
+        <TN RefId="5">
+          <T>System.Management.Automation.ModuleType</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Script</ToString>
+        <I32>0</I32>
+      </Obj>
+      <S N="Author">Jimmy Briggs</S>
+      <Obj N="AccessMode" RefId="11">
+        <TN RefId="6">
+          <T>System.Management.Automation.ModuleAccessMode</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>ReadWrite</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Nil N="ClrVersion" />
+      <S N="CompanyName">Community</S>
+      <S N="Copyright">(c) Jimmy Briggs. All rights reserved.</S>
+      <Nil N="DotNetFrameworkVersion" />
+      <Obj N="ExportedFunctions" RefId="12">
+        <TN RefId="7">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.FunctionInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Get-StuccoTemplate</S>
+            <Obj N="Value" RefId="13">
+              <TN RefId="8">
+                <T>System.Management.Automation.FunctionInfo</T>
+                <T>System.Management.Automation.CommandInfo</T>
+                <T>System.Object</T>
+              </TN>
+              <ToString>Get-StuccoTemplate</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">StuccoTemplate</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="14">
+                  <TN RefId="9">
+                    <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.PSTypeName, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <LST />
+                </Obj>
+                <S N="Name">Get-StuccoTemplate</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.0</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="15">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="16">
+                  <TN RefId="10">
+                    <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.ParameterMetadata, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="17">
+                  <TN RefId="11">
+                    <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.CommandParameterSetInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+                    <T>System.Object</T>
+                  </TN>
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-StuccoModule</S>
+            <Obj N="Value" RefId="18">
+              <TNRef RefId="8" />
+              <ToString>New-StuccoModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">StuccoModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="19">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-StuccoModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.0</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="20">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="21">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="22">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <S N="Prefix"></S>
+      <Obj N="ExportedCmdlets" RefId="23">
+        <TN RefId="12">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.CmdletInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedCommands" RefId="24">
+        <TN RefId="13">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.CommandInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Get-StuccoTemplate</S>
+            <Obj N="Value" RefId="25">
+              <TNRef RefId="8" />
+              <ToString>Get-StuccoTemplate</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">StuccoTemplate</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="26">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-StuccoTemplate</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.0</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="27">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="28">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="29">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-StuccoModule</S>
+            <Obj N="Value" RefId="30">
+              <TNRef RefId="8" />
+              <ToString>New-StuccoModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">StuccoModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="31">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-StuccoModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">PSStucco</S>
+                <Version N="Version">0.6.0</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">PSStucco</S>
+                <Obj N="Module" RefId="32">
+                  <TNRef RefId="0" />
+                  <S>PSStucco</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="33">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="34">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">PSStucco</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Obj N="FileList" RefId="35">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="CompatiblePSEditions" RefId="36">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="ModuleList" RefId="37">
+        <TN RefId="14">
+          <T>System.Collections.ObjectModel.Collection`1[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="NestedModules" RefId="38">
+        <TN RefId="15">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.PSModuleInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Nil N="PowerShellHostName" />
+      <Nil N="PowerShellHostVersion" />
+      <Version N="PowerShellVersion">3.0</Version>
+      <Obj N="ProcessorArchitecture" RefId="39">
+        <TN RefId="16">
+          <T>System.Reflection.ProcessorArchitecture</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>None</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Obj N="Scripts" RefId="40">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="RequiredAssemblies" RefId="41">
+        <TN RefId="17">
+          <T>System.Collections.ObjectModel.Collection`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Obj N="RequiredModules" RefId="42">
+        <TNRef RefId="15" />
+        <LST />
+      </Obj>
+      <S N="RootModule">PSStucco.psm1</S>
+      <Obj N="ExportedVariables" RefId="43">
+        <TN RefId="18">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.PSVariable, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedAliases" RefId="44">
+        <TN RefId="19">
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.AliasInfo, System.Management.Automation, Version=7.5.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="ExportedDscResources" RefId="45">
+        <TN RefId="20">
+          <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <Nil N="SessionState" />
+      <Nil N="OnRemove" />
+      <Obj N="ExportedFormatFiles" RefId="46">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+      <Obj N="ExportedTypeFiles" RefId="47">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+    </Props>
+  </Obj>
+  <Obj RefId="48">
+    <TNRef RefId="0" />
+    <ToString>Sampler</ToString>
+    <Props>
+      <B N="LogPipelineExecutionDetails">false</B>
+      <S N="Name">Sampler</S>
+      <S N="Path">C:\Users\me\OneDrive\Documents\PowerShell\Modules\Sampler\0.118.3\Sampler.psd1</S>
+      <Nil N="ImplementingAssembly" />
+      <S N="Definition"></S>
+      <S N="Description">Sample Module with Pipeline scripts and its Plaster template to create a module following some of the community accepted practices.</S>
+      <G N="Guid">b59b8442-9cf9-4c4b-bc40-035336ace573</G>
+      <Nil N="HelpInfoUri" />
+      <S N="ModuleBase">C:\Users\me\OneDrive\Documents\PowerShell\Modules\Sampler\0.118.3</S>
+      <Obj N="PrivateData" RefId="49">
+        <TNRef RefId="1" />
+        <DCT>
+          <En>
+            <S N="Key">PSData</S>
+            <Obj N="Value" RefId="50">
+              <TNRef RefId="1" />
+              <DCT>
+                <En>
+                  <S N="Key">IconUri</S>
+                  <S N="Value">https://raw.githubusercontent.com/gaelcolas/Sampler/main/Sampler/assets/sampler.png</S>
+                </En>
+                <En>
+                  <S N="Key">Tags</S>
+                  <Obj N="Value" RefId="51">
+                    <TNRef RefId="2" />
+                    <LST>
+                      <S>Template</S>
+                      <S>pipeline</S>
+                      <S>plaster</S>
+                      <S>DesiredStateConfiguration</S>
+                      <S>DSC</S>
+                      <S>DSCResourceKit</S>
+                      <S>DSCResource</S>
+                      <S>Windows</S>
+                      <S>MacOS</S>
+                      <S>Linux</S>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">LicenseUri</S>
+                  <S N="Value">https://github.com/gaelcolas/Sampler/blob/main/LICENSE</S>
+                </En>
+                <En>
+                  <S N="Key">ReleaseNotes</S>
+                  <S N="Value">## [0.118.3] - 2025-04-29_x000D__x000A__x000D__x000A_### Changed_x000D__x000A__x000D__x000A_- Renamed function `Get-BuildVersion` to `Get-SamplerBuildVersion` to maintain_x000D__x000A_  consistency with the module's naming convention and updated all references_x000D__x000A_  throughout the codebase ([issue #520](https://github.com/gaelcolas/Sampler/issues/520))._x000D__x000A__x000D__x000A_### Fixed_x000D__x000A__x000D__x000A_- Fixed issue with localization string testing with new version of the HQRM_x000D__x000A_  tests (module DscResource.Test)._x000D__x000A_- Integration test for SimpleModule template was not using the built Sampler_x000D__x000A_  module._x000D__x000A__x000D__x000A_</S>
+                </En>
+                <En>
+                  <S N="Key">Prerelease</S>
+                  <S N="Value"></S>
+                </En>
+                <En>
+                  <S N="Key">Extensions</S>
+                  <Obj N="Value" RefId="52">
+                    <TNRef RefId="2" />
+                    <LST>
+                      <Obj RefId="53">
+                        <TNRef RefId="1" />
+                        <DCT>
+                          <En>
+                            <S N="Key">Module</S>
+                            <S N="Value">Plaster</S>
+                          </En>
+                          <En>
+                            <S N="Key">minimumVersion</S>
+                            <S N="Value">1.1.3</S>
+                          </En>
+                          <En>
+                            <S N="Key">Details</S>
+                            <Obj N="Value" RefId="54">
+                              <TNRef RefId="1" />
+                              <DCT>
+                                <En>
+                                  <S N="Key">TemplatePaths</S>
+                                  <Obj N="Value" RefId="55">
+                                    <TNRef RefId="2" />
+                                    <LST>
+                                      <S>Templates\Classes</S>
+                                      <S>Templates\ClassResource</S>
+                                      <S>Templates\Composite</S>
+                                      <S>Templates\Enum</S>
+                                      <S>Templates\MofResource</S>
+                                      <S>Templates\PrivateFunction</S>
+                                      <S>Templates\PublicCallPrivateFunctions</S>
+                                      <S>Templates\PublicFunction</S>
+                                      <S>Templates\Sampler</S>
+                                    </LST>
+                                  </Obj>
+                                </En>
+                              </DCT>
+                            </Obj>
+                          </En>
+                        </DCT>
+                      </Obj>
+                    </LST>
+                  </Obj>
+                </En>
+                <En>
+                  <S N="Key">ProjectUri</S>
+                  <S N="Value">https://github.com/gaelcolas/Sampler</S>
+                </En>
+              </DCT>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Ref N="ExperimentalFeatures" RefId="8" />
+      <Obj N="Tags" RefId="56">
+        <TNRef RefId="4" />
+        <LST>
+          <S>Template</S>
+          <S>pipeline</S>
+          <S>plaster</S>
+          <S>DesiredStateConfiguration</S>
+          <S>DSC</S>
+          <S>DSCResourceKit</S>
+          <S>DSCResource</S>
+          <S>Windows</S>
+          <S>MacOS</S>
+          <S>Linux</S>
+          <S>Template</S>
+          <S>pipeline</S>
+          <S>plaster</S>
+          <S>DesiredStateConfiguration</S>
+          <S>DSC</S>
+          <S>DSCResourceKit</S>
+          <S>DSCResource</S>
+          <S>Windows</S>
+          <S>MacOS</S>
+          <S>Linux</S>
+        </LST>
+      </Obj>
+      <URI N="ProjectUri">https://github.com/gaelcolas/Sampler</URI>
+      <URI N="IconUri">https://raw.githubusercontent.com/gaelcolas/Sampler/main/Sampler/assets/sampler.png</URI>
+      <URI N="LicenseUri">https://github.com/gaelcolas/Sampler/blob/main/LICENSE</URI>
+      <S N="ReleaseNotes">## [0.118.3] - 2025-04-29_x000D__x000A__x000D__x000A_### Changed_x000D__x000A__x000D__x000A_- Renamed function `Get-BuildVersion` to `Get-SamplerBuildVersion` to maintain_x000D__x000A_  consistency with the module's naming convention and updated all references_x000D__x000A_  throughout the codebase ([issue #520](https://github.com/gaelcolas/Sampler/issues/520))._x000D__x000A__x000D__x000A_### Fixed_x000D__x000A__x000D__x000A_- Fixed issue with localization string testing with new version of the HQRM_x000D__x000A_  tests (module DscResource.Test)._x000D__x000A_- Integration test for SimpleModule template was not using the built Sampler_x000D__x000A_  module._x000D__x000A__x000D__x000A_</S>
+      <URI N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</URI>
+      <Version N="Version">0.118.3</Version>
+      <Obj N="ModuleType" RefId="57">
+        <TNRef RefId="5" />
+        <ToString>Script</ToString>
+        <I32>0</I32>
+      </Obj>
+      <S N="Author">Gael Colas</S>
+      <Obj N="AccessMode" RefId="58">
+        <TNRef RefId="6" />
+        <ToString>ReadWrite</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Nil N="ClrVersion" />
+      <S N="CompanyName">SynEdgy Limited</S>
+      <S N="Copyright">(c) Gael Colas. All rights reserved.</S>
+      <Nil N="DotNetFrameworkVersion" />
+      <Obj N="ExportedFunctions" RefId="59">
+        <TNRef RefId="7" />
+        <DCT>
+          <En>
+            <S N="Key">Add-Sample</S>
+            <Obj N="Value" RefId="60">
+              <TNRef RefId="8" />
+              <ToString>Add-Sample</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Add</S>
+                <S N="Noun">Sample</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="61">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Add-Sample</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="62">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="63">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="64">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Convert-SamplerHashtableToString</S>
+            <Obj N="Value" RefId="65">
+              <TNRef RefId="8" />
+              <ToString>Convert-SamplerHashtableToString</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Convert</S>
+                <S N="Noun">SamplerHashtableToString</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="66">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Convert-SamplerHashtableToString</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="67">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="68">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="69">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-BuiltModuleVersion</S>
+            <Obj N="Value" RefId="70">
+              <TNRef RefId="8" />
+              <ToString>Get-BuiltModuleVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">BuiltModuleVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="71">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-BuiltModuleVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="72">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="73">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="74">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-ClassBasedResourceName</S>
+            <Obj N="Value" RefId="75">
+              <TNRef RefId="8" />
+              <ToString>Get-ClassBasedResourceName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">ClassBasedResourceName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="76">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-ClassBasedResourceName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="77">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="78">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="79">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-CodeCoverageThreshold</S>
+            <Obj N="Value" RefId="80">
+              <TNRef RefId="8" />
+              <ToString>Get-CodeCoverageThreshold</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">CodeCoverageThreshold</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="81">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-CodeCoverageThreshold</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="82">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="83">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="84">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-MofSchemaName</S>
+            <Obj N="Value" RefId="85">
+              <TNRef RefId="8" />
+              <ToString>Get-MofSchemaName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">MofSchemaName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="86">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-MofSchemaName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="87">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="88">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="89">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-OperatingSystemShortName</S>
+            <Obj N="Value" RefId="90">
+              <TNRef RefId="8" />
+              <ToString>Get-OperatingSystemShortName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">OperatingSystemShortName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="91">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-OperatingSystemShortName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="92">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="93">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="94">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-PesterOutputFileFileName</S>
+            <Obj N="Value" RefId="95">
+              <TNRef RefId="8" />
+              <ToString>Get-PesterOutputFileFileName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">PesterOutputFileFileName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="96">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-PesterOutputFileFileName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="97">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="98">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="99">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-Psm1SchemaName</S>
+            <Obj N="Value" RefId="100">
+              <TNRef RefId="8" />
+              <ToString>Get-Psm1SchemaName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">Psm1SchemaName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="101">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-Psm1SchemaName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="102">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="103">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="104">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerAbsolutePath</S>
+            <Obj N="Value" RefId="105">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerAbsolutePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerAbsolutePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="106">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerAbsolutePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="107">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="108">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="109">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuildVersion</S>
+            <Obj N="Value" RefId="110">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuildVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuildVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="111">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuildVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="112">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="113">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="114">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuiltModuleBase</S>
+            <Obj N="Value" RefId="115">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuiltModuleBase</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuiltModuleBase</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="116">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuiltModuleBase</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="117">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="118">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="119">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuiltModuleManifest</S>
+            <Obj N="Value" RefId="120">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuiltModuleManifest</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuiltModuleManifest</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="121">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuiltModuleManifest</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="122">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="123">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="124">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerCodeCoverageOutputFile</S>
+            <Obj N="Value" RefId="125">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerCodeCoverageOutputFile</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerCodeCoverageOutputFile</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="126">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerCodeCoverageOutputFile</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="127">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="128">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="129">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerCodeCoverageOutputFileEncoding</S>
+            <Obj N="Value" RefId="130">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerCodeCoverageOutputFileEncoding</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerCodeCoverageOutputFileEncoding</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="131">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerCodeCoverageOutputFileEncoding</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="132">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="133">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="134">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerModuleInfo</S>
+            <Obj N="Value" RefId="135">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerModuleInfo</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerModuleInfo</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="136">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerModuleInfo</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="137">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="138">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="139">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerModuleRootPath</S>
+            <Obj N="Value" RefId="140">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerModuleRootPath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerModuleRootPath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="141">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerModuleRootPath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="142">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="143">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="144">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerProjectName</S>
+            <Obj N="Value" RefId="145">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerProjectName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerProjectName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="146">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerProjectName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="147">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="148">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="149">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerSourcePath</S>
+            <Obj N="Value" RefId="150">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerSourcePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerSourcePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="151">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerSourcePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="152">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="153">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="154">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Invoke-SamplerGit</S>
+            <Obj N="Value" RefId="155">
+              <TNRef RefId="8" />
+              <ToString>Invoke-SamplerGit</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Invoke</S>
+                <S N="Noun">SamplerGit</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="156">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Invoke-SamplerGit</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="157">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="158">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="159">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Merge-JaCoCoReport</S>
+            <Obj N="Value" RefId="160">
+              <TNRef RefId="8" />
+              <ToString>Merge-JaCoCoReport</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Merge</S>
+                <S N="Noun">JaCoCoReport</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="161">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Merge-JaCoCoReport</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="162">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="163">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="164">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SampleModule</S>
+            <Obj N="Value" RefId="165">
+              <TNRef RefId="8" />
+              <ToString>New-SampleModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SampleModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="166">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SampleModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="167">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="168">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="169">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SamplerJaCoCoDocument</S>
+            <Obj N="Value" RefId="170">
+              <TNRef RefId="8" />
+              <ToString>New-SamplerJaCoCoDocument</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SamplerJaCoCoDocument</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="171">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SamplerJaCoCoDocument</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="172">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="173">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="174">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SamplerPipeline</S>
+            <Obj N="Value" RefId="175">
+              <TNRef RefId="8" />
+              <ToString>New-SamplerPipeline</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SamplerPipeline</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="176">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SamplerPipeline</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="177">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="178">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="179">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Out-SamplerXml</S>
+            <Obj N="Value" RefId="180">
+              <TNRef RefId="8" />
+              <ToString>Out-SamplerXml</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Out</S>
+                <S N="Noun">SamplerXml</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="181">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Out-SamplerXml</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="182">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="183">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="184">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Set-SamplerPSModulePath</S>
+            <Obj N="Value" RefId="185">
+              <TNRef RefId="8" />
+              <ToString>Set-SamplerPSModulePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Set</S>
+                <S N="Noun">SamplerPSModulePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="186">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Set-SamplerPSModulePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="187">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="188">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="189">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Split-ModuleVersion</S>
+            <Obj N="Value" RefId="190">
+              <TNRef RefId="8" />
+              <ToString>Split-ModuleVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Split</S>
+                <S N="Noun">ModuleVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="191">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Split-ModuleVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="192">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="193">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="194">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Update-JaCoCoStatistic</S>
+            <Obj N="Value" RefId="195">
+              <TNRef RefId="8" />
+              <ToString>Update-JaCoCoStatistic</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Update</S>
+                <S N="Noun">JaCoCoStatistic</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="196">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Update-JaCoCoStatistic</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="197">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="198">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="199">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <S N="Prefix"></S>
+      <Obj N="ExportedCmdlets" RefId="200">
+        <TNRef RefId="12" />
+        <DCT />
+      </Obj>
+      <Obj N="ExportedCommands" RefId="201">
+        <TNRef RefId="13" />
+        <DCT>
+          <En>
+            <S N="Key">Add-Sample</S>
+            <Obj N="Value" RefId="202">
+              <TNRef RefId="8" />
+              <ToString>Add-Sample</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Add</S>
+                <S N="Noun">Sample</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="203">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Add-Sample</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="204">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="205">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="206">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Convert-SamplerHashtableToString</S>
+            <Obj N="Value" RefId="207">
+              <TNRef RefId="8" />
+              <ToString>Convert-SamplerHashtableToString</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Convert</S>
+                <S N="Noun">SamplerHashtableToString</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="208">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Convert-SamplerHashtableToString</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="209">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="210">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="211">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-BuiltModuleVersion</S>
+            <Obj N="Value" RefId="212">
+              <TNRef RefId="8" />
+              <ToString>Get-BuiltModuleVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">BuiltModuleVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="213">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-BuiltModuleVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="214">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="215">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="216">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-ClassBasedResourceName</S>
+            <Obj N="Value" RefId="217">
+              <TNRef RefId="8" />
+              <ToString>Get-ClassBasedResourceName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">ClassBasedResourceName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="218">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-ClassBasedResourceName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="219">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="220">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="221">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-CodeCoverageThreshold</S>
+            <Obj N="Value" RefId="222">
+              <TNRef RefId="8" />
+              <ToString>Get-CodeCoverageThreshold</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">CodeCoverageThreshold</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="223">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-CodeCoverageThreshold</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="224">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="225">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="226">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-MofSchemaName</S>
+            <Obj N="Value" RefId="227">
+              <TNRef RefId="8" />
+              <ToString>Get-MofSchemaName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">MofSchemaName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="228">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-MofSchemaName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="229">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="230">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="231">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-OperatingSystemShortName</S>
+            <Obj N="Value" RefId="232">
+              <TNRef RefId="8" />
+              <ToString>Get-OperatingSystemShortName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">OperatingSystemShortName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="233">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-OperatingSystemShortName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="234">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="235">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="236">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-PesterOutputFileFileName</S>
+            <Obj N="Value" RefId="237">
+              <TNRef RefId="8" />
+              <ToString>Get-PesterOutputFileFileName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">PesterOutputFileFileName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="238">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-PesterOutputFileFileName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="239">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="240">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="241">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-Psm1SchemaName</S>
+            <Obj N="Value" RefId="242">
+              <TNRef RefId="8" />
+              <ToString>Get-Psm1SchemaName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">Psm1SchemaName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="243">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-Psm1SchemaName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="244">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="245">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="246">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerAbsolutePath</S>
+            <Obj N="Value" RefId="247">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerAbsolutePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerAbsolutePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="248">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerAbsolutePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="249">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="250">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="251">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuildVersion</S>
+            <Obj N="Value" RefId="252">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuildVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuildVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="253">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuildVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="254">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="255">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="256">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuiltModuleBase</S>
+            <Obj N="Value" RefId="257">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuiltModuleBase</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuiltModuleBase</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="258">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuiltModuleBase</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="259">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="260">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="261">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerBuiltModuleManifest</S>
+            <Obj N="Value" RefId="262">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerBuiltModuleManifest</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerBuiltModuleManifest</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="263">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerBuiltModuleManifest</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="264">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="265">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="266">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerCodeCoverageOutputFile</S>
+            <Obj N="Value" RefId="267">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerCodeCoverageOutputFile</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerCodeCoverageOutputFile</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="268">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerCodeCoverageOutputFile</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="269">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="270">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="271">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerCodeCoverageOutputFileEncoding</S>
+            <Obj N="Value" RefId="272">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerCodeCoverageOutputFileEncoding</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerCodeCoverageOutputFileEncoding</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="273">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerCodeCoverageOutputFileEncoding</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="274">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="275">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="276">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerModuleInfo</S>
+            <Obj N="Value" RefId="277">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerModuleInfo</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerModuleInfo</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="278">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerModuleInfo</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="279">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="280">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="281">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerModuleRootPath</S>
+            <Obj N="Value" RefId="282">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerModuleRootPath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerModuleRootPath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="283">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerModuleRootPath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="284">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="285">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="286">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerProjectName</S>
+            <Obj N="Value" RefId="287">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerProjectName</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerProjectName</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="288">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerProjectName</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="289">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="290">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="291">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Get-SamplerSourcePath</S>
+            <Obj N="Value" RefId="292">
+              <TNRef RefId="8" />
+              <ToString>Get-SamplerSourcePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Get</S>
+                <S N="Noun">SamplerSourcePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="293">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Get-SamplerSourcePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="294">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="295">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="296">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Invoke-SamplerGit</S>
+            <Obj N="Value" RefId="297">
+              <TNRef RefId="8" />
+              <ToString>Invoke-SamplerGit</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Invoke</S>
+                <S N="Noun">SamplerGit</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="298">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Invoke-SamplerGit</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="299">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="300">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="301">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Merge-JaCoCoReport</S>
+            <Obj N="Value" RefId="302">
+              <TNRef RefId="8" />
+              <ToString>Merge-JaCoCoReport</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Merge</S>
+                <S N="Noun">JaCoCoReport</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="303">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Merge-JaCoCoReport</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="304">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="305">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="306">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SampleModule</S>
+            <Obj N="Value" RefId="307">
+              <TNRef RefId="8" />
+              <ToString>New-SampleModule</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SampleModule</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="308">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SampleModule</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="309">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="310">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="311">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SamplerJaCoCoDocument</S>
+            <Obj N="Value" RefId="312">
+              <TNRef RefId="8" />
+              <ToString>New-SamplerJaCoCoDocument</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SamplerJaCoCoDocument</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="313">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SamplerJaCoCoDocument</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="314">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="315">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="316">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">New-SamplerPipeline</S>
+            <Obj N="Value" RefId="317">
+              <TNRef RefId="8" />
+              <ToString>New-SamplerPipeline</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">New</S>
+                <S N="Noun">SamplerPipeline</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="318">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">New-SamplerPipeline</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="319">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="320">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="321">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Out-SamplerXml</S>
+            <Obj N="Value" RefId="322">
+              <TNRef RefId="8" />
+              <ToString>Out-SamplerXml</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Out</S>
+                <S N="Noun">SamplerXml</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="323">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Out-SamplerXml</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="324">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="325">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="326">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Set-SamplerPSModulePath</S>
+            <Obj N="Value" RefId="327">
+              <TNRef RefId="8" />
+              <ToString>Set-SamplerPSModulePath</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Set</S>
+                <S N="Noun">SamplerPSModulePath</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="328">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Set-SamplerPSModulePath</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="329">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="330">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="331">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Split-ModuleVersion</S>
+            <Obj N="Value" RefId="332">
+              <TNRef RefId="8" />
+              <ToString>Split-ModuleVersion</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Split</S>
+                <S N="Noun">ModuleVersion</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="333">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Split-ModuleVersion</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="334">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="335">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="336">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Update-JaCoCoStatistic</S>
+            <Obj N="Value" RefId="337">
+              <TNRef RefId="8" />
+              <ToString>Update-JaCoCoStatistic</ToString>
+              <Props>
+                <SBK N="ScriptBlock"></SBK>
+                <B N="CmdletBinding">false</B>
+                <Nil N="DefaultParameterSet" />
+                <S N="Definition"></S>
+                <S N="Options">None</S>
+                <Nil N="Description" />
+                <S N="Verb">Update</S>
+                <S N="Noun">JaCoCoStatistic</S>
+                <Nil N="HelpFile" />
+                <Obj N="OutputType" RefId="338">
+                  <TNRef RefId="9" />
+                  <LST />
+                </Obj>
+                <S N="Name">Update-JaCoCoStatistic</S>
+                <S N="CommandType">Function</S>
+                <S N="Source">Sampler</S>
+                <Version N="Version">0.118.3</Version>
+                <S N="Visibility">Public</S>
+                <S N="ModuleName">Sampler</S>
+                <Obj N="Module" RefId="339">
+                  <TNRef RefId="0" />
+                  <S>Sampler</S>
+                </Obj>
+                <S N="RemotingCapability">PowerShell</S>
+                <Obj N="Parameters" RefId="340">
+                  <TNRef RefId="10" />
+                  <DCT />
+                </Obj>
+                <Obj N="ParameterSets" RefId="341">
+                  <TNRef RefId="11" />
+                  <LST>
+                    <S></S>
+                  </LST>
+                </Obj>
+              </Props>
+              <MS>
+                <S N="Namespace">Sampler</S>
+                <S N="HelpUri"></S>
+              </MS>
+            </Obj>
+          </En>
+        </DCT>
+      </Obj>
+      <Obj N="FileList" RefId="342">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="CompatiblePSEditions" RefId="343">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="ModuleList" RefId="344">
+        <TNRef RefId="14" />
+        <LST />
+      </Obj>
+      <Obj N="NestedModules" RefId="345">
+        <TNRef RefId="15" />
+        <LST />
+      </Obj>
+      <Nil N="PowerShellHostName" />
+      <Nil N="PowerShellHostVersion" />
+      <Version N="PowerShellVersion">5.0</Version>
+      <Obj N="ProcessorArchitecture" RefId="346">
+        <TNRef RefId="16" />
+        <ToString>None</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Obj N="Scripts" RefId="347">
+        <TNRef RefId="4" />
+        <LST />
+      </Obj>
+      <Obj N="RequiredAssemblies" RefId="348">
+        <TNRef RefId="17" />
+        <LST />
+      </Obj>
+      <Obj N="RequiredModules" RefId="349">
+        <TNRef RefId="15" />
+        <LST>
+          <Obj RefId="350">
+            <TN RefId="21">
+              <T>System.Management.Automation.PSModuleInfo</T>
+              <T>System.Object</T>
+            </TN>
+            <ToString>Plaster</ToString>
+            <Props>
+              <B N="LogPipelineExecutionDetails">false</B>
+              <S N="Name">Plaster</S>
+              <S N="Path">D:\Plaster\Plaster</S>
+              <Nil N="ImplementingAssembly" />
+              <S N="Definition"></S>
+              <S N="Description"></S>
+              <G N="Guid">00000000-0000-0000-0000-000000000000</G>
+              <Nil N="HelpInfoUri" />
+              <S N="ModuleBase">D:\Plaster</S>
+              <Nil N="PrivateData" />
+              <Ref N="ExperimentalFeatures" RefId="8" />
+              <Obj N="Tags" RefId="351">
+                <TNRef RefId="4" />
+                <LST />
+              </Obj>
+              <Nil N="ProjectUri" />
+              <Nil N="IconUri" />
+              <Nil N="LicenseUri" />
+              <Nil N="ReleaseNotes" />
+              <Nil N="RepositorySourceLocation" />
+              <Nil N="Version" />
+              <S N="ModuleType">Script</S>
+              <Nil N="Author" />
+              <S N="AccessMode">ReadWrite</S>
+              <Nil N="ClrVersion" />
+              <Nil N="CompanyName" />
+              <Nil N="Copyright" />
+              <Nil N="DotNetFrameworkVersion" />
+              <Obj N="ExportedFunctions" RefId="352">
+                <TNRef RefId="7" />
+                <DCT />
+              </Obj>
+              <Nil N="Prefix" />
+              <Obj N="ExportedCmdlets" RefId="353">
+                <TNRef RefId="12" />
+                <DCT />
+              </Obj>
+              <Obj N="ExportedCommands" RefId="354">
+                <TNRef RefId="13" />
+                <DCT />
+              </Obj>
+              <Obj N="FileList" RefId="355">
+                <TNRef RefId="4" />
+                <LST />
+              </Obj>
+              <Obj N="CompatiblePSEditions" RefId="356">
+                <TNRef RefId="4" />
+                <LST />
+              </Obj>
+              <Obj N="ModuleList" RefId="357">
+                <TNRef RefId="14" />
+                <LST />
+              </Obj>
+              <Obj N="NestedModules" RefId="358">
+                <TNRef RefId="15" />
+                <LST />
+              </Obj>
+              <Nil N="PowerShellHostName" />
+              <Nil N="PowerShellHostVersion" />
+              <Nil N="PowerShellVersion" />
+              <S N="ProcessorArchitecture">None</S>
+              <Obj N="Scripts" RefId="359">
+                <TNRef RefId="4" />
+                <LST />
+              </Obj>
+              <Obj N="RequiredAssemblies" RefId="360">
+                <TNRef RefId="17" />
+                <LST />
+              </Obj>
+              <Obj N="RequiredModules" RefId="361">
+                <TNRef RefId="15" />
+                <LST />
+              </Obj>
+              <Nil N="RootModule" />
+              <Obj N="ExportedVariables" RefId="362">
+                <TNRef RefId="18" />
+                <DCT />
+              </Obj>
+              <Obj N="ExportedAliases" RefId="363">
+                <TNRef RefId="19" />
+                <DCT />
+              </Obj>
+              <Ref N="ExportedDscResources" RefId="45" />
+              <Nil N="SessionState" />
+              <Nil N="OnRemove" />
+              <Obj N="ExportedFormatFiles" RefId="364">
+                <TNRef RefId="20" />
+                <LST />
+              </Obj>
+              <Obj N="ExportedTypeFiles" RefId="365">
+                <TNRef RefId="20" />
+                <LST />
+              </Obj>
+            </Props>
+          </Obj>
+        </LST>
+      </Obj>
+      <S N="RootModule">Sampler.psm1</S>
+      <Obj N="ExportedVariables" RefId="366">
+        <TNRef RefId="18" />
+        <DCT />
+      </Obj>
+      <Obj N="ExportedAliases" RefId="367">
+        <TNRef RefId="19" />
+        <DCT />
+      </Obj>
+      <Ref N="ExportedDscResources" RefId="45" />
+      <Nil N="SessionState" />
+      <Nil N="OnRemove" />
+      <Obj N="ExportedFormatFiles" RefId="368">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+      <Obj N="ExportedTypeFiles" RefId="369">
+        <TNRef RefId="20" />
+        <LST />
+      </Obj>
+    </Props>
+  </Obj>
+</Objs>

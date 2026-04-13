@@ -2,8 +2,13 @@
     //-------- Files configuration --------
     // When enabled, will trim trailing whitespace when you save a file.
     "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    // -------- Search configuration --------
+    // Exclude the Output folder from search results.
     "search.exclude": {
-        "Release": true
+        "Output/**": true
     },
     //-------- PowerShell Configuration --------
     // Use a custom PowerShell Script Analyzer settings file for this workspace.
@@ -11,5 +16,6 @@
     "powershell.scriptAnalysis.settingsPath": "ScriptAnalyzerSettings.psd1",
     //----------Code Formatting ----------------
     "powershell.codeFormatting.preset": "OTBS",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "powershell.scriptAnalysis.enable": true
 }
