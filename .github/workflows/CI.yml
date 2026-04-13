@@ -1,0 +1,55 @@
+name: CI
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Plaster/**'
+      - 'Tests/**'
+      - 'build.ps1'
+      - 'psakeFile.ps1'
+      - 'requirements.psd1'
+  pull_request:
+    paths:
+      - 'Plaster/**'
+      - 'Tests/**'
+      - 'build.ps1'
+      - 'psakeFile.ps1'
+      - 'requirements.psd1'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        shell: pwsh
+        run: ./build.ps1 -Task Test -Bootstrap
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testResults-${{ matrix.os }}
+          path: ./tests/out/testResults.xml
+
+  publish-test-results:
+    name: Publish Test Results
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: artifacts/**/*.xml

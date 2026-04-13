@@ -1,24 +1,18 @@
 name: Publish Module
+permissions:
+  contents: read
 on:
-  # Only on workflow dispatch, so that we can control when to publish.
+  # Manual-dispatch only, so releases are deliberate.
   workflow_dispatch:
+
 jobs:
-  build:
-    runs-on: windows-latest
+  publish:
+    name: Publish to PSGallery
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: ⚡ ModuleFast with Specification
-        uses: JustinGrote/ModuleFast-action@v0.0.1
-        with:
-          specification: |
-            BuildHelpers
-            PowerShellBuild
-            psake
-            PSScriptAnalyzer
-            platyPS
-      - name: Build and publish
+      - uses: actions/checkout@v4
+      - name: Build and Publish
+        shell: pwsh
         env:
           PSGALLERY_API_KEY: ${{ secrets.GALLERY_KEY }}
-        shell: pwsh
-        run: |
-          ./build.ps1 -Task Publish -Bootstrap
+        run: ./build.ps1 -Task Publish -Bootstrap
