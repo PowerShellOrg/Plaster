@@ -21,4 +21,4 @@ jobs:
           PSGALLERY_API_KEY: ${{ secrets.GALLERY_KEY }}
         shell: pwsh
         run: |
-          ./build.ps1 -Task Publish
+          ./build.ps1 -Task Publish -Bootstrap
