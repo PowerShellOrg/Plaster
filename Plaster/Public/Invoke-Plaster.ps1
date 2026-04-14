@@ -165,17 +165,10 @@ function Invoke-Plaster {
 
     begin {
         # Enhanced logo with JSON support indicator
-        $plasterLogo = @'
-  ____  _           _                ____     ___
- |  _ \| | __ _ ___| |_ ___ _ __    |___ \   / _ \
- | |_) | |/ _` / __| __/ _ \ '__|     __) | | | | |
- |  __/| | (_| \__ \ ||  __/ |       / __/|_| |_| |
- |_|   |_|\__,_|___/\__\___|_|      |_____|_|\___/
-'@
 
         if (!$NoLogo) {
             $versionString = "v$PlasterVersion (JSON Enhanced)"
-            Write-Host $plasterLogo -ForegroundColor Blue
+            Show-Logo
             Write-Host ((" " * (50 - $versionString.Length)) + $versionString) -ForegroundColor Cyan
             Write-Host ("=" * 50) -ForegroundColor Blue
         }

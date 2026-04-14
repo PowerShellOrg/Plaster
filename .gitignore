@@ -4,3 +4,4 @@ Output/
 examples/Out/*
 tests/Out/*.xml
 tests/TemplateRootTemp/*
+.DS_Store
