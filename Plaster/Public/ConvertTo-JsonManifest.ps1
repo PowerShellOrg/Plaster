@@ -1,4 +1,41 @@
 function ConvertTo-JsonManifest {
+    <#
+    .SYNOPSIS
+        Converts a Plaster XML manifest to JSON format.
+
+    .DESCRIPTION
+        Converts an XML-format Plaster manifest (plasterManifest.xml) to the JSON format
+        (plasterManifest.json) used by Plaster 2.0. Accepts an XmlDocument from
+        Test-PlasterManifest via the pipeline or the -XmlManifest parameter and returns
+        the resulting JSON as a string.
+
+    .PARAMETER XmlManifest
+        The parsed XML manifest to convert. Use Test-PlasterManifest to load and validate
+        a plasterManifest.xml file before passing it to this function.
+
+    .PARAMETER Compress
+        Omits white space and indented formatting in the output JSON string.
+
+    .EXAMPLE
+        $xml = Test-PlasterManifest -Path .\plasterManifest.xml
+        ConvertTo-JsonManifest -XmlManifest $xml | Set-Content .\plasterManifest.json
+
+        Converts plasterManifest.xml and writes the result to plasterManifest.json.
+
+    .EXAMPLE
+        Test-PlasterManifest -Path .\plasterManifest.xml | ConvertTo-JsonManifest | Set-Content .\plasterManifest.json
+
+        Pipes the validated manifest directly into ConvertTo-JsonManifest.
+
+    .INPUTS
+        System.Xml.XmlDocument
+
+    .OUTPUTS
+        System.String
+
+    .LINK
+        Test-PlasterManifest
+    #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
