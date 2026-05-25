@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+## [2.1.0] - 2026-05-25
+
+### Added
+
+- `ConvertTo-JsonManifest` exported as a public function, enabling
+  XML-to-JSON manifest conversion as documented
+  ([#453](https://github.com/PowerShellOrg/Plaster/issues/453))
+- Comment-based help for `ConvertTo-JsonManifest` with full parameter
+  docs and examples; PlatyPS Markdown stub populated
+- Pester test suite for `ConvertTo-JsonManifest` covering output
+  format, metadata mapping, parameters, and content action types
+- PX2PS true color logo replaces ASCII art in `Invoke-Plaster`
+  ([#452](https://github.com/PowerShellOrg/Plaster/pull/452))
+
+### Fixed
+
+- `ConvertTo-JsonManifest` threw `ParameterBindingException` on every
+  call — `$jsonObject` was bound via both pipeline and `-InputObject`
+  in the splatted hashtable
+- `ConvertTo-JsonManifest` `-Compress` switch had inverted logic;
+  output was never compacted when the switch was specified
+- README and example docs referenced non-existent `-InputObject` and
+  `-OutputPath` parameters on `ConvertTo-JsonManifest`
+
+### Changed
+
+- Build dependency psake bumped from 4.9.1 to 5.0.0
+  ([#451](https://github.com/PowerShellOrg/Plaster/pull/451))
+- CI/publish workflows simplified; `build.ps1 -Bootstrap` is now the
+  single source of truth for dependencies
+  ([#450](https://github.com/PowerShellOrg/Plaster/pull/450))
+
 ## [2.0.0-alpha1] 2026-02-12
 
 ### Fixed

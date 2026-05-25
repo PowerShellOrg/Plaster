@@ -6,7 +6,7 @@
     GUID = 'cfce3c5e-402f-412a-a83a-7b7ee9832ff4'
 
     # Version number of this module.
-    ModuleVersion = '2.0.0'
+    ModuleVersion = '2.1.0'
 
     # Supported PSEditions
     CompatiblePSEditions = @('Desktop', 'Core')
