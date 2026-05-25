@@ -164,12 +164,11 @@ function ConvertTo-JsonManifest {
 
             # Convert to JSON
             $jsonParams = @{
-                InputObject = $jsonObject
                 Depth = 10
             }
 
-            if (-not $Compress) {
-                $jsonParams['Compress'] = $false
+            if ($Compress) {
+                $jsonParams['Compress'] = $true
             }
 
             $jsonResult = $jsonObject | ConvertTo-Json @jsonParams
