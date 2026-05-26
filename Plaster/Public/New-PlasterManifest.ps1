@@ -125,8 +125,8 @@ function New-PlasterManifest {
 
                     $fileAction = [ordered]@{
                         'type'        = 'file'
-                        'source'      = $filename
-                        'destination' = $filename
+                        'source'      = $filename.Replace('\', '/')
+                        'destination' = $filename.Replace('\', '/')
                     }
                     $jsonManifest.content += $fileAction
                 }
@@ -162,11 +162,11 @@ function New-PlasterManifest {
                     $fileElem = $manifest.CreateElement('file', $TargetNamespace)
 
                     $srcAttr = $manifest.CreateAttribute("source")
-                    $srcAttr.Value = $filename
+                    $srcAttr.Value = $filename.Replace('\', '/')
                     $fileElem.Attributes.Append($srcAttr) > $null
 
                     $dstAttr = $manifest.CreateAttribute("destination")
-                    $dstAttr.Value = $filename
+                    $dstAttr.Value = $filename.Replace('\', '/')
                     $fileElem.Attributes.Append($dstAttr) > $null
 
                     $manifest.plasterManifest["content"].AppendChild($fileElem) > $null
