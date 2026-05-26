@@ -19,7 +19,7 @@ Describe 'Get-PlasterManifestPathForCulture' {
   Context "when given a template path and culture" {
     InModuleScope $env:BHProjectName {
       It "returns the manifest for the specified culture" {
-        $culture = Get-Culture -name "en-US"
+        $culture = New-Object System.Globalization.CultureInfo("en-US")
         $plasterManifestFilename = "plasterManifest_en-US.xml"
         Mock -CommandName 'Test-Path' -MockWith { $true } -ParameterFilter { $Path -like "*$($script:examplesPath)" }
         $manifestPath = Get-PlasterManifestPathForCulture -TemplatePath $script:examplesPath -Culture $culture
