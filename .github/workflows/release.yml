@@ -1,0 +1,13 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  release:
+    uses: PowerShellOrg/.github/.github/workflows/powershell-release.yml@main
+    with:
+      module-name: Plaster
+    secrets:
+      PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
