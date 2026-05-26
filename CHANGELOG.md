@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-05-25
+
+### Fixed
+
+- `Import-Module Plaster` fails on PowerShell 7.4 with "not a valid
+  PowerShell module manifest file" error — the module called
+  `Test-ModuleManifest` on its own manifest during initialization,
+  causing a re-entrant validation loop that PS 7.4's stricter guards
+  reject. Replaced with `$MyInvocation.MyCommand.Module.Version`
+  ([#454](https://github.com/PowerShellOrg/Plaster/issues/454))
+
 ## [2.1.0] - 2026-05-25
 
 ### Added
