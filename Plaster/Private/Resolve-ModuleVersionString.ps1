@@ -36,17 +36,9 @@ function Resolve-ModuleVersionString {
         $VersionString = "$VersionString.0"
     }
 
-    if ($PSVersionTable.PSEdition -eq "Core") {
-        $newObjectSplat = @{
-            TypeName = "System.Management.Automation.SemanticVersion"
-            ArgumentList = $VersionString
-        }
-        return New-Object @newObjectSplat
-    } else {
-        $newObjectSplat = @{
-            TypeName = "System.Version"
-            ArgumentList = $VersionString
-        }
-        return New-Object @newObjectSplat
+    $newObjectSplat = @{
+        TypeName = "System.Management.Automation.SemanticVersion"
+        ArgumentList = $VersionString
     }
+    return New-Object @newObjectSplat
 }
