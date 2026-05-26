@@ -178,15 +178,23 @@ function New-PlasterManifest {
             $xmlWriterSettings.Indent = $true
             $xmlWriterSettings.NewLineOnAttributes = $true
 
+            $wroteFile = $false
             try {
                 if ($PSCmdlet.ShouldProcess($resolvedPath, $LocalizedData.ShouldCreateNewPlasterManifest)) {
                     $xmlWriter = [System.Xml.XmlWriter]::Create($resolvedPath, $xmlWriterSettings)
                     $manifest.Save($xmlWriter)
+                    $wroteFile = $true
                 }
             } finally {
                 if ($xmlWriter) {
                     $xmlWriter.Dispose()
                 }
+            }
+
+            if ($wroteFile) {
+                $content = Get-Content -Path $resolvedPath -Raw
+                $content = $content -replace '(?m)(\s+\S+="[^"]*")\s+(xmlns=)', "`$1`n  `$2"
+                Set-Content -Path $resolvedPath -Value $content -NoNewline
             }
         }
     }
