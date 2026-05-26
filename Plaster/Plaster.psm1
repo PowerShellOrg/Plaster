@@ -77,7 +77,7 @@ try {
 
 # Module variables with proper scoping and type safety
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-$PlasterVersion = (Test-ModuleManifest -Path (Join-Path $PSScriptRoot 'Plaster.psd1')).Version
+$PlasterVersion = $MyInvocation.MyCommand.Module.Version
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
 $JsonSchemaPath = Join-Path $PSScriptRoot "Schema\plaster-manifest-v2.json"
