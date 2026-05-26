@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-05-26
+
+### Changed
+
+- CI workflows migrated to PowerShellOrg reusable CI and release
+  workflows ([#457](https://github.com/PowerShellOrg/Plaster/pull/457))
+
+### Fixed
+
+- `AddContent` path separators normalised to forward slash on PS5.1 —
+  `Get-ChildItem -Name` returns backslash-separated paths on Windows
+  PS5.1, causing cross-platform inconsistencies in source/destination
+  attributes
+- `Resolve-ModuleVersionString` returned `[System.Version]` on PS5.1
+  because `[System.Management.Automation.SemanticVersion]` is PS6+
+  only; adds a C# shim that defines the type at module load time
+  ([#463](https://github.com/PowerShellOrg/Plaster/pull/463),
+  closes [#460](https://github.com/PowerShellOrg/Plaster/issues/460))
+- `New-PlasterManifest` emitted `xmlns` inline on PS5.1 — .NET XML
+  serializer ignores `XmlWriterSettings.NewLineOnAttributes` for
+  namespace declarations; output is post-processed to normalise
+  formatting
+  ([#464](https://github.com/PowerShellOrg/Plaster/pull/464),
+  closes [#461](https://github.com/PowerShellOrg/Plaster/issues/461))
+- `Get-Culture -Name` is PS6+ only; replaced with
+  `New-Object System.Globalization.CultureInfo` in tests
+  ([#462](https://github.com/PowerShellOrg/Plaster/pull/462),
+  closes [#459](https://github.com/PowerShellOrg/Plaster/issues/459))
+
 ## [2.1.1] - 2026-05-25
 
 ### Fixed
