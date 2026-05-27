@@ -55,7 +55,7 @@ Import-Module .\Plaster\Plaster\Plaster.psd1
 Get-PlasterTemplate
 
 # Create a new PowerShell module (interactive)
-$template = Get-PlasterTemplate | Where-Object Name -eq NewPowerShellModule
+$template = Get-PlasterTemplate | Where-Object Name -eq NewPowerShellScriptModule
 Invoke-Plaster -TemplatePath $template.TemplatePath -DestinationPath .\MyNewModule
 
 # Non-interactive with parameters
