@@ -37,7 +37,7 @@ jobs:
       version: ${{ inputs.version || '' }}
       force: ${{ inputs.force || false }}
       dry_run: ${{ inputs.dry_run || false }}
-      create_release: ${{ inputs.create_release != false }}
-      publish: ${{ inputs.publish != false }}
+      create_release: ${{ github.event_name != 'workflow_dispatch' || inputs.create_release }}
+      publish: ${{ github.event_name != 'workflow_dispatch' || inputs.publish }}
     secrets:
       PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
