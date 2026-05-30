@@ -3,11 +3,29 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to publish. Leave empty to use the version in the module manifest."
+        required: false
+        type: string
+      force:
+        description: "If true, bypass the PSGallery version existence check. Use when re-triggering a failed publish job (pattern: force=true, create_release=false, publish=true)."
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "If true, skip actual publishing and just validate the workflow logic."
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   release:
     uses: PowerShellOrg/.github/.github/workflows/powershell-release.yml@main
     with:
       module-name: Plaster
+      version: ${{ inputs.version || '' }}
+      force: ${{ inputs.force || false }}
+      dry_run: ${{ inputs.dry_run || false }}
     secrets:
       PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
