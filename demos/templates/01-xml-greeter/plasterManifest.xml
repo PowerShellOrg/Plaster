@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1"
+                 schemaVersion="1.1"
+                 templateType="Item">
+  <metadata>
+    <name>XmlGreeter</name>
+    <id>9f3b1c20-0001-4a10-9aaa-111111111111</id>
+    <version>1.0.0</version>
+    <title>Greeter Script (XML format)</title>
+    <description>Classic XML manifest. Scaffolds a small greeter script.</description>
+    <author>Contoso Demo Team</author>
+    <tags>Demo, Script, XML</tags>
+  </metadata>
+  <parameters>
+    <parameter name="ScriptName" type="text" prompt="Name of the script" default="Greet-World" />
+    <parameter name="Greeting"   type="choice" prompt="Pick a greeting" default="0">
+      <choice label="&amp;Hello"   value="Hello"   help="Friendly" />
+      <choice label="&amp;Howdy"   value="Howdy"   help="Casual" />
+      <choice label="&amp;Salutations" value="Salutations" help="Formal" />
+    </parameter>
+  </parameters>
+  <content>
+    <templateFile source="greeter.ps1" destination="${PLASTER_PARAM_ScriptName}.ps1" />
+    <message>&#10;Created '${PLASTER_PARAM_ScriptName}.ps1' that says '${PLASTER_PARAM_Greeting}'.</message>
+  </content>
+</plasterManifest>

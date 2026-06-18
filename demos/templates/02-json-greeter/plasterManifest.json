@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+  "schemaVersion": "2.0",
+  "metadata": {
+    "name": "JsonGreeter",
+    "id": "9f3b1c20-0002-4a10-9aaa-222222222222",
+    "version": "1.0.0",
+    "title": "Greeter Script (JSON format)",
+    "description": "Same template as the XML demo, in the modern JSON format.",
+    "author": "Contoso Demo Team",
+    "tags": ["Demo", "Script", "JSON"],
+    "templateType": "Item"
+  },
+  "parameters": [
+    { "name": "ScriptName", "type": "text", "prompt": "Name of the script", "default": "Greet-World" },
+    {
+      "name": "Greeting",
+      "type": "choice",
+      "prompt": "Pick a greeting",
+      "default": 0,
+      "choices": [
+        { "label": "&Hello",       "value": "Hello",       "help": "Friendly" },
+        { "label": "&Howdy",       "value": "Howdy",       "help": "Casual" },
+        { "label": "&Salutations", "value": "Salutations", "help": "Formal" }
+      ]
+    }
+  ],
+  "content": [
+    { "type": "templateFile", "source": "greeter.ps1", "destination": "${ScriptName}.ps1" },
+    { "type": "message", "text": "\nCreated '${ScriptName}.ps1' that says '${Greeting}'." }
+  ]
+}

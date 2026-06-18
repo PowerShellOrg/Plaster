@@ -35,7 +35,17 @@ function New-TemplateObjectFromManifest {
     )
 
     try{
-        $manifestXml = Test-PlasterManifest -Path $ManifestPath
+        $manifestResult = Test-PlasterManifest -Path $ManifestPath
+        # Test-PlasterManifest may return an array if extra output leaks through;
+        # extract the XmlDocument from the result.
+        $manifestXml = if ($manifestResult -is [System.Xml.XmlDocument]) {
+            $manifestResult
+        } else {
+            $manifestResult | Where-Object { $_ -is [System.Xml.XmlDocument] } | Select-Object -First 1
+        }
+        if ($null -eq $manifestXml) {
+            throw "Failed to load manifest from '$ManifestPath'"
+        }
         $metadata = $manifestXml["plasterManifest"]["metadata"]
 
         $manifestObj = [PSCustomObject]@{

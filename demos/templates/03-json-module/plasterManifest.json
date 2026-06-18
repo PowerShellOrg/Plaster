@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+  "schemaVersion": "2.0",
+  "metadata": {
+    "name": "AcmeModule",
+    "id": "9f3b1c20-0003-4a10-9aaa-333333333333",
+    "version": "1.0.0",
+    "title": "Acme PowerShell Module (JSON, full-featured)",
+    "description": "Showcases multichoice, pattern validation, conditional content, newModuleManifest and modify.",
+    "author": "Contoso Demo Team",
+    "tags": ["Demo", "Module", "JSON"],
+    "templateType": "Project"
+  },
+  "parameters": [
+    {
+      "name": "ModuleName",
+      "type": "text",
+      "prompt": "Module name (letters, numbers, underscore)",
+      "default": "AcmeWidget",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    {
+      "name": "Author",
+      "type": "user-fullname",
+      "prompt": "Author name"
+    },
+    {
+      "name": "License",
+      "type": "choice",
+      "prompt": "Choose a license",
+      "default": 0,
+      "choices": [
+        { "label": "&MIT",        "value": "MIT" },
+        { "label": "&Apache 2.0", "value": "Apache" },
+        { "label": "&None",       "value": "None" }
+      ]
+    },
+    {
+      "name": "Features",
+      "type": "multichoice",
+      "prompt": "Select optional features",
+      "default": [0, 1],
+      "choices": [
+        { "label": "&Pester tests", "value": "Pester", "help": "Add a Pester test scaffold" },
+        { "label": "&Build script", "value": "Build",  "help": "Add a build.ps1" },
+        { "label": "&Git ignore",   "value": "Git",    "help": "Add a .gitignore" }
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "newModuleManifest",
+      "destination": "${ModuleName}/${ModuleName}.psd1",
+      "moduleVersion": "0.1.0",
+      "rootModule": "${ModuleName}.psm1",
+      "author": "${Author}",
+      "description": "The ${ModuleName} module."
+    },
+    {
+      "type": "templateFile",
+      "source": "module.psm1",
+      "destination": "${ModuleName}/${ModuleName}.psm1"
+    },
+    {
+      "type": "templateFile",
+      "source": "readme.md",
+      "destination": "${ModuleName}/README.md"
+    },
+    {
+      "type": "templateFile",
+      "source": "tests.ps1",
+      "destination": "${ModuleName}/tests/${ModuleName}.Tests.ps1",
+      "condition": "$PLASTER_PARAM_Features -contains 'Pester'"
+    },
+    {
+      "type": "templateFile",
+      "source": "build.ps1",
+      "destination": "${ModuleName}/build.ps1",
+      "condition": "$PLASTER_PARAM_Features -contains 'Build'"
+    },
+    {
+      "type": "file",
+      "source": "gitignore.txt",
+      "destination": "${ModuleName}/.gitignore",
+      "condition": "$PLASTER_PARAM_Features -contains 'Git'"
+    },
+    {
+      "type": "modify",
+      "path": "${ModuleName}/README.md",
+      "modifications": [
+        { "type": "replace", "search": "__LICENSE__", "replace": "${License}" }
+      ]
+    },
+    {
+      "type": "message",
+      "text": "\nModule '${ModuleName}' scaffolded with license '${License}'."
+    }
+  ]
+}
