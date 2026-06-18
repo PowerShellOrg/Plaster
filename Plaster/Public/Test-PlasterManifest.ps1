@@ -16,6 +16,13 @@ function Test-PlasterManifest {
     begin {
         $schemaPath = [System.IO.Path]::Combine($PSScriptRoot, "Schema", "PlasterManifest-v1.xsd")
 
+        # When running from source, this function is dot-sourced from Public/, so
+        # $PSScriptRoot points at Public/ and Schema/ lives one level up. The compiled
+        # build flattens everything to the module root, where the first path is correct.
+        if (-not (Test-Path -LiteralPath $schemaPath)) {
+            $schemaPath = [System.IO.Path]::Combine((Split-Path $PSScriptRoot -Parent), "Schema", "PlasterManifest-v1.xsd")
+        }
+
         # Schema validation is not available on .NET Core - at the moment.
         if ('System.Xml.Schema.XmlSchemaSet' -as [type]) {
             $xmlSchemaSet = New-Object System.Xml.Schema.XmlSchemaSet

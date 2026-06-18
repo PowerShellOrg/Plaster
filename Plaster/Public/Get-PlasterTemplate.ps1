@@ -80,9 +80,16 @@ function Get-PlasterTemplate {
                 Get-ManifestsUnderPath @getManifestsUnderPathSplat
             }
         } else {
-            # Return all templates included with Plaster
+            # Return all templates included with Plaster.
+            # When running from source this function is dot-sourced from Public/, so
+            # $PSScriptRoot points at Public/ and Templates/ lives one level up. The
+            # compiled build flattens everything to the module root, where the first path is correct.
+            $templatesRoot = Join-Path $PSScriptRoot 'Templates'
+            if (-not (Test-Path -LiteralPath $templatesRoot)) {
+                $templatesRoot = Join-Path (Split-Path $PSScriptRoot -Parent) 'Templates'
+            }
             $getManifestsUnderPathSplat = @{
-                RootPath = "$PSScriptRoot\Templates"
+                RootPath = $templatesRoot
                 Recurse = $true
                 Name = $Name
                 Tag = $Tag
