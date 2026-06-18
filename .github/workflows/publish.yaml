@@ -1,34 +1,32 @@
 name: Publish Module
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to publish. Leave empty to use the version in the module manifest."
+        required: false
+        type: string
+      isPrerelease:
+        description: "Is this a prerelease version?"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "If true, skip actual publishing and just validate the workflow logic."
+        required: false
+        type: boolean
+        default: false
+permissions:
+  contents: write
 jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install and cache PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v5.1
-        with:
-          modules-to-cache: BuildHelpers, PowerShellBuild, psake, PSScriptAnalyzer, platyPS
-      - shell: pwsh
-        # Give an id to the step, so we can reference it later
-        id: check_if_versions_bumped
-        run: |
-          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name Plaster -ErrorAction Stop
-          [version]$GithubVersion = Get-MetaData -Path ./Plaster/Plaster.psd1 -PropertyName ModuleVersion -ErrorAction Stop
-          $bumped = $GithubVersion -ge $GalleryVersion
-
-          # Set the output named "version_bumped"
-          Write-Host "::set-output name=version_bumped::$bumped"
-
-      # Only publish (from master) if versions
-      - name: Build and publish
-        if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
-        env:
-          PSGALLERY_API_KEY: ${{ secrets.GALLERY_KEY }}
-        shell: pwsh
-        run: |
-          ./build.ps1 -Task Publish
+  publish:
+    name: Publish Module
+    uses: PowerShellOrg/.github/.github/workflows/powershell-release.yml@main
+    with:
+      version: ${{ inputs.version || '' }}
+      isPrerelease: ${{ inputs.isPrerelease || false }}
+      dry_run: ${{ inputs.dry_run || false }}
+    secrets: inherit

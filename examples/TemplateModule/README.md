@@ -107,7 +107,7 @@ Plaster 2.0 includes automatic conversion capabilities:
 $xmlPath = ".\plasterManifest.xml"
 $jsonPath = ".\plasterManifest.json"
 $manifest = Test-PlasterManifest -Path $xmlPath
-ConvertTo-JsonManifest -InputObject $manifest -OutputPath $jsonPath
+ConvertTo-JsonManifest -XmlManifest $manifest | Set-Content $jsonPath
 ```
 
 ## Template Discovery

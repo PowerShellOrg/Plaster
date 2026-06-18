@@ -55,7 +55,7 @@ Import-Module .\Plaster\Plaster\Plaster.psd1
 Get-PlasterTemplate
 
 # Create a new PowerShell module (interactive)
-$template = Get-PlasterTemplate | Where-Object Name -eq NewPowerShellModule
+$template = Get-PlasterTemplate | Where-Object Name -eq NewPowerShellScriptModule
 Invoke-Plaster -TemplatePath $template.TemplatePath -DestinationPath .\MyNewModule
 
 # Non-interactive with parameters
@@ -152,12 +152,12 @@ Define what the template does:
 
 ### Converting XML to JSON
 ```powershell
-# Automatic conversion
+# Convert an XML manifest to JSON
 $xmlManifest = Test-PlasterManifest -Path .\plasterManifest.xml
-ConvertTo-JsonManifest -InputObject $xmlManifest -OutputPath .\plasterManifest.json
+ConvertTo-JsonManifest -XmlManifest $xmlManifest | Set-Content .\plasterManifest.json
 
-# Or use New-PlasterManifest with conversion
-New-PlasterManifest -TemplateName MyTemplate -TemplateType Project -ConvertFromXml
+# Or pipe directly
+Test-PlasterManifest -Path .\plasterManifest.xml | ConvertTo-JsonManifest | Set-Content .\plasterManifest.json
 ```
 
 ### Variable Syntax Updates

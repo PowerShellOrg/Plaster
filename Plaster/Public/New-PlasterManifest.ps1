@@ -125,8 +125,8 @@ function New-PlasterManifest {
 
                     $fileAction = [ordered]@{
                         'type'        = 'file'
-                        'source'      = $filename
-                        'destination' = $filename
+                        'source'      = $filename.Replace('\', '/')
+                        'destination' = $filename.Replace('\', '/')
                     }
                     $jsonManifest.content += $fileAction
                 }
@@ -162,11 +162,11 @@ function New-PlasterManifest {
                     $fileElem = $manifest.CreateElement('file', $TargetNamespace)
 
                     $srcAttr = $manifest.CreateAttribute("source")
-                    $srcAttr.Value = $filename
+                    $srcAttr.Value = $filename.Replace('\', '/')
                     $fileElem.Attributes.Append($srcAttr) > $null
 
                     $dstAttr = $manifest.CreateAttribute("destination")
-                    $dstAttr.Value = $filename
+                    $dstAttr.Value = $filename.Replace('\', '/')
                     $fileElem.Attributes.Append($dstAttr) > $null
 
                     $manifest.plasterManifest["content"].AppendChild($fileElem) > $null
@@ -178,15 +178,23 @@ function New-PlasterManifest {
             $xmlWriterSettings.Indent = $true
             $xmlWriterSettings.NewLineOnAttributes = $true
 
+            $wroteFile = $false
             try {
                 if ($PSCmdlet.ShouldProcess($resolvedPath, $LocalizedData.ShouldCreateNewPlasterManifest)) {
                     $xmlWriter = [System.Xml.XmlWriter]::Create($resolvedPath, $xmlWriterSettings)
                     $manifest.Save($xmlWriter)
+                    $wroteFile = $true
                 }
             } finally {
                 if ($xmlWriter) {
                     $xmlWriter.Dispose()
                 }
+            }
+
+            if ($wroteFile) {
+                $content = Get-Content -Path $resolvedPath -Raw
+                $content = $content -replace '(?m)(\s+\S+="[^"]*")\s+(xmlns=)', "`$1`n  `$2"
+                Set-Content -Path $resolvedPath -Value $content -NoNewline
             }
         }
     }

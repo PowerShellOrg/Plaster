@@ -1,0 +1,13 @@
+name: CI
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  checks: write
+  pull-requests: write
+  contents: read
+  issues: write
+jobs:
+  ci:
+    name: Continuous Integration
+    uses: PowerShellOrg/.github/.github/workflows/powershell-ci.yml@main

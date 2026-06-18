@@ -4,8 +4,10 @@ BeforeAll {
         . $path -Task Build
     }
     # NEW: Pre-Specify RegEx Matching Patterns
-    $gitTagMatchRegEx = 'tag:\s?.(\d+(\.\d+)*)' # NOTE - was 'tag:\s*(\d+(?:\.\d+)*)' previously
-    $changelogTagMatchRegEx = "^##\s\[(?<Version>(\d+\.){1,3}\d+)\]"
+    # Matches semantic versioning with optional pre-release and build metadata
+    # Examples: 1.0.0, 2.0.0-alpha, 2.0.0-alpha.1, 2.0.0+build.123
+    $gitTagMatchRegEx = 'tag:\s?.(\d+(?:\.\d+)*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?'
+    $changelogTagMatchRegEx = "^##\s\[(?<Version>(\d+\.){2}\d+)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?\]"
 
     $moduleName = $env:BHProjectName
     $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest

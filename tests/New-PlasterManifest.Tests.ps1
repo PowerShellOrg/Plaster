@@ -141,7 +141,7 @@ Describe 'New-PlasterManifest Command Tests' {
         }
 
         It 'AddContent parameter works' {
-            $separator = if ($IsWindows) { "\" } else { "/" }
+            $separator = "/"
             $expectedManifest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <plasterManifest

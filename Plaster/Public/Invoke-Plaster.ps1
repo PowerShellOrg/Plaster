@@ -1,15 +1,17 @@
+## TODO: Create tests to ensure check for these.
 ## DEVELOPERS NOTES & CONVENTIONS
 ##
 ##  1. All text displayed to the user except for Write-Debug (or $PSCmdlet.WriteDebug()) text must be added to the
 ##     string tables in:
-##         en-US\Plaster.Resources.psd1
+##         en-US\Plaster.psd1
 ##         Plaster.psm1
-##  2. If a new manifest element is added, it must be added to the Schema (PlasterManifest-v1.xsd for XML,
-##     plaster-manifest-v2.json for JSON) and then processed in the appropriate function in this script.
-##     Any changes to <parameter> attributes must be processed not only in the Resolve-ProcessParameter
-##     function but also in the dynamicparam function.
+##  2. If a new manifest element is added, it must be added to the Schema\PlasterManifest-v1.xsd file and then
+##     processed in the appropriate function in this script.  Any changes to <parameter> attributes must be
+##     processed not only in the Resolve-ProcessParameter function but also in the dynamicparam function.
+##
 ##  3. Non-exported functions should avoid using the PowerShell standard Verb-Noun naming convention.
 ##     They should use PascalCase instead.
+##
 ##  4. Please follow the scripting style of this file when adding new script.
 
 function Invoke-Plaster {
@@ -163,17 +165,10 @@ function Invoke-Plaster {
 
     begin {
         # Enhanced logo with JSON support indicator
-        $plasterLogo = @'
-  ____  _           _              ____   ___
- |  _ \| | __ _ ___| |_ ___ _ __   |___ \ / _ \
- | |_) | |/ _` / __| __/ _ \ '__|    __) | | | |
- |  __/| | (_| \__ \ ||  __/ |      / /| |_| | /
- |_|   |_|\__,_|___/\__\___|_|     |____|\___/
-'@
 
         if (!$NoLogo) {
-            $versionString = "v$PlasterVersion"
-            Write-Host $plasterLogo -ForegroundColor Blue
+            $versionString = "v$PlasterVersion (JSON Enhanced)"
+            Show-Logo
             Write-Host ((" " * (50 - $versionString.Length)) + $versionString) -ForegroundColor Cyan
             Write-Host ("=" * 50) -ForegroundColor Blue
         }
