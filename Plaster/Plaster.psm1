@@ -177,7 +177,7 @@ Export-ModuleMember -Variable @('TargetNamespace', 'DefaultEncoding', 'JsonSchem
 
 # Module cleanup on removal
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
-    Write-PlasterLog -Level Information -Message "Plaster module is being removed"
+    Write-PlasterLog -Level Verbose -Message "Plaster module is being removed"
 
     # Clean up any module-scoped variables or resources
     Remove-Variable -Name 'PlasterVersion' -Scope Script -ErrorAction SilentlyContinue
@@ -188,4 +188,4 @@ $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
 }
 
 # Module initialization complete
-Write-PlasterLog -Level Information -Message "Plaster v$PlasterVersion module loaded successfully (PowerShell $($PSVersionTable.PSVersion))"
+Write-PlasterLog -Level Verbose -Message "Plaster v$PlasterVersion module loaded successfully (PowerShell $($PSVersionTable.PSVersion))"
