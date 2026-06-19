@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-06-18
+
+### Fixed
+
+- `Import-Module Plaster` printed `Plaster vX.Y.Z module loaded
+  successfully` on every import — the message was logged at
+  `Information` level with `-InformationAction Continue`, so it
+  displayed regardless of `$env:PLASTER_LOG_LEVEL`. Demoted it (and the
+  symmetric "module is being removed" message) to `Verbose` so they are
+  silent by default and surface only when `PLASTER_LOG_LEVEL=Verbose`
+  ([#470](https://github.com/PowerShellOrg/Plaster/pull/470),
+  closes [#458](https://github.com/PowerShellOrg/Plaster/issues/458))
+
 ## [2.1.2] - 2026-05-26
 
 ### Changed
