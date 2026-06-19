@@ -22,11 +22,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [2.1.2] - 2026-05-26
 
-### Changed
-
-- CI workflows migrated to PowerShellOrg reusable CI and release
-  workflows ([#457](https://github.com/PowerShellOrg/Plaster/pull/457))
-
 ### Fixed
 
 - `AddContent` path separators normalised to forward slash on PS5.1 —
