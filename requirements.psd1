@@ -1,6 +1,6 @@
 @{
   PSDepend = @{
-    Version = '0.3.8'
+    Version = '0.4.1'
   }
   PSDependOptions = @{
     Target = 'CurrentUser'
