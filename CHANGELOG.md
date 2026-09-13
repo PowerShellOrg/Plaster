@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.4] - 2026-09-13
+
+### Fixed
+
+- Explicit empty text defaults in JSON manifests now remain empty rather
+  than being treated as absent, while blank prompt input is accepted only
+  when a default is declared
+  ([#474](https://github.com/PowerShellOrg/Plaster/pull/474),
+  closes [#473](https://github.com/PowerShellOrg/Plaster/issues/473))
+- Pester 6.1.0 compatibility for mocks and empty `-ForEach` data sets
+  ([#475](https://github.com/PowerShellOrg/Plaster/pull/475))
+
 ## [2.1.3] - 2026-06-18
 
 ### Fixed
