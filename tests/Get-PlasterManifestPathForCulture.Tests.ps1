@@ -39,6 +39,7 @@ Describe 'Get-PlasterManifestPathForCulture' {
 
       It "falls back to invariant culture manifest if no specific match is found" {
         $culture = New-Object System.Globalization.CultureInfo("xx-XX")
+        Mock -CommandName 'Test-Path' -MockWith { $False }
         Mock -CommandName 'Test-Path' -MockWith { $False } -ParameterFilter { $Path -like "*en-US*" }
         Mock -CommandName 'Test-Path' -MockWith { $True } -ParameterFilter { $Path -like "*fr-FR*" }
         Mock -CommandName 'Test-Path' -MockWith { $True } -ParameterFilter { $Path -like "*plasterManifest.xml" }
