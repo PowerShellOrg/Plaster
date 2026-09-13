@@ -84,28 +84,18 @@ if ($Bootstrap) {
         ErrorAction = 'Stop'
     }
 
-    $importSucceeded = $false
-    try {
-        Invoke-PSDepend @psDependParameters
-        $importSucceeded = $true
-        Write-Verbose 'Successfully imported existing modules.' -Verbose
-    } catch {
-        Write-Verbose "Could not import all required modules: $_" -Verbose
-        Write-Verbose 'Attempting to install missing or outdated dependencies...' -Verbose
+    $psDependTestParameters = $psDependParameters.Clone()
+    $null = $psDependTestParameters.Remove('Import')
+    $psDependTestParameters['Test'] = $true
+    $psDependTestParameters['Quiet'] = $true
+
+    if (-not (Invoke-PSDepend @psDependTestParameters)) {
+        $psDependInstallParameters = $psDependParameters.Clone()
+        $null = $psDependInstallParameters.Remove('Import')
+        Invoke-PSDepend @psDependInstallParameters -Install
     }
 
-    if (-not $importSucceeded) {
-        try {
-            Invoke-PSDepend @psDependParameters -Install
-        } catch {
-            Write-Error "Failed to install and import required dependencies: $_"
-            Write-Error 'This may be due to locked module files. Please restart the build environment or clear module locks.'
-            if ($_.Exception.InnerException) {
-                Write-Error "Inner exception: $($_.Exception.InnerException.Message)"
-            }
-            throw
-        }
-    }
+    Invoke-PSDepend @psDependParameters
 } else {
     if (-not (Get-Module -Name 'PSDepend' -ListAvailable)) {
         throw 'Missing dependencies. Please run with the "-Bootstrap" flag to install dependencies.'
