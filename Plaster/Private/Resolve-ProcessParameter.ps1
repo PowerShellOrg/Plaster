@@ -76,7 +76,7 @@ function Resolve-ProcessParameter {
                     }
                 }
                 # Prompt the user for text input.
-                $value = Read-PromptForInput $prompt $default @splat
+                $value = Read-PromptForInput $prompt $default $pattern -AllowEmpty:$Node.HasAttribute('default')
                 $valueToStore = $value
             }
             'user-fullname' {

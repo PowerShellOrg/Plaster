@@ -71,7 +71,7 @@ function ConvertFrom-JsonManifest {
                         $paramElement.SetAttribute('prompt', $param.prompt)
                     }
 
-                    if ($param.default) {
+                    if ($param.PSObject.Properties.Match('default').Count -gt 0) {
                         if ($param.default -is [array]) {
                             $paramElement.SetAttribute('default', ($param.default -join ','))
                         } else {

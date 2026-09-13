@@ -3,7 +3,8 @@ function Read-PromptForInput {
     param(
         $prompt,
         $default,
-        $pattern
+        $pattern,
+        [switch]$AllowEmpty
     )
     if (!$pattern) {
         $patternMatch = $true
@@ -11,7 +12,7 @@ function Read-PromptForInput {
 
     do {
         $value = Read-Host -Prompt $prompt
-        if (!$value -and $default) {
+        if (!$value -and ($AllowEmpty -or $default)) {
             $value = $default
             $patternMatch = $true
         } elseif ($value -and $pattern) {
@@ -21,7 +22,7 @@ function Read-PromptForInput {
                 $PSCmdlet.WriteDebug("Value '$value' did not match the pattern '$pattern'")
             }
         }
-    } while (!$value -or !$patternMatch)
+    } while ((!$value -and !$AllowEmpty) -or !$patternMatch)
 
     $value
 }
