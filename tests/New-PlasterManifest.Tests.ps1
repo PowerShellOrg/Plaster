@@ -239,6 +239,7 @@ Describe 'New-PlasterManifest JSON Format Tests' {
 
             Test-Path $PlasterManifestPath | Should -Be $true
             $content = Get-Content $PlasterManifestPath -Raw | ConvertFrom-Json
+            $content.'$schema' | Should -Be 'https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json'
             $content.schemaVersion | Should -Be '2.0'
             $content.metadata.name | Should -Be 'JsonTemplate'
             $content.metadata.id | Should -Be '1a1b0933-78b2-4a3e-bf48-492591e69521'

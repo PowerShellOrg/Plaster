@@ -53,7 +53,7 @@ Describe 'ConvertTo-JsonManifest' {
 
         It 'Includes the $schema and schemaVersion fields' {
             $json = ConvertTo-JsonManifest -XmlManifest (New-XmlManifest) | ConvertFrom-Json
-            $json.'$schema' | Should -Not -BeNullOrEmpty
+            $json.'$schema' | Should -Be 'https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json'
             $json.schemaVersion | Should -Be '2.0'
         }
 

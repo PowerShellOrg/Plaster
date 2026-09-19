@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/PowerShell/Plaster/v2/schema/plaster-manifest-v2.json",
+    "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json",
     "schemaVersion": "2.0",
     "metadata": {
         "id": "38bd80d9-3a47-4916-9220-bed383d90876",

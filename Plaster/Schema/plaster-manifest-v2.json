@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+    "$id": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json",
     "title": "Plaster Template Manifest v2.0",
     "description": "JSON schema for Plaster 2.0 template manifests",
     "type": "object",

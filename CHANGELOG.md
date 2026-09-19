@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.5] - 2026-09-19
+
+### Fixed
+
+- `New-PlasterManifest` and JSON conversion paths emitted a `$schema` URL
+  that returned HTTP 404; updated all schema call sites and examples to
+  use the valid schema URL
+  ([#478](https://github.com/PowerShellOrg/Plaster/pull/478),
+  closes [#477](https://github.com/PowerShellOrg/Plaster/issues/477))
+
 ## [2.1.4] - 2026-09-13
 
 ### Fixed

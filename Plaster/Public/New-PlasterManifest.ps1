@@ -96,7 +96,7 @@ function New-PlasterManifest {
         if ($Format -eq 'JSON') {
             # Create JSON manifest
             $jsonManifest = [ordered]@{
-                '$schema'       = 'https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json'
+                '$schema'       = 'https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json'
                 'schemaVersion' = '2.0'
                 'metadata'      = [ordered]@{
                     'name'         = $TemplateName

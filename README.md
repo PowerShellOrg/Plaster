@@ -87,7 +87,7 @@ code plasterManifest.xml
 ### JSON Manifest Example
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/v2/schema/plaster-manifest-v2.json",
+  "$schema": "https://raw.githubusercontent.com/PowerShellOrg/Plaster/main/Plaster/Schema/plaster-manifest-v2.json",
   "schemaVersion": "2.0",
   "metadata": {
     "name": "MyTemplate",
